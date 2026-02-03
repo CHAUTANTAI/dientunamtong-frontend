@@ -3,14 +3,14 @@
  * Top header for admin layout
  */
 
-'use client';
+"use client";
 
-import { Layout, Button, Dropdown, Avatar } from 'antd';
-import { UserOutlined, LogoutOutlined } from '@ant-design/icons';
-import { useRouter } from 'next/navigation';
-import { useAuth } from '@/hooks/useAuth';
-import { ROUTES } from '@/constants/routes';
-import type { MenuProps } from 'antd';
+import { Layout, Button, Dropdown, Avatar, Image } from "antd";
+import { UserOutlined, LogoutOutlined } from "@ant-design/icons";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/hooks/useAuth";
+import { ROUTES } from "@/constants/routes";
+import type { MenuProps } from "antd";
 
 export const Header = () => {
   const router = useRouter();
@@ -21,20 +21,20 @@ export const Header = () => {
     router.push(ROUTES.LOGIN);
   };
 
-  const menuItems: MenuProps['items'] = [
+  const menuItems: MenuProps["items"] = [
     {
-      key: 'profile',
+      key: "profile",
       icon: <UserOutlined />,
-      label: 'Profile',
+      label: "Profile",
       disabled: true,
     },
     {
-      type: 'divider',
+      type: "divider",
     },
     {
-      key: 'logout',
+      key: "logout",
       icon: <LogoutOutlined />,
-      label: 'Logout',
+      label: "Logout",
       onClick: handleLogout,
       danger: true,
     },
@@ -43,25 +43,28 @@ export const Header = () => {
   return (
     <Layout.Header
       style={{
-        background: '#fff',
-        borderBottom: '1px solid #f0f0f0',
-        display: 'flex',
-        justifyContent: 'flex-end',
-        alignItems: 'center',
-        paddingRight: '24px',
-        position: 'sticky',
+        background: "#fff",
+        borderBottom: "1px solid #f0f0f0",
+        display: "flex",
+        justifyContent: "flex-end",
+        alignItems: "center",
+        paddingRight: "24px",
+        position: "sticky",
         top: 0,
         zIndex: 999,
       }}
     >
       {/* User Menu */}
       <Dropdown menu={{ items: menuItems }} placement="bottomRight">
-        <Button type="text" icon={<Avatar size="large" icon={<UserOutlined />} />}>
-          {user?.username && <span style={{ marginLeft: '8px' }}>{user.username}</span>}
+        <Button type="text">
+          {user?.company_name && (
+            <span style={{ marginRight: 8 }}>{user.company_name}</span>
+          )}
+          <Avatar size="large" src={user?.logo}/>
         </Button>
       </Dropdown>
     </Layout.Header>
   );
 };
 
-Header.displayName = 'Header';
+Header.displayName = "Header";

@@ -1,46 +1,35 @@
-/**
- * Breadcrumbs Component
- * Page breadcrumbs navigation
- */
+"use client";
 
-'use client';
+import { Breadcrumb } from "antd";
+import { HomeOutlined } from "@ant-design/icons";
+import { usePathname } from "next/navigation";
+import Link from "next/link";
+import { buildBreadcrumbs } from "@/utils/build-breadcrumbs";
+import { ROUTES } from "@/constants/routes";
 
-import { Breadcrumb } from 'antd';
-import { HomeOutlined } from '@ant-design/icons';
-import Link from 'next/link';
-import { ROUTES } from '@/constants/routes';
-
-interface BreadcrumbItem {
-  title: React.ReactNode;
-  href?: string;
-}
-
-interface BreadcrumbsProps {
-  items?: BreadcrumbItem[];
-}
-
-export const Breadcrumbs = ({ items }: BreadcrumbsProps) => {
-  // Generate breadcrumbs from pathname if items not provided
-  const defaultItems: BreadcrumbItem[] = [
-    { title: <HomeOutlined />, href: ROUTES.DASHBOARD },
-  ];
-
-  if (!items) {
-    items = defaultItems;
-  }
-
-  const breadcrumbItems = items.map((item) => ({
-    title: item.href ? <Link href={item.href}>{item.title}</Link> : item.title,
-  }));
+export const Breadcrumbs = () => {
+  const pathname = usePathname();
+  const items = buildBreadcrumbs(pathname);
 
   return (
     <Breadcrumb
-      items={breadcrumbItems}
-      style={{
-        marginBottom: '16px',
-      }}
+      items={[
+        {
+          title: (
+            <Link href={ROUTES.DASHBOARD}>
+              <HomeOutlined />
+            </Link>
+          ),
+        },
+        ...items.map((item) => ({
+          title: item.href ? (
+            <Link href={item.href}>{item.title}</Link>
+          ) : (
+            item.title
+          ),
+        })),
+      ]}
+      style={{ marginBottom: 16 }}
     />
   );
 };
-
-Breadcrumbs.displayName = 'Breadcrumbs';

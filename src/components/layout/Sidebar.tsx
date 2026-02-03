@@ -3,14 +3,14 @@
  * Left navigation sidebar for admin layout
  */
 
-'use client';
+"use client";
 
-import { Layout, Menu } from 'antd';
-import { MenuFoldOutlined, MenuUnfoldOutlined } from '@ant-design/icons';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { ADMIN_MENU_ITEMS } from '@/constants/menu';
-import type { MenuProps } from 'antd';
+import { Image, Layout, Menu } from "antd";
+import { MenuFoldOutlined, MenuUnfoldOutlined } from "@ant-design/icons";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { ADMIN_MENU_ITEMS } from "@/constants/menu";
+import type { MenuProps } from "antd";
 
 interface SidebarProps {
   collapsed?: boolean;
@@ -21,14 +21,19 @@ export const Sidebar = ({ collapsed = false, onToggle }: SidebarProps) => {
   const pathname = usePathname();
 
   // Convert menu items to format compatible with Ant Design Menu
-  const menuItems: MenuProps['items'] = ADMIN_MENU_ITEMS.map((item) => ({
+  const menuItems: MenuProps["items"] = ADMIN_MENU_ITEMS.map((item) => ({
     key: item.key,
-    label: item.href ? <Link href={item.href as string}>{item.label}</Link> : item.label,
+    label: item.href ? (
+      <Link href={item.href as string}>{item.label}</Link>
+    ) : (
+      item.label
+    ),
     icon: item.icon,
   }));
 
   // Determine selected menu key based on current pathname
-  const selectedKey = ADMIN_MENU_ITEMS.find((m) => m.href === pathname)?.key ?? 'dashboard';
+  const selectedKey =
+    ADMIN_MENU_ITEMS.find((m) => m.href === pathname)?.key ?? "dashboard";
 
   return (
     <Layout.Sider
@@ -38,9 +43,9 @@ export const Sidebar = ({ collapsed = false, onToggle }: SidebarProps) => {
       width={250}
       theme="light"
       style={{
-        overflow: 'auto',
-        height: '100vh',
-        position: 'sticky',
+        overflow: "auto",
+        height: "100vh",
+        position: "sticky",
         left: 0,
         top: 0,
       }}
@@ -48,18 +53,41 @@ export const Sidebar = ({ collapsed = false, onToggle }: SidebarProps) => {
       {/* Sidebar Toggle Button */}
       <div
         style={{
-          padding: '16px',
-          textAlign: 'center',
-          borderBottom: '1px solid #f0f0f0',
+          padding: "16px",
+          justifyContent: "space-between",
+          display: "flex",
+          borderBottom: "1px solid #f0f0f0",
+          color: "#000",
+          background: "#fff",
         }}
       >
+        <div>
+          <Image
+            src="https://png.pngtree.com/png-clipart/20250223/original/pngtree-a-cup-of-hot-black-coffee-png-image_20501541.png"
+            alt="LOGO"
+            width={32}
+            height={32}
+          />
+          <Image
+            src="https://png.pngtree.com/png-clipart/20250223/original/pngtree-a-cup-of-hot-black-coffee-png-image_20501541.png"
+            alt="LOGO"
+            width={32}
+            height={32}
+          />
+          <Image
+            src="https://png.pngtree.com/png-clipart/20250223/original/pngtree-a-cup-of-hot-black-coffee-png-image_20501541.png"
+            alt="LOGO"
+            width={32}
+            height={32}
+          />
+        </div>
         <button
           onClick={onToggle}
           style={{
-            background: 'none',
-            border: 'none',
-            cursor: 'pointer',
-            fontSize: '18px',
+            background: "none",
+            border: "none",
+            cursor: "pointer",
+            fontSize: "18px",
           }}
           aria-label="Toggle sidebar"
         >
@@ -68,9 +96,13 @@ export const Sidebar = ({ collapsed = false, onToggle }: SidebarProps) => {
       </div>
 
       {/* Menu */}
-      <Menu selectedKeys={[String(selectedKey)]} items={menuItems} mode="inline" />
+      <Menu
+        selectedKeys={[String(selectedKey)]}
+        items={menuItems}
+        mode="inline"
+      />
     </Layout.Sider>
   );
 };
 
-Sidebar.displayName = 'Sidebar';
+Sidebar.displayName = "Sidebar";

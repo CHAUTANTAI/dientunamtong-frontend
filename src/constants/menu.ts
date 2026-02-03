@@ -19,11 +19,19 @@ export const ADMIN_MENU_ITEMS: AdminMenuItem[] = [
     key: 'dashboard',
     label: 'Dashboard',
     href: ROUTES.DASHBOARD,
+  },  {
+    key: 'category',
+    label: 'Category',
+    href: ROUTES.CATEGORY,
   },
-  // Add more menu items as needed
-  // {
-  //   key: 'users',
-  //   label: 'Users',
-  //   href: ROUTES.USERS,
-  // },
+  {
+    key: 'product',
+    label: 'Product',
+    href: ROUTES.PRODUCT,
+  },
+  {
+    key: 'profile',
+    label: 'Profile',
+    href: ROUTES.PROFILE,
+  },
 ];

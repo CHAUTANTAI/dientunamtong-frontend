@@ -3,26 +3,26 @@
  * Main layout wrapper for admin pages
  */
 
-'use client';
+"use client";
 
-import { Layout } from 'antd';
-import { useState } from 'react';
-import { Sidebar } from './Sidebar';
-import { Header } from './Header';
-import { Breadcrumbs } from './Breadcrumbs';
-import { Footer } from './Footer';
+import { Layout } from "antd";
+import { useState } from "react";
+import { Sidebar } from "./Sidebar";
+import { Header } from "./Header";
+import { Breadcrumbs } from "./Breadcrumbs";
+import { Footer } from "./Footer";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 interface AdminLayoutProps {
   children: React.ReactNode;
-  pageTitle?: string;
-  breadcrumbs?: Array<{ title: string; href?: string }>;
 }
 
-export const AdminLayout = ({ children, pageTitle, breadcrumbs }: AdminLayoutProps) => {
+export const AdminLayout = ({ children }: AdminLayoutProps) => {
+  const pageTitle = usePageTitle();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   return (
-    <Layout style={{ minHeight: '100vh' }}>
+    <Layout style={{ minHeight: "100vh" }}>
       {/* Sidebar */}
       <Sidebar
         collapsed={sidebarCollapsed}
@@ -37,18 +37,18 @@ export const AdminLayout = ({ children, pageTitle, breadcrumbs }: AdminLayoutPro
         {/* Main Content */}
         <Layout.Content
           style={{
-            padding: '24px',
-            background: '#f5f5f5',
+            padding: "24px",
+            background: "#f5f5f5",
           }}
         >
           {/* Page Title */}
           {pageTitle && (
             <h1
               style={{
-                fontSize: '28px',
+                fontSize: "28px",
                 fontWeight: 600,
-                marginBottom: '8px',
-                color: '#000',
+                marginBottom: "8px",
+                color: "#000",
               }}
             >
               {pageTitle}
@@ -56,15 +56,15 @@ export const AdminLayout = ({ children, pageTitle, breadcrumbs }: AdminLayoutPro
           )}
 
           {/* Breadcrumbs */}
-          {breadcrumbs && <Breadcrumbs items={breadcrumbs} />}
+          {<Breadcrumbs />}
 
           {/* Page Content */}
           <div
             style={{
-              background: '#fff',
-              padding: '24px',
-              borderRadius: '4px',
-              boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)',
+              background: "#fff",
+              padding: "24px",
+              borderRadius: "4px",
+              boxShadow: "0 1px 2px rgba(0, 0, 0, 0.05)",
             }}
           >
             {children}
@@ -78,4 +78,4 @@ export const AdminLayout = ({ children, pageTitle, breadcrumbs }: AdminLayoutPro
   );
 };
 
-AdminLayout.displayName = 'AdminLayout';
+AdminLayout.displayName = "AdminLayout";
