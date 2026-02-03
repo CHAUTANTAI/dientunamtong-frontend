@@ -1,0 +1,45 @@
+/*
+ * Login Page Styles
+ */
+
+.container {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 20px;
+}
+
+.card {
+  width: 100%;
+  max-width: 400px;
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.header h2 {
+  margin: 0 0 8px;
+  color: #000;
+}
+
+.hint {
+  margin-top: 16px;
+  padding: 12px;
+  background: #fafafa;
+  border-radius: 4px;
+  text-align: center;
+}
+
+.hint code {
+  background: #f0f0f0;
+  padding: 2px 6px;
+  border-radius: 2px;
+  font-family: 'Courier New', monospace;
+  color: #667eea;
+}
