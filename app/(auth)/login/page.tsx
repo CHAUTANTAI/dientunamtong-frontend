@@ -19,12 +19,14 @@ import { validateUsername, validatePassword } from "@/utils/validators";
 import { ROUTES } from "@/constants/routes";
 import type { LoginRequest } from "@/types/auth";
 import styles from "./page.module.css";
+import { useAuth } from "@/hooks/useAuth";
 
 const { Title, Text } = Typography;
 
 export default function LoginPage() {
   const router = useRouter();
   const [loginMutation, { isLoading }] = useLoginMutation();
+  const { login } = useAuth();
 
   const {
     control,
@@ -44,7 +46,9 @@ export default function LoginPage() {
 
       // Response is already validated by api-interceptor
       // If we reach here, HTTP status was 200 and custom status was 200
-      if (response.data?.success) {
+      const { user, token, success } = response.data;
+      if (success && token && user) {
+        login(user, token);
         router.push(ROUTES.DASHBOARD);
       } else {
         setError("root", {

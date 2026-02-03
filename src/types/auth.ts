@@ -8,17 +8,17 @@ export interface LoginRequest {
 }
 
 export interface LoginResponse {
-  success: boolean;
-  message: string;
   token?: string;
   user?: AuthUser;
+  success?: number;
 }
 
 export interface AuthUser {
   id: string;
   username: string;
+  company_name?: string;
   email?: string;
-  avatar?: string;
+  logo?: string;
 }
 
 export interface AuthState {
