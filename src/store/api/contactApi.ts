@@ -5,8 +5,11 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { getAuthToken } from '@/utils/auth';
 import type { Contact } from '@/types/contact';
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
+import {
+  API_BASE_URL,
+  API_CONTACTS,
+  API_CONTACT_DETAIL,
+} from '@/constants/api';
 
 export const contactApi = createApi({
   reducerPath: 'contactApi',
@@ -21,26 +24,26 @@ export const contactApi = createApi({
   tagTypes: ['Contact'],
   endpoints: (builder) => ({
     getContacts: builder.query<Contact[], void>({
-      query: () => '/contacts',
+      query: () => API_CONTACTS,
       providesTags: (result) =>
         result
           ? [...result.map(({ id }) => ({ type: 'Contact' as const, id })), { type: 'Contact', id: 'LIST' }]
           : [{ type: 'Contact', id: 'LIST' }],
     }),
     getContact: builder.query<Contact, string>({
-      query: (id) => `/contacts/${id}`,
+      query: (id) => API_CONTACT_DETAIL(id),
       providesTags: (result, error, id) => [{ type: 'Contact', id }],
     }),
     createContact: builder.mutation<Contact, Partial<Contact>>({
-      query: (body) => ({ url: '/contacts', method: 'POST', body }),
+      query: (body) => ({ url: API_CONTACTS, method: 'POST', body }),
       invalidatesTags: [{ type: 'Contact', id: 'LIST' }],
     }),
     updateContact: builder.mutation<Contact, { id: string; body: Partial<Contact> }>({
-      query: ({ id, body }) => ({ url: `/contacts/${id}`, method: 'PUT', body }),
+      query: ({ id, body }) => ({ url: API_CONTACT_DETAIL(id), method: 'PUT', body }),
       invalidatesTags: (result, error, { id }) => [{ type: 'Contact', id }],
     }),
     deleteContact: builder.mutation<void, string>({
-      query: (id) => ({ url: `/contacts/${id}`, method: 'DELETE' }),
+      query: (id) => ({ url: API_CONTACT_DETAIL(id), method: 'DELETE' }),
       invalidatesTags: [{ type: 'Contact', id: 'LIST' }],
     }),
   }),

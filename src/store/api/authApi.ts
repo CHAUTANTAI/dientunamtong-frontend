@@ -7,9 +7,12 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import type { LoginRequest, LoginResponse } from "@/types/auth";
 import type { ApiResponse } from "@/types/api";
-
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api";
+import {
+  API_BASE_URL,
+  API_AUTH_LOGIN,
+  API_AUTH_LOGOUT,
+  API_AUTH_ME,
+} from "@/constants/api";
 
 export const authApi = createApi({
   reducerPath: "authApi",
@@ -20,7 +23,7 @@ export const authApi = createApi({
     // Login endpoint
     login: builder.mutation<ApiResponse<LoginResponse>, LoginRequest>({
       query: (credentials) => ({
-        url: "/auth/login",
+        url: API_AUTH_LOGIN,
         method: "POST",
         body: credentials,
       }),
@@ -29,7 +32,7 @@ export const authApi = createApi({
     // Logout endpoint
     logout: builder.mutation<ApiResponse<void>, void>({
       query: () => ({
-        url: "/auth/logout",
+        url: API_AUTH_LOGOUT,
         method: "POST",
       }),
     }),
@@ -40,7 +43,7 @@ export const authApi = createApi({
       void
     >({
       query: () => ({
-        url: "/auth/me",
+        url: API_AUTH_ME,
         method: "GET",
       }),
     }),

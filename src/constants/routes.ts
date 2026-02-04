@@ -5,7 +5,7 @@
 
 export const ROUTES = {
   // Public routes
-  LOGIN: "/admin/auth/login",
+  LOGIN: "/auth/login",
 
   // Admin routes
   DASHBOARD: "/admin/dashboard",
@@ -38,6 +38,11 @@ export const ADMIN_ROUTES: AdminRoute[] = [
     path: "/admin/category",
     label: "Category",
     parent: "/admin",
+  },
+  {
+    path: "/admin/category/create",
+    label: "Create Category",
+    parent: "/admin/category",
   },
   {
     path: "/admin/product",

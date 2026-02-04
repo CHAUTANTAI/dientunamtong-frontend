@@ -18,6 +18,7 @@ interface FormInputProps<
   disabled?: boolean;
   type?: string;
   max?: number;
+  textarea?: boolean;
 }
 
 export const FormInput = <
@@ -39,14 +40,25 @@ export const FormInput = <
       validateStatus={fieldState.error ? 'error' : ''}
       help={fieldState.error?.message}
     >
-      <Input
-        {...field}
-        type={type}
-        placeholder={placeholder}
-        disabled={disabled}
-        maxLength={max}
-        status={fieldState.error ? 'error' : ''}
-      />
+      {controllerProps.textarea ? (
+        <Input.TextArea
+          {...field}
+          placeholder={placeholder}
+          disabled={disabled}
+          maxLength={max}
+          status={fieldState.error ? 'error' : ''}
+          autoSize={{ minRows: 3, maxRows: 6 }}
+        />
+      ) : (
+        <Input
+          {...field}
+          type={type}
+          placeholder={placeholder}
+          disabled={disabled}
+          maxLength={max}
+          status={fieldState.error ? 'error' : ''}
+        />
+      )}
     </Form.Item>
   );
 };

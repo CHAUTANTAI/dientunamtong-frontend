@@ -5,8 +5,12 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { getAuthToken } from '@/utils/auth';
 import type { Category } from '@/types/category';
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
+import type { ApiResponse } from '@/types/api';
+import {
+  API_BASE_URL,
+  API_CATEGORY,
+  API_CATEGORY_DETAIL,
+} from '@/constants/api';
 
 export const categoryApi = createApi({
   reducerPath: 'categoryApi',
@@ -20,27 +24,57 @@ export const categoryApi = createApi({
   }),
   tagTypes: ['Category'],
   endpoints: (builder) => ({
+    // GET /category -> { status, data: Category[] }
     getCategories: builder.query<Category[], void>({
-      query: () => '/categories',
+      query: () => API_CATEGORY,
+      transformResponse: (response: ApiResponse<Category[]>): Category[] =>
+        Array.isArray(response.data) ? response.data : [],
       providesTags: (result) =>
-        result
-          ? [...result.map(({ id }) => ({ type: 'Category' as const, id })), { type: 'Category', id: 'LIST' }]
+        result && result.length > 0
+          ? [
+            ...result.map(({ id }) => ({
+              type: 'Category' as const,
+              id,
+            })),
+            { type: 'Category', id: 'LIST' },
+          ]
           : [{ type: 'Category', id: 'LIST' }],
     }),
+
+    // GET /category/:id -> { status, data: Category }
     getCategory: builder.query<Category, string>({
-      query: (id) => `/categories/${id}`,
+      query: (id) => API_CATEGORY_DETAIL(id),
+      transformResponse: (response: ApiResponse<Category>): Category =>
+        response.data,
       providesTags: (result, error, id) => [{ type: 'Category', id }],
     }),
+
+    // POST /category -> { status, data: Category }
     createCategory: builder.mutation<Category, Partial<Category>>({
-      query: (body) => ({ url: '/categories', method: 'POST', body }),
+      query: (body) => ({ url: API_CATEGORY, method: 'POST', body }),
+      transformResponse: (response: ApiResponse<Category>): Category =>
+        response.data,
       invalidatesTags: [{ type: 'Category', id: 'LIST' }],
     }),
-    updateCategory: builder.mutation<Category, { id: string; body: Partial<Category> }>({
-      query: ({ id, body }) => ({ url: `/categories/${id}`, method: 'PUT', body }),
+
+    // PUT /category/:id -> { status, data: Category }
+    updateCategory: builder.mutation<
+      Category,
+      { id: string; body: Partial<Category> }
+    >({
+      query: ({ id, body }) => ({
+        url: API_CATEGORY_DETAIL(id),
+        method: 'PUT',
+        body,
+      }),
+      transformResponse: (response: ApiResponse<Category>): Category =>
+        response.data,
       invalidatesTags: (result, error, { id }) => [{ type: 'Category', id }],
     }),
+
+    // DELETE /category/:id -> { status, data: null | undefined }
     deleteCategory: builder.mutation<void, string>({
-      query: (id) => ({ url: `/categories/${id}`, method: 'DELETE' }),
+      query: (id) => ({ url: API_CATEGORY_DETAIL(id), method: 'DELETE' }),
       invalidatesTags: [{ type: 'Category', id: 'LIST' }],
     }),
   }),

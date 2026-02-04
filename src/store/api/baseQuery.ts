@@ -3,12 +3,8 @@
  * Applies unified API response processing to all RTK Query endpoints
  */
 
-import {
-  fetchBaseQuery,
-} from "@reduxjs/toolkit/query/react";
-
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api";
+import { fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { API_BASE_URL } from "@/constants/api";
 
 /**
  * Create a custom base query that wraps fetchBaseQuery
