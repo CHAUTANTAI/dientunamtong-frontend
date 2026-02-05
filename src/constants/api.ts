@@ -20,8 +20,9 @@ export const API_PRODUCTS = '/admin/product';
 export const API_PRODUCT_DETAIL = (id: string) => `/admin/product/${id}`;
 export const API_PRODUCT_IMAGES = (productId: string) =>
   `/admin/product/${productId}/images`;
-export const API_PRODUCT_IMAGE_DETAIL = (productId: string, imageId: string) =>
-  `/admin/product/${productId}/images/${imageId}`;
+export const API_PRODUCT_IMAGE = `/admin/product-image`;
+export const API_PRODUCT_IMAGE_DELETE = (imageId: string) =>
+  `/admin/product-image/${imageId}`;
 
 // Contact endpoints
 export const API_CONTACTS = '/admin/contact';
