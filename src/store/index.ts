@@ -9,6 +9,7 @@ import { authApi } from './api/authApi';
 import { productApi } from './api/productApi';
 import { categoryApi } from './api/categoryApi';
 import { contactApi } from './api/contactApi';
+import { profileApi } from './api/profileApi';
 
 export const store = configureStore({
   reducer: {
@@ -17,13 +18,15 @@ export const store = configureStore({
     [productApi.reducerPath]: productApi.reducer,
     [categoryApi.reducerPath]: categoryApi.reducer,
     [contactApi.reducerPath]: contactApi.reducer,
+    [profileApi.reducerPath]: profileApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware()
       .concat(authApi.middleware)
       .concat(productApi.middleware)
       .concat(categoryApi.middleware)
-      .concat(contactApi.middleware),
+      .concat(contactApi.middleware)
+      .concat(profileApi.middleware),
 });
 
 // Export types

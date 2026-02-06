@@ -28,3 +28,6 @@ export const API_PRODUCT_IMAGE_DELETE = (imageId: string) =>
 export const API_CONTACTS = '/admin/contact';
 export const API_CONTACT_DETAIL = (id: string) => `/admin/contact/${id}`;
 
+// Profile endpoints
+export const API_PROFILE = '/admin/profile';
+export const API_PROFILE_UPDATE = '/admin/profile';

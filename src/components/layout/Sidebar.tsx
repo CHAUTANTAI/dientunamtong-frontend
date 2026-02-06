@@ -68,18 +68,6 @@ export const Sidebar = ({ collapsed = false, onToggle }: SidebarProps) => {
             width={32}
             height={32}
           />
-          <Image
-            src="https://png.pngtree.com/png-clipart/20250223/original/pngtree-a-cup-of-hot-black-coffee-png-image_20501541.png"
-            alt="LOGO"
-            width={32}
-            height={32}
-          />
-          <Image
-            src="https://png.pngtree.com/png-clipart/20250223/original/pngtree-a-cup-of-hot-black-coffee-png-image_20501541.png"
-            alt="LOGO"
-            width={32}
-            height={32}
-          />
         </div>
         <button
           onClick={onToggle}

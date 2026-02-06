@@ -488,8 +488,7 @@ export default function AdminProductPage() {
                   checked={!!control._formValues.is_active}
                   onChange={(checked) =>
                     control._formValues &&
-                    // eslint-disable-next-line no-param-reassign
-                    (control._formValues.is_active = checked)
+                    (control._formValues.is_active == checked)
                   }
                 />
               </Form.Item>
