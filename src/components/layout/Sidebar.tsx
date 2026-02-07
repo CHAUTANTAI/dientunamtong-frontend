@@ -174,7 +174,7 @@ export const Sidebar = ({ collapsed = false, onToggle }: SidebarProps) => {
               textAlign: "center",
             }}
           >
-            © 2026 Nam Tông Coffee
+            © 2026 Nam Tông Store
           </Text>
           <Text
             style={{
