@@ -29,7 +29,13 @@ export const Breadcrumbs = () => {
           ),
         })),
       ]}
-      style={{ marginBottom: 16 }}
+      style={{
+        marginBottom: 16,
+        padding: '12px 16px',
+        background: 'rgba(255, 255, 255, 0.7)',
+        borderRadius: '8px',
+        backdropFilter: 'blur(10px)',
+      }}
     />
   );
 };

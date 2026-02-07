@@ -9,16 +9,18 @@ interface FooterProps {
   text?: string;
 }
 
-export const Footer = ({ text = '© 2026 Admin System. All rights reserved.' }: FooterProps) => {
+export const Footer = ({ text = '© 2026 Nam Tông Coffee Admin System. All rights reserved.' }: FooterProps) => {
   return (
     <footer
       style={{
-        textAlign: 'right',
-        padding: '24px',
-        color: '#888',
-        fontSize: '12px',
-        borderTop: '1px solid #f0f0f0',
+        textAlign: 'center',
+        padding: '20px 24px',
+        color: 'rgba(30, 30, 46, 0.6)',
+        fontSize: '13px',
         marginTop: '32px',
+        background: 'rgba(255, 255, 255, 0.5)',
+        borderRadius: '8px',
+        backdropFilter: 'blur(10px)',
       }}
     >
       {text}

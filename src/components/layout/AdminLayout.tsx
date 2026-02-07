@@ -38,7 +38,8 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
         <Layout.Content
           style={{
             padding: "24px",
-            background: "#f5f5f5",
+            background: "linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)",
+            minHeight: "calc(100vh - 64px)",
           }}
         >
           {/* Page Title */}
@@ -46,9 +47,10 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
             <h1
               style={{
                 fontSize: "28px",
-                fontWeight: 600,
+                fontWeight: 700,
                 marginBottom: "8px",
-                color: "#000",
+                color: "#1e1e2e",
+                textShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
               }}
             >
               {pageTitle}
@@ -63,8 +65,9 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
             style={{
               background: "#fff",
               padding: "24px",
-              borderRadius: "4px",
-              boxShadow: "0 1px 2px rgba(0, 0, 0, 0.05)",
+              borderRadius: "12px",
+              boxShadow: "0 4px 12px rgba(0, 0, 0, 0.08)",
+              marginTop: "16px",
             }}
           >
             {children}
