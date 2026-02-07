@@ -28,7 +28,9 @@ const AdminProfilePage = () => {
 
   const onFinish = async (values: Partial<Profile>) => {
     try {
-      await updateProfile(values).unwrap();
+      // Only send fields that are in the form (exclude username, is_active)
+      const { username, is_active, ...updateData } = values;
+      await updateProfile(updateData).unwrap();
       message.success("Profile updated successfully");
     } catch (err) {
       message.error(getErrorMessage(err));

@@ -34,8 +34,11 @@ export const Sidebar = ({ collapsed = false, onToggle }: SidebarProps) => {
   }));
 
   // Determine selected menu key based on current pathname
+  // Sort by href length (longest first) to match most specific route
   const selectedKey =
-    ADMIN_MENU_ITEMS.find((m) => m.href === pathname)?.key ?? "dashboard";
+    [...ADMIN_MENU_ITEMS]
+      .sort((a, b) => (b.href?.length || 0) - (a.href?.length || 0))
+      .find((m) => m.href && pathname.startsWith(m.href))?.key ?? "dashboard";
 
   return (
     <Layout.Sider
