@@ -5,6 +5,7 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 import { Profile } from "@/types/profile";
+import { ApiResponse } from "@/types/api";
 import { API_BASE_URL, API_PROFILE } from "@/constants/api";
 import { getAuthToken } from "@/utils/auth";
 
@@ -22,6 +23,7 @@ export const profileApi = createApi({
   endpoints: (builder) => ({
     getProfile: builder.query<Profile, void>({
       query: () => API_PROFILE,
+      transformResponse: (response: ApiResponse<Profile>) => response.data,
       providesTags: ["Profile"],
     }),
     updateProfile: builder.mutation<Profile, Partial<Profile>>({
@@ -30,6 +32,7 @@ export const profileApi = createApi({
         method: "PUT",
         body,
       }),
+      transformResponse: (response: ApiResponse<Profile>) => response.data,
       invalidatesTags: ["Profile"],
     }),
   }),
