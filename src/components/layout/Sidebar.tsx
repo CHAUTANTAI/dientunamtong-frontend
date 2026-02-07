@@ -5,11 +5,13 @@
 
 "use client";
 
-import { Layout, Menu, Typography, Button } from "antd";
+import { Layout, Menu, Typography, Button, Image } from "antd";
 import { MenuFoldOutlined, MenuUnfoldOutlined } from "@ant-design/icons";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ADMIN_MENU_ITEMS } from "@/constants/menu";
+import { useGetProfileQuery } from "@/store/api/profileApi";
+import { useSignedImageUrl } from "@/hooks/useSignedImageUrl";
 import type { MenuProps } from "antd";
 
 const { Text } = Typography;
@@ -21,6 +23,10 @@ interface SidebarProps {
 
 export const Sidebar = ({ collapsed = false, onToggle }: SidebarProps) => {
   const pathname = usePathname();
+  
+  // Fetch profile for logo
+  const { data: profile } = useGetProfileQuery();
+  const signedLogoUrl = useSignedImageUrl(profile?.logo || "");
 
   // Convert menu items to format compatible with Ant Design Menu
   const menuItems: MenuProps["items"] = ADMIN_MENU_ITEMS.map((item) => ({
@@ -71,20 +77,34 @@ export const Sidebar = ({ collapsed = false, onToggle }: SidebarProps) => {
       >
         {!collapsed && (
           <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-            <div
-              style={{
-                width: "36px",
-                height: "36px",
-                borderRadius: "8px",
-                background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: "20px",
-              }}
-            >
-              ☕
-            </div>
+            {signedLogoUrl ? (
+              <img
+                src={signedLogoUrl}
+                alt="Logo"
+                style={{
+                  width: "36px",
+                  height: "36px",
+                  borderRadius: "8px",
+                  objectFit: "cover",
+                  border: "2px solid rgba(255, 255, 255, 0.2)",
+                }}
+              />
+            ) : (
+              <div
+                style={{
+                  width: "36px",
+                  height: "36px",
+                  borderRadius: "8px",
+                  background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: "20px",
+                }}
+              >
+                ☕
+              </div>
+            )}
             <Text
               style={{
                 color: "#fff",
@@ -93,7 +113,7 @@ export const Sidebar = ({ collapsed = false, onToggle }: SidebarProps) => {
                 letterSpacing: "0.5px",
               }}
             >
-              Nam Tông
+              {profile?.company_name || "Nam Tông"}
             </Text>
           </div>
         )}

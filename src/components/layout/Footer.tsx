@@ -9,7 +9,7 @@ interface FooterProps {
   text?: string;
 }
 
-export const Footer = ({ text = '© 2026 Nam Tông Coffee Admin System. All rights reserved.' }: FooterProps) => {
+export const Footer = ({ text = '© 2026 Nam Tông Store Admin System. All rights reserved.' }: FooterProps) => {
   return (
     <footer
       style={{

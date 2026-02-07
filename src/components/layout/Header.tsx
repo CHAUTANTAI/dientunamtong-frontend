@@ -5,15 +5,16 @@
 
 "use client";
 
-import { Layout, Button, Dropdown, Avatar, Typography, Space, Badge } from "antd";
+import { Layout, Button, Dropdown, Typography, Space, Badge } from "antd";
 import {
-  UserOutlined,
   LogoutOutlined,
   BellOutlined,
   SettingOutlined,
 } from "@ant-design/icons";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
+import { useSignedImageUrl } from "@/hooks/useSignedImageUrl";
+import { useGetProfileQuery } from "@/store/api/profileApi";
 import { ROUTES } from "@/constants/routes";
 import type { MenuProps } from "antd";
 
@@ -21,7 +22,12 @@ const { Text } = Typography;
 
 export const Header = () => {
   const router = useRouter();
-  const { user, logout } = useAuth();
+  const { logout } = useAuth();
+
+  // Fetch profile data from API (will use cached data if available)
+  const { data: profile } = useGetProfileQuery();
+
+  const signedLogoUrl = useSignedImageUrl(profile?.logo || "");
 
   const handleLogout = () => {
     logout();
@@ -29,15 +35,6 @@ export const Header = () => {
   };
 
   const menuItems: MenuProps["items"] = [
-    {
-      key: "profile",
-      icon: <UserOutlined />,
-      label: "Profile",
-      disabled: true,
-    },
-    {
-      type: "divider",
-    },
     {
       key: "logout",
       icon: <LogoutOutlined />,
@@ -62,23 +59,10 @@ export const Header = () => {
         height: "64px",
       }}
     >
-      {/* Brand Name */}
-      <Space size="middle">
-        <Typography.Title
-          level={4}
-          style={{
-            margin: 0,
-            color: "#fff",
-            fontWeight: 700,
-            letterSpacing: "0.5px",
-          }}
-        >
-          ☕ Admin Dashboard
-        </Typography.Title>
-      </Space>
+      <Space size={"large"}></Space>
 
       {/* Right Section */}
-      <Space size="large">
+      <Space size="large" style={{ marginLeft: "auto" }}>
         {/* Notifications */}
         <Badge count={0} showZero={false}>
           <Button
@@ -111,13 +95,10 @@ export const Header = () => {
             type="text"
             style={{
               height: "auto",
-              padding: "8px 12px",
+              padding: "8px 16px",
               background: "rgba(255, 255, 255, 0.1)",
               border: "1px solid rgba(255, 255, 255, 0.2)",
               borderRadius: "24px",
-              display: "flex",
-              alignItems: "center",
-              gap: "12px",
               transition: "all 0.3s ease",
             }}
             onMouseEnter={(e) => {
@@ -127,30 +108,14 @@ export const Header = () => {
               e.currentTarget.style.background = "rgba(255, 255, 255, 0.1)";
             }}
           >
-            <Avatar
-              size={32}
-              src={user?.logo}
+            <Text
               style={{
-                backgroundColor: "#fff",
-                color: "#667eea",
-                fontWeight: 600,
+                color: "#fff",
+                fontWeight: 500,
               }}
-              icon={!user?.logo && <UserOutlined />}
-            />
-            {user?.company_name && (
-              <Text
-                style={{
-                  color: "#fff",
-                  fontWeight: 500,
-                  maxWidth: "150px",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  whiteSpace: "nowrap",
-                }}
-              >
-                {user.company_name}
-              </Text>
-            )}
+            >
+              {profile?.company_name || "Admin"}
+            </Text>
           </Button>
         </Dropdown>
       </Space>
