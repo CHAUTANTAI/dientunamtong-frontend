@@ -19,16 +19,9 @@ export const authApi = createApi({
   reducerPath: "authApi",
   baseQuery: fetchBaseQuery({
     baseUrl: API_BASE_URL,
-    prepareHeaders: (headers) => {
-      const token = getAuthToken();
-      if (token) {
-        headers.set('Authorization', `Bearer ${token}`);
-      }
-      return headers;
-    },
   }),
   endpoints: (builder) => ({
-    // Login endpoint
+    // Login endpoint - NO auth required
     // Backend returns: { success: true, data: AuthResponseDto, statusCode: 200 }
     login: builder.mutation<AuthResponseDto, LoginRequest>({
       query: (credentials) => ({
@@ -39,20 +32,28 @@ export const authApi = createApi({
       transformResponse: (response: ApiResponse<AuthResponseDto>) => response.data,
     }),
 
-    // Logout endpoint
+    // Logout endpoint - requires auth token
     logout: builder.mutation<void, void>({
-      query: () => ({
-        url: API_AUTH_LOGOUT,
-        method: "POST",
-      }),
+      query: () => {
+        const token = getAuthToken();
+        return {
+          url: API_AUTH_LOGOUT,
+          method: "POST",
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        };
+      },
     }),
 
     // Get current user (requires auth)
     getCurrentUser: builder.query<AuthUser, void>({
-      query: () => ({
-        url: API_AUTH_ME,
-        method: "GET",
-      }),
+      query: () => {
+        const token = getAuthToken();
+        return {
+          url: API_AUTH_ME,
+          method: "GET",
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        };
+      },
       transformResponse: (response: ApiResponse<AuthUser>) => response.data,
     }),
   }),
