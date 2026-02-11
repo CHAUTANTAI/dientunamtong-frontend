@@ -1,17 +1,20 @@
 /**
  * Sidebar Menu Configuration
- * Single source of truth for admin menu structure
+ * Single source of truth for admin menu structure with role-based visibility
  */
 
 import React from 'react';
 import { ROUTES } from './routes';
+import { UserRole } from '@/types/auth';
 
-// Admin menu configuration — keep it simple and serializable
+// Admin menu configuration with role-based access
 export interface AdminMenuItem {
   key: string;
   label: string;
   href?: string;
   icon?: React.ReactNode;
+  roles?: UserRole[]; // If specified, only these roles can see this item
+  minRole?: UserRole; // If specified, user must have at least this role level
 }
 
 export const ADMIN_MENU_ITEMS: AdminMenuItem[] = [
@@ -19,19 +22,30 @@ export const ADMIN_MENU_ITEMS: AdminMenuItem[] = [
     key: 'dashboard',
     label: 'Dashboard',
     href: ROUTES.DASHBOARD,
-  },  {
+    // All roles can see dashboard
+  },
+  {
     key: 'category',
-    label: 'Category',
+    label: 'Categories',
     href: ROUTES.CATEGORY,
+    minRole: UserRole.MANAGER, // Manager and Admin can access
   },
   {
     key: 'product',
-    label: 'Product',
+    label: 'Products',
     href: ROUTES.PRODUCT,
+    minRole: UserRole.MANAGER, // Manager and Admin can access
+  },
+  {
+    key: 'contact',
+    label: 'Contacts',
+    href: ROUTES.CONTACT,
+    minRole: UserRole.STAFF, // All roles can access
   },
   {
     key: 'profile',
     label: 'Profile',
     href: ROUTES.PROFILE,
+    // All roles can see profile
   },
 ];

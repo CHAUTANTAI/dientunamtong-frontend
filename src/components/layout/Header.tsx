@@ -5,24 +5,26 @@
 
 "use client";
 
-import { Layout, Button, Dropdown, Typography, Space, Badge } from "antd";
+import { Layout, Button, Dropdown, Typography, Space, Badge, Tag } from "antd";
 import {
   LogoutOutlined,
   BellOutlined,
   SettingOutlined,
+  UserOutlined,
 } from "@ant-design/icons";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import { useSignedImageUrl } from "@/hooks/useSignedImageUrl";
 import { useGetProfileQuery } from "@/store/api/profileApi";
 import { ROUTES } from "@/constants/routes";
+import { getRoleDisplayName, getRoleColor } from "@/utils/rbac";
 import type { MenuProps } from "antd";
 
 const { Text } = Typography;
 
 export const Header = () => {
   const router = useRouter();
-  const { logout } = useAuth();
+  const { user, logout } = useAuth();
 
   // Fetch profile data from API (will use cached data if available)
   const { data: profile } = useGetProfileQuery();
@@ -35,6 +37,15 @@ export const Header = () => {
   };
 
   const menuItems: MenuProps["items"] = [
+    {
+      key: "profile",
+      icon: <UserOutlined />,
+      label: "Profile",
+      onClick: () => router.push(ROUTES.PROFILE),
+    },
+    {
+      type: "divider",
+    },
     {
       key: "logout",
       icon: <LogoutOutlined />,
@@ -90,7 +101,25 @@ export const Header = () => {
         />
 
         {/* User Menu */}
-        <Dropdown menu={{ items: menuItems }} placement="bottomRight">
+        <Dropdown 
+          menu={{ items: menuItems }} 
+          placement="bottomRight"
+          dropdownRender={(menu) => (
+            <div>
+              {user && (
+                <div style={{ padding: '12px 16px', borderBottom: '1px solid #f0f0f0' }}>
+                  <Space direction="vertical" size={4}>
+                    <Text strong>{user.username}</Text>
+                    <Tag color={getRoleColor(user.role)} style={{ margin: 0 }}>
+                      {getRoleDisplayName(user.role)}
+                    </Tag>
+                  </Space>
+                </div>
+              )}
+              {menu}
+            </div>
+          )}
+        >
           <Button
             type="text"
             style={{

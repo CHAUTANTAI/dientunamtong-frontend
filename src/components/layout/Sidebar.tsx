@@ -12,6 +12,8 @@ import { usePathname } from "next/navigation";
 import { ADMIN_MENU_ITEMS } from "@/constants/menu";
 import { useGetProfileQuery } from "@/store/api/profileApi";
 import { useSignedImageUrl } from "@/hooks/useSignedImageUrl";
+import { useAuth } from "@/hooks/useAuth";
+import { hasMinimumRole, hasAnyRole } from "@/utils/rbac";
 import type { MenuProps } from "antd";
 
 const { Text } = Typography;
@@ -23,13 +25,32 @@ interface SidebarProps {
 
 export const Sidebar = ({ collapsed = false, onToggle }: SidebarProps) => {
   const pathname = usePathname();
+  const { user } = useAuth();
   
   // Fetch profile for logo
   const { data: profile } = useGetProfileQuery();
   const signedLogoUrl = useSignedImageUrl(profile?.logo || "");
 
+  // Filter menu items based on user role
+  const visibleMenuItems = ADMIN_MENU_ITEMS.filter((item) => {
+    if (!user) return false;
+    
+    // If item has specific roles requirement
+    if (item.roles && item.roles.length > 0) {
+      return hasAnyRole(user.role, item.roles);
+    }
+    
+    // If item has minimum role requirement
+    if (item.minRole) {
+      return hasMinimumRole(user.role, item.minRole);
+    }
+    
+    // No restriction, show to all
+    return true;
+  });
+
   // Convert menu items to format compatible with Ant Design Menu
-  const menuItems: MenuProps["items"] = ADMIN_MENU_ITEMS.map((item) => ({
+  const menuItems: MenuProps["items"] = visibleMenuItems.map((item) => ({
     key: item.key,
     label: item.href ? (
       <Link href={item.href as string}>{item.label}</Link>
@@ -42,7 +63,7 @@ export const Sidebar = ({ collapsed = false, onToggle }: SidebarProps) => {
   // Determine selected menu key based on current pathname
   // Sort by href length (longest first) to match most specific route
   const selectedKey =
-    [...ADMIN_MENU_ITEMS]
+    [...visibleMenuItems]
       .sort((a, b) => (b.href?.length || 0) - (a.href?.length || 0))
       .find((m) => m.href && pathname.startsWith(m.href))?.key ?? "dashboard";
 

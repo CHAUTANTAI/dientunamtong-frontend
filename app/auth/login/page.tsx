@@ -42,20 +42,19 @@ export default function LoginPage() {
 
   const onSubmit = async (data: LoginRequest) => {
     try {
-      const response = await loginMutation(data).unwrap();
+      // Backend returns: { success: true, data: AuthResponseDto, statusCode: 200 }
+      // After transformResponse: AuthResponseDto = { success: true, token, user }
+      const authData = await loginMutation(data).unwrap();
 
-      // Response is already validated by api-interceptor
-      // If we reach here, HTTP status was 200 and custom status was 200
-      const { user, token, success } = response.data;
-      if (success && token && user) {
-        login(user, token);
+      if (authData.success && authData.token && authData.user) {
+        login(authData.user, authData.token);
         router.push(ROUTES.DASHBOARD);
       } else {
         setError("root", {
-          message: response.message || "Login failed",
+          message: "Login failed. Invalid response from server.",
         });
       }
-    } catch (error: unknown) {
+    } catch (error) {
       // Error handling with unified format
       const message = getErrorMessage(error);
       setError("root", { message });
