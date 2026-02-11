@@ -1,23 +1,26 @@
-'use client';
-
 /**
- * Create Category Page
- * Complete category creation with media upload, parent selection, and slug generation
+ * Edit Category Page
+ * Complete category editing with media upload, parent selection, and slug management
  */
 
+'use client';
+
 import { useState, useEffect } from 'react';
-import { Card, Form, Input, InputNumber, Switch, Space, Divider, message } from 'antd';
+import { Card, Form, Input, InputNumber, Switch, Space, Divider, Spin, message } from 'antd';
 import { useRouter } from 'next/navigation';
 import { useForm, Controller } from 'react-hook-form';
-import { useCreateCategoryMutation } from '@/store/api/categoryApi';
-import type { CreateCategoryDto } from '@/types/category';
+import { 
+  useGetCategoryQuery, 
+  useUpdateCategoryMutation 
+} from '@/store/api/categoryApi';
+import type { UpdateCategoryDto } from '@/types/category';
 import { ROUTES } from '@/constants/routes';
 import { FormInput, FormSubmitButton } from '@/components/common/form';
 import { CategoryImageUpload } from '@/components/common/CategoryImageUpload';
 import { CategorySelect } from '@/components/common/CategorySelect';
 import { generateSlug, isValidSlug } from '@/utils/slug';
 
-interface CreateCategoryFormValues {
+interface EditCategoryFormValues {
   name: string;
   slug: string;
   description?: string;
@@ -27,10 +30,15 @@ interface CreateCategoryFormValues {
   is_active: boolean;
 }
 
-export default function AdminCategoryCreatePage() {
+interface AdminCategoryEditPageProps {
+  categoryId: string;
+}
+
+export default function AdminCategoryEditPage({ categoryId }: AdminCategoryEditPageProps) {
   const router = useRouter();
-  const [createCategory, { isLoading }] = useCreateCategoryMutation();
-  const [autoSlug, setAutoSlug] = useState(true);
+  const { data: category, isLoading: isLoadingCategory } = useGetCategoryQuery(categoryId);
+  const [updateCategory, { isLoading: isUpdating }] = useUpdateCategoryMutation();
+  const [autoSlug, setAutoSlug] = useState(false);
 
   const {
     control,
@@ -39,22 +47,29 @@ export default function AdminCategoryCreatePage() {
     setValue,
     reset,
     formState: { isSubmitting, errors },
-  } = useForm<CreateCategoryFormValues>({
-    defaultValues: {
-      name: '',
-      slug: '',
-      description: '',
-      parent_id: null,
-      media_id: null,
-      sort_order: 0,
-      is_active: true,
-    },
-  });
+  } = useForm<EditCategoryFormValues>();
 
   const nameValue = watch('name');
 
   /**
-   * Auto-generate slug from name
+   * Load category data into form
+   */
+  useEffect(() => {
+    if (category) {
+      reset({
+        name: category.name,
+        slug: category.slug,
+        description: category.description || '',
+        parent_id: category.parent_id || null,
+        media_id: category.media_id || null,
+        sort_order: category.sort_order || 0,
+        is_active: category.is_active ?? true,
+      });
+    }
+  }, [category, reset]);
+
+  /**
+   * Auto-generate slug from name (only when enabled)
    */
   useEffect(() => {
     if (autoSlug && nameValue) {
@@ -66,7 +81,7 @@ export default function AdminCategoryCreatePage() {
   /**
    * Handle form submission
    */
-  const onSubmit = async (values: CreateCategoryFormValues) => {
+  const onSubmit = async (values: EditCategoryFormValues) => {
     try {
       // Validate slug
       if (!isValidSlug(values.slug)) {
@@ -74,7 +89,7 @@ export default function AdminCategoryCreatePage() {
         return;
       }
 
-      const dto: CreateCategoryDto = {
+      const dto: UpdateCategoryDto = {
         name: values.name,
         slug: values.slug,
         description: values.description || null,
@@ -84,20 +99,38 @@ export default function AdminCategoryCreatePage() {
         is_active: values.is_active,
       };
 
-      await createCategory(dto).unwrap();
+      await updateCategory({ id: categoryId, body: dto }).unwrap();
 
-      message.success('Category created successfully');
-      reset();
+      message.success('Category updated successfully');
       router.push(ROUTES.CATEGORY);
     } catch (error: any) {
-      console.error('Create category error:', error);
-      const errorMessage = error?.data?.error || error?.message || 'Failed to create category';
+      console.error('Update category error:', error);
+      const errorMessage = error?.data?.error || error?.message || 'Failed to update category';
       message.error(errorMessage);
     }
   };
 
+  if (isLoadingCategory) {
+    return (
+      <Card>
+        <div style={{ textAlign: 'center', padding: '40px 0' }}>
+          <Spin size="large" />
+          <p style={{ marginTop: 16 }}>Loading category...</p>
+        </div>
+      </Card>
+    );
+  }
+
+  if (!category) {
+    return (
+      <Card>
+        <p>Category not found</p>
+      </Card>
+    );
+  }
+
   return (
-    <Card title="Create New Category">
+    <Card title={`Edit Category: ${category.name}`}>
       <Form layout="vertical" onFinish={handleSubmit(onSubmit)}>
         {/* Name */}
         <FormInput
@@ -173,6 +206,7 @@ export default function AdminCategoryCreatePage() {
               <CategorySelect
                 value={field.value}
                 onChange={field.onChange}
+                excludeId={categoryId} // Prevent selecting self or descendants
                 placeholder="Select parent category (optional)"
               />
             )}
@@ -188,6 +222,7 @@ export default function AdminCategoryCreatePage() {
               <CategoryImageUpload
                 value={field.value}
                 onChange={field.onChange}
+                existingMedia={category.media}
               />
             )}
           />
@@ -226,12 +261,28 @@ export default function AdminCategoryCreatePage() {
         </Form.Item>
 
         {/* Submit Button */}
-        <FormSubmitButton
-          isLoading={isSubmitting || isLoading}
-          style={{ marginTop: 16 }}
-        >
-          Create Category
-        </FormSubmitButton>
+        <Space>
+          <FormSubmitButton
+            isLoading={isSubmitting || isUpdating}
+            style={{ marginTop: 16 }}
+          >
+            Update Category
+          </FormSubmitButton>
+          <button
+            type="button"
+            onClick={() => router.push(ROUTES.CATEGORY)}
+            style={{
+              marginTop: 16,
+              padding: '4px 15px',
+              border: '1px solid #d9d9d9',
+              borderRadius: '6px',
+              background: '#fff',
+              cursor: 'pointer',
+            }}
+          >
+            Cancel
+          </button>
+        </Space>
       </Form>
     </Card>
   );

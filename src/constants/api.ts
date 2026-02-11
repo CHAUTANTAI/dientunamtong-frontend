@@ -31,3 +31,14 @@ export const API_CONTACT_DETAIL = (id: string) => `/admin/contact/${id}`;
 // Profile endpoints
 export const API_PROFILE = '/admin/profile';
 export const API_PROFILE_UPDATE = '/admin/profile';
+
+// Media endpoints
+export const API_MEDIA = '/admin/media';
+export const API_MEDIA_DETAIL = (id: string) => `/admin/media/${id}`;
+
+// Category tree endpoints
+export const API_CATEGORY_TREE = '/admin/category/tree';
+export const API_CATEGORY_ROOTS = '/admin/category/roots';
+export const API_CATEGORY_CHILDREN = (id: string) => `/admin/category/${id}/children`;
+export const API_CATEGORY_BREADCRUMB = (id: string) => `/admin/category/${id}/breadcrumb`;
+export const API_CATEGORY_SEARCH = '/admin/category/search';

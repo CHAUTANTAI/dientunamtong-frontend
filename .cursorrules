@@ -1,0 +1,53 @@
+# Next.js & React Development Guidelines
+
+## Reference Documentation
+**ALWAYS** refer to the skills documentation in `frontend\.agents\skills\` before writing any Next.js/React code.
+
+Available skills:
+- `vercel-react-best-practices\` - React best practices, performance optimization, async patterns
+- `vercel-composition-patterns\` - Component composition, avoiding prop drilling, compound components
+- `web-design-guidelines\` - UI/UX design patterns
+
+## Workflow (MANDATORY)
+1. **Before writing code**: Search `frontend\.agents\skills\` for relevant patterns
+2. **Check specific rules**: Look in the `rules\` subfolder for detailed guidance
+3. **Apply the pattern**: Follow the examples and rules exactly as documented
+4. **Verify**: Ensure code follows the documented best practices
+
+## Coding Standards
+- Follow Next.js 14+ App Router conventions
+- Use Server Components by default, Client Components only when needed (`'use client'`)
+- Implement proper data fetching patterns (async/await, parallel fetching)
+- Follow TypeScript strict mode
+- Apply performance optimization patterns from the skills folder
+- Use composition patterns over prop drilling
+- Implement proper error boundaries and Suspense boundaries
+
+## Performance Rules (from skills)
+- Minimize re-renders: use memo, useMemo, useCallback appropriately
+- Lazy load components with dynamic imports
+- Optimize bundle size: avoid barrel imports, use conditional imports
+- Cache function results and API calls
+- Use React Server Components for data fetching when possible
+- Implement proper loading and error states
+
+## Component Patterns (from skills)
+- Prefer composition over configuration (children over render props)
+- Use compound components for related UI elements
+- Avoid boolean props, use explicit variants instead
+- Lift state only when necessary
+- Decouple state from implementation details
+
+## File Structure
+- App Router: `app/` directory with proper routing
+- Server Components: default for all components
+- Client Components: mark with `'use client'` only when needed
+- API Routes: use `app/api/` with proper async handlers
+- Shared components: `src/components/`
+- Type definitions: `src/types/`
+
+## React 19+ Features
+- No need for forwardRef (use ref prop directly)
+- Use useTransition for non-urgent updates
+- Implement Suspense boundaries for async operations
+- Use Server Actions for mutations
