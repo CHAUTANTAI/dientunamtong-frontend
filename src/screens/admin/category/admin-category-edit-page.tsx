@@ -8,7 +8,7 @@
 import { useState, useEffect } from 'react';
 import { Card, Form, Input, InputNumber, Switch, Space, Divider, Spin, message } from 'antd';
 import { useRouter } from 'next/navigation';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm, Controller, useWatch } from 'react-hook-form';
 import { 
   useGetCategoryQuery, 
   useUpdateCategoryMutation 
@@ -19,6 +19,7 @@ import { FormInput, FormSubmitButton } from '@/components/common/form';
 import { CategoryImageUpload } from '@/components/common/CategoryImageUpload';
 import { CategorySelect } from '@/components/common/CategorySelect';
 import { generateSlug, isValidSlug } from '@/utils/slug';
+import { getErrorMessage } from '@/utils/error';
 
 interface EditCategoryFormValues {
   name: string;
@@ -43,13 +44,12 @@ export default function AdminCategoryEditPage({ categoryId }: AdminCategoryEditP
   const {
     control,
     handleSubmit,
-    watch,
     setValue,
     reset,
     formState: { isSubmitting, errors },
   } = useForm<EditCategoryFormValues>();
 
-  const nameValue = watch('name');
+  const nameValue = useWatch({ control, name: 'name' });
 
   /**
    * Load category data into form
@@ -103,10 +103,9 @@ export default function AdminCategoryEditPage({ categoryId }: AdminCategoryEditP
 
       message.success('Category updated successfully');
       router.push(ROUTES.CATEGORY);
-    } catch (error: any) {
+    } catch (error) {
       console.error('Update category error:', error);
-      const errorMessage = error?.data?.error || error?.message || 'Failed to update category';
-      message.error(errorMessage);
+      message.error(getErrorMessage(error, 'Failed to update category'));
     }
   };
 

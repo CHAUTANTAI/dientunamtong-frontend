@@ -8,7 +8,7 @@
 import { useState, useEffect } from 'react';
 import { Card, Form, Input, InputNumber, Switch, Space, Divider, message } from 'antd';
 import { useRouter } from 'next/navigation';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm, Controller, useWatch } from 'react-hook-form';
 import { useCreateCategoryMutation } from '@/store/api/categoryApi';
 import type { CreateCategoryDto } from '@/types/category';
 import { ROUTES } from '@/constants/routes';
@@ -16,6 +16,7 @@ import { FormInput, FormSubmitButton } from '@/components/common/form';
 import { CategoryImageUpload } from '@/components/common/CategoryImageUpload';
 import { CategorySelect } from '@/components/common/CategorySelect';
 import { generateSlug, isValidSlug } from '@/utils/slug';
+import { getErrorMessage } from '@/utils/error';
 
 interface CreateCategoryFormValues {
   name: string;
@@ -35,7 +36,6 @@ export default function AdminCategoryCreatePage() {
   const {
     control,
     handleSubmit,
-    watch,
     setValue,
     reset,
     formState: { isSubmitting, errors },
@@ -51,7 +51,7 @@ export default function AdminCategoryCreatePage() {
     },
   });
 
-  const nameValue = watch('name');
+  const nameValue = useWatch({ control, name: 'name' });
 
   /**
    * Auto-generate slug from name
@@ -89,10 +89,9 @@ export default function AdminCategoryCreatePage() {
       message.success('Category created successfully');
       reset();
       router.push(ROUTES.CATEGORY);
-    } catch (error: any) {
+    } catch (error) {
       console.error('Create category error:', error);
-      const errorMessage = error?.data?.error || error?.message || 'Failed to create category';
-      message.error(errorMessage);
+      message.error(getErrorMessage(error, 'Failed to create category'));
     }
   };
 

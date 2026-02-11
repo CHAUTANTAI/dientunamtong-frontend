@@ -118,6 +118,10 @@ frontend/
 │   │   ├── category.ts          ✨ Updated - Full types
 │   │   └── media.ts              ✨ New - Media types
 │   │
+│   ├── utils/
+│   │   ├── slug.ts              ✨ New - Slug utilities
+│   │   └── error.ts             ✨ New - Error handling
+│   │
 │   ├── store/
 │   │   ├── api/
 │   │   │   ├── categoryApi.ts   ✨ Updated - Tree support
@@ -135,9 +139,6 @@ frontend/
 │   │           ├── admin-category-create-page.tsx  ✨ Refactored
 │   │           ├── admin-category-edit-page.tsx    ✨ New
 │   │           └── admin-category-page.tsx         ✨ Refactored
-│   │
-│   ├── utils/
-│   │   └── slug.ts              ✨ New - Slug utilities
 │   │
 │   └── constants/
 │       └── api.ts               ✨ Updated - New endpoints
@@ -245,6 +246,25 @@ const slug = generateSlug(categoryName);
 // Validate
 if (!isValidSlug(slug)) {
   message.error('Invalid slug format');
+}
+```
+
+### Error Handling
+
+```tsx
+import { getErrorMessage, isValidationError } from '@/utils/error';
+
+try {
+  await createCategory(data).unwrap();
+  message.success('Category created successfully');
+} catch (error) {
+  console.error('Create error:', error);
+  message.error(getErrorMessage(error, 'Failed to create category'));
+  
+  // Optional: Handle specific error types
+  if (isValidationError(error)) {
+    // Handle validation error
+  }
 }
 ```
 

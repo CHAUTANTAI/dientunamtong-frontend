@@ -32,6 +32,7 @@ import { useRouter } from 'next/navigation';
 import { useGetCategoriesQuery, useDeleteCategoryMutation } from '@/store/api/categoryApi';
 import type { Category } from '@/types/category';
 import { ROUTES } from '@/constants/routes';
+import { getErrorMessage } from '@/utils/error';
 
 export default function AdminCategoryPage() {
   const router = useRouter();
@@ -102,10 +103,9 @@ export default function AdminCategoryPage() {
         try {
           await deleteCategory(record.id).unwrap();
           message.success('Category deleted successfully');
-        } catch (error: any) {
-          console.error(error);
-          const errorMessage = error?.data?.error || 'Failed to delete category';
-          message.error(errorMessage);
+        } catch (error) {
+          console.error('Delete error:', error);
+          message.error(getErrorMessage(error, 'Failed to delete category'));
         }
       },
     });
