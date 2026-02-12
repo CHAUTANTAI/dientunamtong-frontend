@@ -90,7 +90,7 @@ export const Sidebar = ({ collapsed = false, onToggle }: SidebarProps) => {
       {/* Logo & Brand Section with Toggle */}
       <div
         style={{
-          height: "72px",
+          height: "64px",
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
@@ -101,15 +101,14 @@ export const Sidebar = ({ collapsed = false, onToggle }: SidebarProps) => {
           gap: "12px",
         }}
       >
-        {/* Logo and Company Name */}
+        {/* Logo Only */}
         <div
           style={{
             display: "flex",
             alignItems: "center",
-            gap: collapsed ? "0" : "14px",
             flex: 1,
             minWidth: 0,
-            justifyContent: collapsed ? "center" : "flex-start",
+            justifyContent: "center",
           }}
         >
           {signedLogoUrl && (
@@ -128,21 +127,6 @@ export const Sidebar = ({ collapsed = false, onToggle }: SidebarProps) => {
                 transition: "all 0.3s ease",
               }}
             />
-          )}
-          {!collapsed && (
-            <Text
-              style={{
-                color: "#fff",
-                fontSize: "17px",
-                fontWeight: 700,
-                letterSpacing: "0.3px",
-                whiteSpace: "nowrap",
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-              }}
-            >
-              {profile?.company_name || "Nam Tông"}
-            </Text>
           )}
         </div>
 
@@ -266,7 +250,7 @@ export const Sidebar = ({ collapsed = false, onToggle }: SidebarProps) => {
         .custom-sidebar-menu .ant-menu-item {
           border-radius: 8px;
           margin: 4px 12px;
-          padding-left: ${collapsed ? "0" : "20"}px !important;
+          padding-left: 20px !important;
           height: 44px;
           line-height: 44px;
           display: flex;

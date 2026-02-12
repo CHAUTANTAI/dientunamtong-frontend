@@ -35,6 +35,21 @@ export const Header = () => {
 
   const menuItems: MenuProps["items"] = [
     {
+      key: "username",
+      icon: user && (
+        <div
+          style={{ borderBottom: "1px solid #f0f0f0" }}
+        >
+          <Space direction="vertical" size={4}>
+            <Text strong>{user.username}</Text>
+            <Tag color={getRoleColor(user.role)} style={{ margin: 0 }}>
+              {getRoleDisplayName(user.role)}
+            </Tag>
+          </Space>
+        </div>
+      ),
+    },
+    {
       key: "profile",
       icon: <UserOutlined />,
       label: "Profile",
@@ -67,7 +82,19 @@ export const Header = () => {
         height: "64px",
       }}
     >
-      <Space size={"large"}></Space>
+      {/* Left Section - Company Name */}
+      <Space size="large">
+        <Text
+          style={{
+            color: "#fff",
+            fontSize: "18px",
+            fontWeight: 600,
+            letterSpacing: "0.3px",
+          }}
+        >
+          {profile?.company_name || "Nam Tông"}
+        </Text>
+      </Space>
 
       {/* Right Section */}
       <Space size="large" style={{ marginLeft: "auto" }}>
@@ -98,24 +125,9 @@ export const Header = () => {
         />
 
         {/* User Menu */}
-        <Dropdown 
-          menu={{ items: menuItems }} 
+        <Dropdown
+          menu={{ items: menuItems }}
           placement="bottomRight"
-          popupRender={(menu) => (
-            <div>
-              {user && (
-                <div style={{ padding: '12px 16px', borderBottom: '1px solid #f0f0f0' }}>
-                  <Space direction="vertical" size={4}>
-                    <Text strong>{user.username}</Text>
-                    <Tag color={getRoleColor(user.role)} style={{ margin: 0 }}>
-                      {getRoleDisplayName(user.role)}
-                    </Tag>
-                  </Space>
-                </div>
-              )}
-              {menu}
-            </div>
-          )}
         >
           <Button
             type="text"
@@ -140,7 +152,7 @@ export const Header = () => {
                 fontWeight: 500,
               }}
             >
-              {profile?.company_name || "Admin"}
+              Admin
             </Text>
           </Button>
         </Dropdown>
