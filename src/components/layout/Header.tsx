@@ -104,7 +104,7 @@ export const Header = () => {
         <Dropdown 
           menu={{ items: menuItems }} 
           placement="bottomRight"
-          dropdownRender={(menu) => (
+          popupRender={(menu) => (
             <div>
               {user && (
                 <div style={{ padding: '12px 16px', borderBottom: '1px solid #f0f0f0' }}>
