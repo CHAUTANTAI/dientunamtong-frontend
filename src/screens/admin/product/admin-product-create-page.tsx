@@ -18,7 +18,7 @@ import {
 import type { Product } from '@/types/product';
 import { ROUTES } from '@/constants/routes';
 import { FormInput, FormSubmitButton } from '@/components/common/form';
-import { supabase } from '@/utils/supabase';
+import { uploadToSupabase } from '@/utils/supabase';
 
 type CreateProductFormValues = Pick<
   Product,
@@ -72,33 +72,25 @@ export default function AdminProductCreatePage() {
       // Step 2: Upload image if provided
       if (fileList.length > 0 && fileList[0].originFileObj) {
         const file = fileList[0].originFileObj;
-        const fileExt = file.name.split('.').pop();
-        const fileName = `${product.id}_${file.name}`;
-        const filePath = `product/${fileName}`;
 
-        // Upload to Supabase storage
-        const { error: uploadError } = await supabase.storage
-          .from('content')
-          .upload(filePath, file, {
-            cacheControl: '3600',
-            upsert: false,
-          });
+        try {
+          // Upload to Supabase storage using common utility
+          const fileName = `${product.id}_${file.name}`;
+          const { path } = await uploadToSupabase(file, 'product', { fileName });
 
-        if (uploadError) {
-          // eslint-disable-next-line no-console
-          console.error('Upload error:', uploadError);
+          // Step 3: Add product image record
+          // Store relative path without bucket name: product/id_filename
+          const imageUrl = `/${path}`;
+          await addProductImage({
+            productId: product.id,
+            image_url: imageUrl,
+            sort_order: 0,
+          }).unwrap();
+        } catch (error) {
+          console.error('Upload error:', error);
           message.error('Failed to upload image');
           return;
         }
-
-        // Step 3: Add product image record
-        // Store relative path without bucket name: product/id_filename
-        const imageUrl = `/product/${fileName}`;
-        await addProductImage({
-          productId: product.id,
-          image_url: imageUrl,
-          sort_order: 0,
-        }).unwrap();
       }
 
       message.success('Product created successfully');
@@ -106,7 +98,7 @@ export default function AdminProductCreatePage() {
       setFileList([]);
       router.push(ROUTES.PRODUCT);
     } catch (error) {
-      // eslint-disable-next-line no-console
+       
       console.error(error);
       message.error('Failed to create product');
     }

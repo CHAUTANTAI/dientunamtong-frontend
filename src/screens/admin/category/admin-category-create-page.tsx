@@ -5,9 +5,9 @@
  * Complete category creation with media upload, parent selection, and slug generation
  */
 
-import { useState, useEffect } from 'react';
-import { Card, Form, Input, InputNumber, Switch, Space, Divider, message } from 'antd';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect, Suspense } from 'react';
+import { Card, Form, Input, InputNumber, Switch, Space, Divider, message, Spin } from 'antd';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useForm, Controller, useWatch } from 'react-hook-form';
 import { useCreateCategoryMutation } from '@/store/api/categoryApi';
 import type { CreateCategoryDto } from '@/types/category';
@@ -28,8 +28,10 @@ interface CreateCategoryFormValues {
   is_active: boolean;
 }
 
-export default function AdminCategoryCreatePage() {
+function AdminCategoryCreatePageContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const parentId = searchParams.get('parent_id');
   const [createCategory, { isLoading }] = useCreateCategoryMutation();
   const [autoSlug, setAutoSlug] = useState(true);
 
@@ -44,7 +46,7 @@ export default function AdminCategoryCreatePage() {
       name: '',
       slug: '',
       description: '',
-      parent_id: null,
+      parent_id: parentId || null,
       media_id: null,
       sort_order: 0,
       is_active: true,
@@ -96,7 +98,7 @@ export default function AdminCategoryCreatePage() {
   };
 
   return (
-    <Card title="Create New Category">
+    <Card title={parentId ? 'Create Child Category' : 'Create Root Category'}>
       <Form layout="vertical" onFinish={handleSubmit(onSubmit)}>
         {/* Name */}
         <FormInput
@@ -236,3 +238,10 @@ export default function AdminCategoryCreatePage() {
   );
 }
 
+export default function AdminCategoryCreatePage() {
+  return (
+    <Suspense fallback={<div style={{ textAlign: 'center', padding: '50px' }}><Spin size="large" /></div>}>
+      <AdminCategoryCreatePageContent />
+    </Suspense>
+  );
+}

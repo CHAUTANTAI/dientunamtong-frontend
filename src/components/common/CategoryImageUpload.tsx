@@ -6,12 +6,13 @@
 'use client';
 
 import { useState } from 'react';
-import { Upload, Button, Image, message, Spin } from 'antd';
+import { Upload, Button, message, Spin } from 'antd';
 import { UploadOutlined, DeleteOutlined, LoadingOutlined } from '@ant-design/icons';
-import type { UploadFile } from 'antd/es/upload/interface';
-import { supabase } from '@/utils/supabase';
+import type { UploadRequestOption } from 'rc-upload/lib/interface';
+import { uploadToSupabase } from '@/utils/supabase';
 import { useCreateMediaMutation, useDeleteMediaMutation } from '@/store/api/mediaApi';
 import type { Media, MediaType } from '@/types/media';
+import { ProductImage } from './ProductImage';
 
 interface CategoryImageUploadProps {
   value?: string | null; // media_id
@@ -44,40 +45,21 @@ export const CategoryImageUpload = ({
     try {
       setUploading(true);
 
-      // Step 1: Upload to Supabase Storage
-      const fileName = `category/${Date.now()}_${file.name}`;
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from('content')
-        .upload(fileName, file, {
-          cacheControl: '3600',
-          upsert: false,
-        });
+      // Step 1: Upload to Supabase Storage using common utility
+      const { path: relativePath } = await uploadToSupabase(file, 'category');
 
-      if (uploadError) {
-        throw new Error(`Upload failed: ${uploadError.message}`);
-      }
-
-      // Step 2: Get public URL
-      const { data: urlData } = supabase.storage
-        .from('content')
-        .getPublicUrl(uploadData.path);
-
-      if (!urlData?.publicUrl) {
-        throw new Error('Failed to get public URL');
-      }
-
-      // Step 3: Create Media record in database
+      // Step 2: Create Media record in database
       const mediaData = await createMedia({
         file_name: file.name,
-        file_url: uploadData.path, // Store relative path
+        file_url: relativePath, // Store relative path for signed URL generation
         media_type: 'image' as MediaType,
         mime_type: file.type,
         file_size: file.size,
         is_active: true,
       }).unwrap();
 
-      // Step 4: Update state and notify parent
-      setImageUrl(urlData.publicUrl);
+      // Step 3: Update state and notify parent
+      setImageUrl(relativePath);
       setCurrentMediaId(mediaData.id);
       onChange?.(mediaData.id);
 
@@ -123,10 +105,10 @@ export const CategoryImageUpload = ({
   /**
    * Custom upload handler (prevents default upload behavior)
    */
-  const customRequest = async (options: any) => {
+  const customRequest = async (options: UploadRequestOption) => {
     const { file, onSuccess, onError } = options;
 
-    const success = await handleUpload(file);
+    const success = await handleUpload(file as File);
     if (success) {
       onSuccess?.(null);
     } else {
@@ -158,8 +140,8 @@ export const CategoryImageUpload = ({
       {imageUrl ? (
         // Show existing image with remove button
         <div style={{ position: 'relative', display: 'inline-block' }}>
-          <Image
-            src={imageUrl}
+          <ProductImage
+            imageUrl={imageUrl}
             alt="Category"
             width={200}
             height={200}

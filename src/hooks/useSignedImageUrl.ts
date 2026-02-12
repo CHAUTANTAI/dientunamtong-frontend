@@ -14,21 +14,32 @@ export const useSignedImageUrl = (imageUrl: string | null | undefined): string =
   const [signedUrl, setSignedUrl] = useState<string>('');
 
   useEffect(() => {
-    if (!imageUrl) {
-      setSignedUrl('');
-      return;
-    }
+    let cancelled = false;
 
-    // Generate signed URL
-    getSupabaseImageUrl(imageUrl)
-      .then((url) => {
-        setSignedUrl(url);
-      })
-      .catch((error) => {
-        // eslint-disable-next-line no-console
-        console.error('Failed to get signed URL:', error);
+    const fetchSignedUrl = async () => {
+      if (!imageUrl) {
         setSignedUrl('');
-      });
+        return;
+      }
+
+      try {
+        const url = await getSupabaseImageUrl(imageUrl);
+        if (!cancelled) {
+          setSignedUrl(url);
+        }
+      } catch (error) {
+        console.error('Failed to get signed URL:', error);
+        if (!cancelled) {
+          setSignedUrl('');
+        }
+      }
+    };
+
+    void fetchSignedUrl();
+
+    return () => {
+      cancelled = true;
+    };
   }, [imageUrl]);
 
   return signedUrl;

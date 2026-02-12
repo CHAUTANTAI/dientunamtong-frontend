@@ -110,7 +110,7 @@ export interface Permission {
 /**
  * Get permissions based on role
  */
-export const getPermissions = (role: UserRole): Permission => {
+export const getPermissions = (role: UserRole | null): Permission => {
   const basePermissions: Permission = {
     canCreateCategory: false,
     canEditCategory: false,
@@ -125,6 +125,10 @@ export const getPermissions = (role: UserRole): Permission => {
     canManageUsers: false,
     canEditSettings: false,
   };
+
+  if (!role) {
+    return basePermissions;
+  }
 
   switch (role) {
     case UserRole.ADMIN:

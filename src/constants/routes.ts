@@ -11,6 +11,7 @@ export const ROUTES = {
   DASHBOARD: "/admin/dashboard",
   CATEGORY: "/admin/category",
   PRODUCT: "/admin/product",
+  CONTACT: "/admin/contact",
   PROFILE: "/admin/profile",
 
   ADMIN_ROOT: "/",

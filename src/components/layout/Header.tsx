@@ -14,7 +14,6 @@ import {
 } from "@ant-design/icons";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
-import { useSignedImageUrl } from "@/hooks/useSignedImageUrl";
 import { useGetProfileQuery } from "@/store/api/profileApi";
 import { ROUTES } from "@/constants/routes";
 import { getRoleDisplayName, getRoleColor } from "@/utils/rbac";
@@ -28,8 +27,6 @@ export const Header = () => {
 
   // Fetch profile data from API (will use cached data if available)
   const { data: profile } = useGetProfileQuery();
-
-  const signedLogoUrl = useSignedImageUrl(profile?.logo || "");
 
   const handleLogout = () => {
     logout();

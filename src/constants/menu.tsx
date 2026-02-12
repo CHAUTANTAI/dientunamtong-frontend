@@ -4,6 +4,13 @@
  */
 
 import React from 'react';
+import {
+  DashboardOutlined,
+  AppstoreOutlined,
+  ShoppingOutlined,
+  MessageOutlined,
+  UserOutlined,
+} from '@ant-design/icons';
 import { ROUTES } from './routes';
 import { UserRole } from '@/types/auth';
 
@@ -22,30 +29,35 @@ export const ADMIN_MENU_ITEMS: AdminMenuItem[] = [
     key: 'dashboard',
     label: 'Dashboard',
     href: ROUTES.DASHBOARD,
+    icon: <DashboardOutlined />,
     // All roles can see dashboard
   },
   {
     key: 'category',
     label: 'Categories',
     href: ROUTES.CATEGORY,
+    icon: <AppstoreOutlined />,
     minRole: UserRole.MANAGER, // Manager and Admin can access
   },
   {
     key: 'product',
     label: 'Products',
     href: ROUTES.PRODUCT,
+    icon: <ShoppingOutlined />,
     minRole: UserRole.MANAGER, // Manager and Admin can access
   },
   {
     key: 'contact',
     label: 'Contacts',
     href: ROUTES.CONTACT,
+    icon: <MessageOutlined />,
     minRole: UserRole.STAFF, // All roles can access
   },
   {
     key: 'profile',
     label: 'Profile',
     href: ROUTES.PROFILE,
+    icon: <UserOutlined />,
     // All roles can see profile
   },
 ];

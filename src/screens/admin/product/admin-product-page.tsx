@@ -44,7 +44,7 @@ import { ROUTES } from '@/constants/routes';
 import { FormInput, FormSubmitButton } from '@/components/common/form';
 import { ProductImage as ProductImageComponent } from '@/components/common/ProductImage';
 import { EntityFormSkeleton } from '@/components/common/EntityFormSkeleton';
-import { supabase } from '@/utils/supabase';
+import { uploadToSupabase, deleteFromSupabase } from '@/utils/supabase';
 
 interface ProductFormValues {
   name: string;
@@ -106,6 +106,7 @@ export default function AdminProductPage() {
     skip: !editingProductId,
   });
 
+  // Sync form and selectedProduct when editingProduct loads
   useEffect(() => {
     if (!editingProduct) return;
 
@@ -120,7 +121,10 @@ export default function AdminProductPage() {
       is_active: editingProduct.is_active ?? true,
     });
 
-    setSelectedProduct(editingProduct);
+    // Update selectedProduct for edit modal (using queueMicrotask to avoid sync setState warning)
+    queueMicrotask(() => {
+      setSelectedProduct(editingProduct);
+    });
   }, [editingProduct, reset]);
 
   const openDetail = (record: ProductWithImages) => {
@@ -139,7 +143,7 @@ export default function AdminProductPage() {
       await deleteProduct(record.id).unwrap();
       message.success('Product deleted successfully');
     } catch (error) {
-      // eslint-disable-next-line no-console
+       
       console.error(error);
       message.error('Failed to delete product');
     }
@@ -166,8 +170,6 @@ export default function AdminProductPage() {
       // Step 2: Handle image upload if new file is provided
       if (editFileList.length > 0 && editFileList[0].originFileObj) {
         const file = editFileList[0].originFileObj;
-        const fileName = `${selectedProduct.id}_${file.name}`;
-        const filePath = `product/${fileName}`;
 
         // Delete old primary image if exists
         const primaryImage = getPrimaryImage(selectedProduct.images);
@@ -177,34 +179,28 @@ export default function AdminProductPage() {
               imageId: primaryImage.id,
             }).unwrap();
           } catch (error) {
-            // eslint-disable-next-line no-console
             console.warn('Failed to remove old image:', error);
             // Continue with upload even if delete fails
           }
         }
 
-        // Upload new image to Supabase storage
-        const { error: uploadError } = await supabase.storage
-          .from('content')
-          .upload(filePath, file, {
-            cacheControl: '3600',
-            upsert: false,
-          });
+        try {
+          // Upload new image to Supabase storage using common utility
+          const fileName = `${selectedProduct.id}_${file.name}`;
+          const { path } = await uploadToSupabase(file, 'product', { fileName });
 
-        if (uploadError) {
-          // eslint-disable-next-line no-console
-          console.error('Upload error:', uploadError);
+          // Add new product image record
+          const imageUrl = `/${path}`;
+          await addProductImage({
+            productId: selectedProduct.id,
+            image_url: imageUrl,
+            sort_order: 0,
+          }).unwrap();
+        } catch (error) {
+          console.error('Upload error:', error);
           message.error('Failed to upload image');
           return;
         }
-
-        // Add new product image record
-        const imageUrl = `/product/${fileName}`;
-        await addProductImage({
-          productId: selectedProduct.id,
-          image_url: imageUrl,
-          sort_order: 0,
-        }).unwrap();
       }
 
       message.success('Product updated successfully');
@@ -216,7 +212,7 @@ export default function AdminProductPage() {
       // Reload product list to ensure latest data is shown
       refetch();
     } catch (error) {
-      // eslint-disable-next-line no-console
+       
       console.error(error);
       message.error('Failed to update product');
     }

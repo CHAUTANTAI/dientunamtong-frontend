@@ -15,7 +15,7 @@ export const usePermissions = (): Permission => {
   const permissions = useMemo(() => {
     if (!user) {
       // Return empty permissions if not logged in
-      return getPermissions(null as any);
+      return getPermissions(null);
     }
     return getPermissions(user.role);
   }, [user]);

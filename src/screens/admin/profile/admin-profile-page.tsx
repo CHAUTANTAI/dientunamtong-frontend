@@ -8,7 +8,7 @@ import {
   useUpdateProfileMutation,
 } from "@/store/api/profileApi";
 import { getErrorMessage } from "@/utils/api-interceptor";
-import { supabase } from "@/utils/supabase";
+import { uploadToSupabase, deleteFromSupabase } from "@/utils/supabase";
 import { useSignedImageUrl } from "@/hooks/useSignedImageUrl";
 
 const AdminProfilePage = () => {
@@ -37,6 +37,7 @@ const AdminProfilePage = () => {
   const onFinish = async (values: Partial<Profile>) => {
     try {
       // Only send fields that are in the form (exclude username, is_active)
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { username, is_active, ...updateData } = values;
 
       // Step 1: Upload new logo if file is selected
@@ -44,36 +45,33 @@ const AdminProfilePage = () => {
       if (fileList.length > 0 && fileList[0].originFileObj) {
         setIsUploading(true);
         const file = fileList[0].originFileObj;
-        const fileExt = file.name.split(".").pop();
-        const fileName = `profile_logo_${Date.now()}.${fileExt}`;
-        const filePath = `profile/${fileName}`;
 
-        // Upload to Supabase storage
-        const { error: uploadError } = await supabase.storage
-          .from("content")
-          .upload(filePath, file, {
-            cacheControl: "3600",
-            upsert: false,
-          });
+        try {
+          // Upload to Supabase storage using common utility
+          const fileExt = file.name.split(".").pop();
+          const fileName = `profile_logo_${Date.now()}.${fileExt}`;
+          const { path } = await uploadToSupabase(file, 'profile', { fileName });
 
-        if (uploadError) {
-          console.error("Upload error:", uploadError);
+          // Delete old logo if exists
+          if (data?.logo && data.logo.startsWith("/profile/")) {
+            try {
+              await deleteFromSupabase(data.logo);
+            } catch (error) {
+              console.warn("Failed to delete old logo:", error);
+              // Continue even if delete fails
+            }
+          }
+
+          // Update logo URL with relative path
+          logoUrl = `/${path}`;
+        } catch (error) {
+          console.error("Upload error:", error);
           message.error("Failed to upload logo");
           setIsUploading(false);
           return;
+        } finally {
+          setIsUploading(false);
         }
-
-        // Delete old logo if exists
-        if (data?.logo && data.logo.startsWith("/profile/")) {
-          const oldPath = data.logo.startsWith("/")
-            ? data.logo.slice(1)
-            : data.logo;
-          await supabase.storage.from("content").remove([oldPath]);
-        }
-
-        // Update logo URL with relative path
-        logoUrl = `/${filePath}`;
-        setIsUploading(false);
       }
 
       // Step 2: Update profile
@@ -122,7 +120,7 @@ const AdminProfilePage = () => {
 
   return (
     <div style={{ maxWidth: 800, margin: "0 auto" }}>
-      <Card title="Company Profile" bordered={false}>
+      <Card title="Company Profile" variant="borderless">
         <Form
           form={form}
           layout="vertical"

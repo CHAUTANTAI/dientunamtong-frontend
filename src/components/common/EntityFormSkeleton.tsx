@@ -30,7 +30,7 @@ export const EntityFormSkeleton = ({
   return (
     <Space direction="vertical" style={{ width: '100%' }} size="middle">
       {fields.map((_, index) => (
-        // eslint-disable-next-line react/no-array-index-key
+         
         <div key={index}>
           <Skeleton.Input style={{ width: 120, marginBottom: 8 }} active size="small" />
           <Skeleton.Input block active />

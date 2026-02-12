@@ -9,7 +9,7 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE
 const supabaseServiceRoleKey = process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 
 if (!supabaseUrl || !supabaseServiceRoleKey) {
-  // eslint-disable-next-line no-console
+   
   console.warn('Supabase URL or Service Role Key is missing');
 }
 
@@ -51,14 +51,14 @@ export const getSupabaseSignedUrl = async (
       .createSignedUrl(path, expiresIn);
 
     if (error) {
-      // eslint-disable-next-line no-console
+       
       console.error('Error creating signed URL:', error);
       return '';
     }
 
     return data?.signedUrl || '';
   } catch (error) {
-    // eslint-disable-next-line no-console
+     
     console.error('Error creating signed URL:', error);
     return '';
   }
@@ -102,4 +102,84 @@ export const getSupabaseImageUrl = async (
   }
 
   return signedUrl;
+};
+
+/**
+ * Upload result interface
+ */
+export interface SupabaseUploadResult {
+  path: string;
+  fullPath: string;
+}
+
+/**
+ * Upload file to Supabase Storage
+ * @param file - File to upload
+ * @param folder - Folder name (e.g., 'product', 'category', 'profile')
+ * @param options - Upload options
+ * @returns Promise that resolves to relative path
+ */
+export const uploadToSupabase = async (
+  file: File,
+  folder: string,
+  options?: {
+    fileName?: string;
+    cacheControl?: string;
+    upsert?: boolean;
+  }
+): Promise<SupabaseUploadResult> => {
+  if (!file) {
+    throw new Error('File is required');
+  }
+
+  if (!folder) {
+    throw new Error('Folder is required');
+  }
+
+  // Generate file name if not provided
+  const fileName = options?.fileName || `${Date.now()}_${file.name}`;
+  const filePath = `${folder}/${fileName}`;
+
+  // Upload to Supabase Storage
+  const { data, error } = await supabase.storage
+    .from('content')
+    .upload(filePath, file, {
+      cacheControl: options?.cacheControl || '3600',
+      upsert: options?.upsert || false,
+    });
+
+  if (error) {
+    throw new Error(`Upload failed: ${error.message}`);
+  }
+
+  if (!data) {
+    throw new Error('Upload failed: No data returned');
+  }
+
+  return {
+    path: data.path, // Relative path (e.g., "product/123_image.jpg")
+    fullPath: data.fullPath, // Full path with bucket (e.g., "content/product/123_image.jpg")
+  };
+};
+
+/**
+ * Delete file from Supabase Storage
+ * @param path - Relative path to delete (e.g., "product/123_image.jpg" or "/product/123_image.jpg")
+ * @returns Promise that resolves when deleted
+ */
+export const deleteFromSupabase = async (path: string): Promise<void> => {
+  if (!path) {
+    throw new Error('Path is required');
+  }
+
+  // Remove leading slash if present
+  const cleanPath = path.startsWith('/') ? path.slice(1) : path;
+
+  const { error } = await supabase.storage
+    .from('content')
+    .remove([cleanPath]);
+
+  if (error) {
+    throw new Error(`Delete failed: ${error.message}`);
+  }
 };

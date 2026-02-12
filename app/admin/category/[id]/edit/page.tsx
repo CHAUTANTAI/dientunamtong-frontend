@@ -5,12 +5,13 @@
 import AdminCategoryEditPage from '@/screens/admin/category/admin-category-edit-page';
 
 interface PageProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
-export default function Page({ params }: PageProps) {
-  return <AdminCategoryEditPage categoryId={params.id} />;
+export default async function Page({ params }: PageProps) {
+  const { id } = await params;
+  return <AdminCategoryEditPage categoryId={id} />;
 }
 

@@ -7,12 +7,14 @@
 'use client';
 
 import { useMemo } from 'react';
-import { Select, Spin } from 'antd';
-import type { SelectProps } from 'antd';
+import { TreeSelect, Spin } from 'antd';
+import type { TreeSelectProps } from 'antd/es/tree-select';
+import type { DataNode } from 'antd/es/tree';
 import { useGetCategoriesQuery } from '@/store/api/categoryApi';
 import type { Category } from '@/types/category';
+import { buildTree, getDescendants, type TreeNode } from '@/utils/tree';
 
-interface CategorySelectProps extends Omit<SelectProps, 'options'> {
+interface CategorySelectProps extends Omit<TreeSelectProps, 'treeData'> {
   value?: string | null;
   onChange?: (value: string | null) => void;
   excludeId?: string; // Exclude this category and its descendants (for editing)
@@ -35,52 +37,72 @@ export const CategorySelect = ({
   /**
    * Build tree structure and filter out excluded categories
    */
-  const categoryOptions = useMemo(() => {
+  const treeData = useMemo(() => {
     if (!categories.length) return [];
 
-    // Filter out excluded category and its descendants
-    let filteredCategories = categories;
+    // Build tree structure
+    const tree = buildTree<Category>(categories, {
+      sortBy: 'sort_order',
+    });
+
+    // Get excluded IDs (self + descendants)
+    const excludedIds = new Set<string>();
     if (excludeId) {
-      // Find excluded category
-      const excluded = categories.find((cat) => cat.id === excludeId);
-      if (excluded) {
-        // Filter out excluded and its descendants
-        filteredCategories = categories.filter((cat) => {
-          // Exclude self
-          if (cat.id === excludeId) return false;
-          
-          // Exclude descendants (check if excluded is ancestor)
-          // Simple check: if cat.level > excluded.level and starts with same parent chain
-          // For now, we'll use a simple parent_id check
-          // TODO: Implement proper descendant check using closure table if needed
-          return cat.parent_id !== excludeId;
-        });
+      excludedIds.add(excludeId);
+      
+      // Find excluded node and get all descendants
+      const findNode = (nodes: TreeNode<Category>[]): TreeNode<Category> | null => {
+        for (const node of nodes) {
+          if (node.key === excludeId) return node;
+          if (node.children) {
+            const found = findNode(node.children);
+            if (found) return found;
+          }
+        }
+        return null;
+      };
+
+      const excludedNode = findNode(tree);
+      if (excludedNode) {
+        const descendants = getDescendants(excludedNode);
+        descendants.forEach((node) => excludedIds.add(node.key));
       }
     }
 
-    // Sort by level and sort_order
-    const sorted = [...filteredCategories].sort((a, b) => {
-      if (a.level !== b.level) return a.level - b.level;
-      return (a.sort_order || 0) - (b.sort_order || 0);
-    });
+    /**
+     * Convert tree nodes to TreeSelect format
+     */
+    const convertToTreeSelectData = (
+      nodes: TreeNode<Category>[]
+    ): DataNode[] => {
+      return nodes.map((node) => {
+        const isExcluded = excludedIds.has(node.key);
+        
+        return {
+          title: node.data.name,
+          value: node.key,
+          key: node.key,
+          disabled: isExcluded,
+          children:
+            node.children && node.children.length > 0
+              ? convertToTreeSelectData(node.children)
+              : undefined,
+        };
+      });
+    };
 
-    // Build options with indentation
-    return sorted.map((category) => ({
-      label: `${'  '.repeat(category.level)}${category.name}`,
-      value: category.id,
-      level: category.level,
-    }));
+    return convertToTreeSelectData(tree);
   }, [categories, excludeId]);
 
   /**
    * Handle change
    */
-  const handleChange = (newValue: string | null) => {
+  const handleChange = (newValue: string) => {
     onChange?.(newValue || null);
   };
 
   return (
-    <Select
+    <TreeSelect
       value={value || undefined}
       onChange={handleChange}
       placeholder={placeholder}
@@ -88,12 +110,9 @@ export const CategorySelect = ({
       disabled={disabled || isLoading}
       loading={isLoading}
       showSearch
-      filterOption={(input, option) =>
-        (option?.label?.toString() || '')
-          .toLowerCase()
-          .includes(input.toLowerCase())
-      }
-      options={categoryOptions}
+      treeDefaultExpandAll
+      treeNodeFilterProp="title"
+      treeData={treeData}
       notFoundContent={isLoading ? <Spin size="small" /> : 'No categories found'}
       style={{ width: '100%' }}
       {...restProps}

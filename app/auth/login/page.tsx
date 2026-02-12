@@ -5,9 +5,10 @@
 
 "use client";
 
-import { Form, Card, Typography } from "antd";
+import { Suspense } from "react";
+import { Form, Card, Typography, Spin } from "antd";
 import { useForm } from "react-hook-form";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useLoginMutation } from "@/store/api/authApi";
 import { getErrorMessage } from "@/utils/api-interceptor";
 import {
@@ -23,10 +24,14 @@ import { useAuth } from "@/hooks/useAuth";
 
 const { Title, Text } = Typography;
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [loginMutation, { isLoading }] = useLoginMutation();
   const { login } = useAuth();
+
+  // Get callback URL from query params (set by proxy/middleware)
+  const callbackUrl = searchParams.get('callbackUrl') || ROUTES.DASHBOARD;
 
   const {
     control,
@@ -48,7 +53,8 @@ export default function LoginPage() {
 
       if (authData.success && authData.token && authData.user) {
         login(authData.user, authData.token);
-        router.push(ROUTES.DASHBOARD);
+        // Redirect to callback URL (preserved from before login) or dashboard
+        router.push(callbackUrl);
       } else {
         setError("root", {
           message: "Login failed. Invalid response from server.",
@@ -117,5 +123,26 @@ export default function LoginPage() {
         </div>
       </Card>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense
+      fallback={
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "100vh",
+          }}
+        >
+          <Spin size="large" />
+        </div>
+      }
+    >
+      <LoginForm />
+    </Suspense>
   );
 }
