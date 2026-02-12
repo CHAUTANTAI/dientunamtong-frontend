@@ -9,11 +9,11 @@ import { useState, useMemo } from 'react';
 import {
   Button,
   Space,
+  App,
   Modal,
   Descriptions,
   Input,
   Select,
-  message,
   Card,
   Tag,
 } from 'antd';
@@ -29,16 +29,30 @@ import { ROUTES } from '@/constants/routes';
 import { getErrorMessage } from '@/utils/error';
 import { ProductImage } from '@/components/common/ProductImage';
 import { CategoryTreeTable } from '@/components/common/CategoryTreeTable';
+import { useAuth } from '@/hooks/useAuth';
+import { getPermissions } from '@/utils/rbac';
 
 export default function AdminCategoryPage() {
   const router = useRouter();
+  const { user } = useAuth();
+  const permissions = getPermissions(user?.role || null);
   const { data: categories = [], isLoading } = useGetCategoriesQuery();
   const [deleteCategory, { isLoading: isDeleting }] = useDeleteCategoryMutation();
+  
+  // Use App hooks for message only
+  const { message } = App.useApp();
+
+  // Debug logs
+  console.log('[AdminCategoryPage] User:', user);
+  console.log('[AdminCategoryPage] Permissions:', permissions);
+  console.log('[AdminCategoryPage] canDeleteCategory:', permissions.canDeleteCategory);
 
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [searchText, setSearchText] = useState('');
   const [filterActive, setFilterActive] = useState<string>('all');
+  const [categoryToDelete, setCategoryToDelete] = useState<Category | null>(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   /**
    * Filter and sort categories
@@ -89,22 +103,42 @@ export default function AdminCategoryPage() {
    * Handle delete with confirmation
    */
   const handleDelete = (record: Category) => {
-    Modal.confirm({
-      title: 'Delete Category',
-      content: `Are you sure you want to delete "${record.name}"?`,
-      okText: 'Delete',
-      okType: 'danger',
-      cancelText: 'Cancel',
-      onOk: async () => {
-        try {
-          await deleteCategory(record.id).unwrap();
-          message.success('Category deleted successfully');
-        } catch (error) {
-          console.error('Delete error:', error);
-          message.error(getErrorMessage(error, 'Failed to delete category'));
-        }
-      },
-    });
+    console.log('[handleDelete] Called with category:', record);
+    console.log('[handleDelete] User role:', user?.role);
+    console.log('[handleDelete] Permissions:', permissions);
+    console.log('[handleDelete] Opening delete modal...');
+    
+    setCategoryToDelete(record);
+    setIsDeleteModalOpen(true);
+  };
+
+  /**
+   * Confirm delete action
+   */
+  const confirmDelete = async () => {
+    if (!categoryToDelete) return;
+    
+    console.log('[confirmDelete] Starting delete for:', categoryToDelete);
+    try {
+      console.log('[confirmDelete] Calling deleteCategory API with ID:', categoryToDelete.id);
+      const result = await deleteCategory(categoryToDelete.id).unwrap();
+      console.log('[confirmDelete] Delete success, result:', result);
+      message.success('Category deleted successfully');
+      setIsDeleteModalOpen(false);
+      setCategoryToDelete(null);
+    } catch (error) {
+      console.error('[confirmDelete] Delete error:', error);
+      message.error(getErrorMessage(error, 'Failed to delete category'));
+    }
+  };
+
+  /**
+   * Cancel delete action
+   */
+  const cancelDelete = () => {
+    console.log('[cancelDelete] Delete cancelled');
+    setIsDeleteModalOpen(false);
+    setCategoryToDelete(null);
   };
 
   /**
@@ -164,6 +198,7 @@ export default function AdminCategoryPage() {
           onDelete={handleDelete}
           onAddChild={handleAddChild}
           isDeleting={isDeleting}
+          canDelete={permissions.canDeleteCategory}
         />
       </Card>
 
@@ -224,6 +259,22 @@ export default function AdminCategoryPage() {
             </Descriptions>
           </>
         )}
+      </Modal>
+
+      {/* Delete Confirmation Modal */}
+      <Modal
+        title="Delete Category"
+        open={isDeleteModalOpen}
+        onOk={confirmDelete}
+        onCancel={cancelDelete}
+        okText="Delete"
+        cancelText="Cancel"
+        okButtonProps={{ danger: true, loading: isDeleting }}
+        cancelButtonProps={{ disabled: isDeleting }}
+      >
+        <p>
+          Are you sure you want to delete <strong>{categoryToDelete?.name}</strong>?
+        </p>
       </Modal>
     </>
   );

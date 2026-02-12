@@ -27,6 +27,7 @@ interface CategoryTreeTableProps {
   onDelete: (category: Category) => void;
   onAddChild: (parentCategory: Category) => void;
   isDeleting?: boolean;
+  canDelete?: boolean;
 }
 
 interface FlattenedCategory extends Category {
@@ -43,8 +44,12 @@ export const CategoryTreeTable = ({
   onDelete,
   onAddChild,
   isDeleting,
+  canDelete = true,
 }: CategoryTreeTableProps) => {
   const [expandedKeys, setExpandedKeys] = useState<Set<string>>(new Set());
+
+  // Debug log
+  console.log('[CategoryTreeTable] canDelete prop:', canDelete);
 
   /**
    * Build tree and flatten for table display
@@ -193,15 +198,20 @@ export const CategoryTreeTable = ({
               onClick={() => onEdit(record)}
             />
           </Tooltip>
-          <Tooltip title="Delete">
-            <Button
-              danger
-              size="small"
-              icon={<DeleteOutlined />}
-              loading={isDeleting}
-              onClick={() => onDelete(record)}
-            />
-          </Tooltip>
+          {canDelete && (
+            <Tooltip title="Delete">
+              <Button
+                danger
+                size="small"
+                icon={<DeleteOutlined />}
+                loading={isDeleting}
+                onClick={() => {
+                  console.log('[CategoryTreeTable] Delete button clicked:', record);
+                  onDelete(record);
+                }}
+              />
+            </Tooltip>
+          )}
         </Space>
       ),
     },

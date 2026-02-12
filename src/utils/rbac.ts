@@ -96,10 +96,6 @@ export interface Permission {
   canDeleteProduct: boolean;
   canViewProduct: boolean;
   
-  // Contact permissions
-  canViewContacts: boolean;
-  canManageContacts: boolean;
-  
   // User management permissions
   canManageUsers: boolean;
   
@@ -120,8 +116,6 @@ export const getPermissions = (role: UserRole | null): Permission => {
     canEditProduct: false,
     canDeleteProduct: false,
     canViewProduct: false,
-    canViewContacts: false,
-    canManageContacts: false,
     canManageUsers: false,
     canEditSettings: false,
   };
@@ -141,8 +135,6 @@ export const getPermissions = (role: UserRole | null): Permission => {
         canEditProduct: true,
         canDeleteProduct: true,
         canViewProduct: true,
-        canViewContacts: true,
-        canManageContacts: true,
         canManageUsers: true,
         canEditSettings: true,
       };
@@ -158,8 +150,6 @@ export const getPermissions = (role: UserRole | null): Permission => {
         canEditProduct: true,
         canDeleteProduct: false, // Cannot delete
         canViewProduct: true,
-        canViewContacts: true,
-        canManageContacts: true,
         canManageUsers: false,
         canEditSettings: false,
       };
@@ -175,8 +165,6 @@ export const getPermissions = (role: UserRole | null): Permission => {
         canEditProduct: false,
         canDeleteProduct: false,
         canViewProduct: true,
-        canViewContacts: true,
-        canManageContacts: false,
         canManageUsers: false,
         canEditSettings: false,
       };

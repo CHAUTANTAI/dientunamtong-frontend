@@ -8,7 +8,6 @@ import {
   DashboardOutlined,
   AppstoreOutlined,
   ShoppingOutlined,
-  MessageOutlined,
   UserOutlined,
 } from '@ant-design/icons';
 import { ROUTES } from './routes';
@@ -45,13 +44,6 @@ export const ADMIN_MENU_ITEMS: AdminMenuItem[] = [
     href: ROUTES.PRODUCT,
     icon: <ShoppingOutlined />,
     minRole: UserRole.MANAGER, // Manager and Admin can access
-  },
-  {
-    key: 'contact',
-    label: 'Contacts',
-    href: ROUTES.CONTACT,
-    icon: <MessageOutlined />,
-    minRole: UserRole.STAFF, // All roles can access
   },
   {
     key: 'profile',

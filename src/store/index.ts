@@ -8,7 +8,6 @@ import authReducer from './slices/authSlice';
 import { authApi } from './api/authApi';
 import { productApi } from './api/productApi';
 import { categoryApi } from './api/categoryApi';
-import { contactApi } from './api/contactApi';
 import { profileApi } from './api/profileApi';
 import { mediaApi } from './api/mediaApi';
 
@@ -18,7 +17,6 @@ export const store = configureStore({
     [authApi.reducerPath]: authApi.reducer,
     [productApi.reducerPath]: productApi.reducer,
     [categoryApi.reducerPath]: categoryApi.reducer,
-    [contactApi.reducerPath]: contactApi.reducer,
     [profileApi.reducerPath]: profileApi.reducer,
     [mediaApi.reducerPath]: mediaApi.reducer,
   },
@@ -27,7 +25,6 @@ export const store = configureStore({
       .concat(authApi.middleware)
       .concat(productApi.middleware)
       .concat(categoryApi.middleware)
-      .concat(contactApi.middleware)
       .concat(profileApi.middleware)
       .concat(mediaApi.middleware),
 });
