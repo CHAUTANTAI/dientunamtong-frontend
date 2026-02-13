@@ -23,7 +23,7 @@ import {
 } from '@ant-design/icons';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useGetCategoriesQuery, useDeleteCategoryMutation } from '@/store/api/categoryApi';
+import { useGetCategoriesQuery, useDeleteCategoryPermanentMutation } from '@/store/api/categoryApi';
 import type { Category } from '@/types/category';
 import { ROUTES } from '@/constants/routes';
 import { getErrorMessage } from '@/utils/error';
@@ -37,7 +37,7 @@ export default function AdminCategoryPage() {
   const { user } = useAuth();
   const permissions = getPermissions(user?.role || null);
   const { data: categories = [], isLoading } = useGetCategoriesQuery();
-  const [deleteCategory, { isLoading: isDeleting }] = useDeleteCategoryMutation();
+  const [deleteCategoryPermanent, { isLoading: isDeleting }] = useDeleteCategoryPermanentMutation();
   
   // Use App hooks for message only
   const { message } = App.useApp();
@@ -53,6 +53,7 @@ export default function AdminCategoryPage() {
   const [filterActive, setFilterActive] = useState<string>('all');
   const [categoryToDelete, setCategoryToDelete] = useState<Category | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [childrenCount, setChildrenCount] = useState(0);
 
   /**
    * Filter and sort categories
@@ -106,9 +107,16 @@ export default function AdminCategoryPage() {
     console.log('[handleDelete] Called with category:', record);
     console.log('[handleDelete] User role:', user?.role);
     console.log('[handleDelete] Permissions:', permissions);
+    
+    // Count children of this category
+    const children = categories.filter(cat => cat.parent_id === record.id);
+    const childCount = children.length;
+    
+    console.log('[handleDelete] Children count:', childCount);
     console.log('[handleDelete] Opening delete modal...');
     
     setCategoryToDelete(record);
+    setChildrenCount(childCount);
     setIsDeleteModalOpen(true);
   };
 
@@ -118,14 +126,27 @@ export default function AdminCategoryPage() {
   const confirmDelete = async () => {
     if (!categoryToDelete) return;
     
+    const hasCascade = childrenCount > 0;
     console.log('[confirmDelete] Starting delete for:', categoryToDelete);
+    console.log('[confirmDelete] Has children:', hasCascade);
+    console.log('[confirmDelete] Cascade:', hasCascade);
+    
     try {
-      console.log('[confirmDelete] Calling deleteCategory API with ID:', categoryToDelete.id);
-      const result = await deleteCategory(categoryToDelete.id).unwrap();
-      console.log('[confirmDelete] Delete success, result:', result);
-      message.success('Category deleted successfully');
+      console.log('[confirmDelete] Calling deleteCategoryPermanent API with ID:', categoryToDelete.id);
+      await deleteCategoryPermanent({ 
+        id: categoryToDelete.id, 
+        cascade: hasCascade 
+      }).unwrap();
+      
+      console.log('[confirmDelete] Delete success');
+      message.success(
+        hasCascade 
+          ? `Category "${categoryToDelete.name}" and ${childrenCount} subcategories deleted successfully`
+          : `Category "${categoryToDelete.name}" deleted successfully`
+      );
       setIsDeleteModalOpen(false);
       setCategoryToDelete(null);
+      setChildrenCount(0);
     } catch (error) {
       console.error('[confirmDelete] Delete error:', error);
       message.error(getErrorMessage(error, 'Failed to delete category'));
@@ -139,6 +160,7 @@ export default function AdminCategoryPage() {
     console.log('[cancelDelete] Delete cancelled');
     setIsDeleteModalOpen(false);
     setCategoryToDelete(null);
+    setChildrenCount(0);
   };
 
   /**
@@ -263,18 +285,44 @@ export default function AdminCategoryPage() {
 
       {/* Delete Confirmation Modal */}
       <Modal
-        title="Delete Category"
+        title={
+          <span style={{ color: '#ff4d4f', fontWeight: 600 }}>
+            ⚠️ Delete Category
+          </span>
+        }
         open={isDeleteModalOpen}
         onOk={confirmDelete}
         onCancel={cancelDelete}
-        okText="Delete"
+        okText="Delete Permanently"
         cancelText="Cancel"
         okButtonProps={{ danger: true, loading: isDeleting }}
         cancelButtonProps={{ disabled: isDeleting }}
       >
-        <p>
-          Are you sure you want to delete <strong>{categoryToDelete?.name}</strong>?
-        </p>
+        {childrenCount > 0 ? (
+          <div>
+            <p style={{ marginBottom: 12 }}>
+              <strong>Warning:</strong> This category has{' '}
+              <strong style={{ color: '#ff4d4f' }}>{childrenCount} subcategories</strong>.
+            </p>
+            <p style={{ marginBottom: 12 }}>
+              Deleting <strong>{categoryToDelete?.name}</strong> will also{' '}
+              <strong>permanently remove all subcategories</strong> and their associated data.
+            </p>
+            <p style={{ marginBottom: 0, color: '#ff4d4f' }}>
+              ⚠️ This action <strong>cannot be undone</strong>. Are you sure you want to continue?
+            </p>
+          </div>
+        ) : (
+          <div>
+            <p style={{ marginBottom: 12 }}>
+              Are you sure you want to delete{' '}
+              <strong>{categoryToDelete?.name}</strong>?
+            </p>
+            <p style={{ marginBottom: 0, color: '#ff4d4f' }}>
+              ⚠️ This action <strong>cannot be undone</strong>.
+            </p>
+          </div>
+        )}
       </Modal>
     </>
   );

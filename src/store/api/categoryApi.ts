@@ -92,9 +92,12 @@ export const categoryApi = createApi({
       ],
     }),
 
-    // DELETE /admin/category/:id -> { success }
-    deleteCategory: builder.mutation<void, string>({
-      query: (id) => ({ url: API_CATEGORY_DETAIL(id), method: 'DELETE' }),
+    // DELETE /admin/category/:id/permanent?cascade=true/false -> { success }
+    deleteCategoryPermanent: builder.mutation<void, { id: string; cascade: boolean }>({
+      query: ({ id, cascade }) => ({ 
+        url: `${API_CATEGORY_DETAIL(id)}/permanent?cascade=${cascade}`, 
+        method: 'DELETE' 
+      }),
       invalidatesTags: [
         { type: 'Category', id: 'LIST' },
         { type: 'Category', id: 'TREE' },
@@ -148,7 +151,7 @@ export const {
   useGetCategoryQuery,
   useCreateCategoryMutation,
   useUpdateCategoryMutation,
-  useDeleteCategoryMutation,
+  useDeleteCategoryPermanentMutation,
   useGetCategoryTreeQuery,
   useGetRootCategoriesQuery,
   useGetCategoryChildrenQuery,
