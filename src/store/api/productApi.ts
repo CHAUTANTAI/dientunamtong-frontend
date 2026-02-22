@@ -1,19 +1,26 @@
 /**
  * Product API - RTK Query
+ * Full CRUD + Media management + Categories
  */
 
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { getAuthToken } from '@/utils/auth';
-import type { Product, ProductWithImages, ProductImage } from '@/types/product';
+import type {
+  Product,
+  CreateProductDto,
+  UpdateProductDto,
+  ProductFilterParams,
+} from '@/types/product';
+import type { Media } from '@/types/media';
 import type { ApiResponse } from '@/types/api';
-import {
-  API_BASE_URL,
-  API_PRODUCTS,
-  API_PRODUCT_DETAIL,
-  API_PRODUCT_IMAGE,
-  API_PRODUCT_IMAGES,
-  API_PRODUCT_IMAGE_DELETE,
-} from '@/constants/api';
+import { API_BASE_URL } from '@/constants/api';
+
+const API_PRODUCT = '/admin/product';
+const API_PRODUCT_DETAIL = (id: string) => `/admin/product/${id}`;
+const API_PRODUCT_MEDIA = (id: string) => `/admin/product/${id}/media`;
+const API_PRODUCT_MEDIA_REMOVE = (mediaId: string) => `/admin/product/media/${mediaId}`;
+const API_PRODUCT_MEDIA_SORT = (mediaId: string) => `/admin/product/media/${mediaId}/sort-order`;
+const API_PRODUCT_CATEGORIES = (id: string) => `/admin/product/${id}/category`;
 
 export const productApi = createApi({
   reducerPath: 'productApi',
@@ -25,104 +32,149 @@ export const productApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ['Product', 'ProductImage'],
+  tagTypes: ['Product', 'ProductMedia'],
   endpoints: (builder) => ({
-    // GET /admin/product -> { status, data: ProductWithImages[] }
-    getProducts: builder.query<ProductWithImages[], void>({
-      query: () => API_PRODUCTS,
-      transformResponse: (response: ApiResponse<ProductWithImages[]>): ProductWithImages[] =>
-        Array.isArray(response.data) ? response.data : [],
+    // ============= Product CRUD =============
+
+    getProducts: builder.query<Product[], ProductFilterParams | void>({
+      query: (params) => {
+        if (!params) {
+          return API_PRODUCT;
+        }
+        return {
+          url: API_PRODUCT,
+          params: params as Record<string, string | number | boolean | undefined>,
+        };
+      },
+      transformResponse: (response: ApiResponse<{ products: Product[] }>): Product[] =>
+        response.data.products || [],
       providesTags: (result) =>
-        result && result.length > 0
+        result
           ? [
-              ...result.map(({ id }) => ({
-                type: 'Product' as const,
-                id,
-              })),
+              ...result.map(({ id }) => ({ type: 'Product' as const, id })),
               { type: 'Product', id: 'LIST' },
             ]
           : [{ type: 'Product', id: 'LIST' }],
     }),
 
-    // GET /admin/product/:id -> { status, data: ProductWithImages }
-    getProduct: builder.query<ProductWithImages, string>({
+    getProduct: builder.query<Product, string>({
       query: (id) => API_PRODUCT_DETAIL(id),
-      transformResponse: (response: ApiResponse<ProductWithImages>): ProductWithImages =>
-        response.data,
+      transformResponse: (response: ApiResponse<Product>): Product => response.data,
       providesTags: (result, error, id) => [{ type: 'Product', id }],
     }),
 
-    // POST /admin/product -> { status, data: Product }
-    createProduct: builder.mutation<Product, Partial<Product>>({
-      query: (body) => ({ url: API_PRODUCTS, method: 'POST', body }),
+    createProduct: builder.mutation<Product, CreateProductDto>({
+      query: (body) => ({
+        url: API_PRODUCT,
+        method: 'POST',
+        body,
+      }),
       transformResponse: (response: ApiResponse<Product>): Product => response.data,
       invalidatesTags: [{ type: 'Product', id: 'LIST' }],
     }),
 
-    // PUT /admin/product/:id -> { status, data: Product }
-    updateProduct: builder.mutation<Product, { id: string; body: Partial<Product> }>({
+    updateProduct: builder.mutation<Product, { id: string; body: UpdateProductDto }>({
       query: ({ id, body }) => ({
         url: API_PRODUCT_DETAIL(id),
         method: 'PUT',
         body,
       }),
       transformResponse: (response: ApiResponse<Product>): Product => response.data,
-      invalidatesTags: (result, error, { id }) => [{ type: 'Product', id }],
-    }),
-
-    // DELETE /admin/product/:id -> { status, data: null | undefined }
-    deleteProduct: builder.mutation<void, string>({
-      query: (id) => ({ url: API_PRODUCT_DETAIL(id), method: 'DELETE' }),
-      invalidatesTags: [{ type: 'Product', id: 'LIST' }],
-    }),
-
-    // Product images
-    // GET /admin/product/:productId/images -> { status, data: ProductImage[] }
-    getProductImages: builder.query<ProductImage[], string>({
-      query: (productId) => API_PRODUCT_IMAGES(productId),
-      transformResponse: (response: ApiResponse<ProductImage[]>): ProductImage[] =>
-        Array.isArray(response.data) ? response.data : [],
-      providesTags: (result, error, productId) =>
-        result && result.length > 0
-          ? [
-              ...result.map(({ id }) => ({
-                type: 'ProductImage' as const,
-                id,
-              })),
-              { type: 'ProductImage', id: `PRODUCT_${productId}` },
-            ]
-          : [{ type: 'ProductImage', id: `PRODUCT_${productId}` }],
-    }),
-
-    // POST /admin/product-image -> { status, data: ProductImage }
-    addProductImage: builder.mutation<
-      ProductImage,
-      { productId: string; image_url: string; sort_order?: number }
-    >({
-      query: ({ productId, image_url, sort_order }) => ({
-        url: API_PRODUCT_IMAGE,
-        method: 'POST',
-        body: {
-          product_id: productId,
-          image_url,
-          sort_order: sort_order ?? 0,
-        },
-      }),
-      transformResponse: (response: ApiResponse<ProductImage>): ProductImage => response.data,
-      invalidatesTags: (result, error, { productId }) => [
-        { type: 'ProductImage', id: `PRODUCT_${productId}` },
+      invalidatesTags: (result, error, { id }) => [
+        { type: 'Product', id },
         { type: 'Product', id: 'LIST' },
       ],
     }),
 
-    // DELETE /admin/product/:productId/images/:imageId -> { status, data: null | undefined }
-    removeProductImage: builder.mutation<void, { imageId: string }>({
-      query: ({ imageId }) => ({
-        url: API_PRODUCT_IMAGE_DELETE(imageId),
+    deleteProduct: builder.mutation<void, string>({
+      query: (id) => ({
+        url: API_PRODUCT_DETAIL(id),
         method: 'DELETE',
       }),
-      invalidatesTags: (result, error, { imageId }) => [
-        { type: 'ProductImage', id: imageId },
+      invalidatesTags: [{ type: 'Product', id: 'LIST' }],
+    }),
+
+    deleteProductPermanent: builder.mutation<void, string>({
+      query: (id) => ({
+        url: `${API_PRODUCT_DETAIL(id)}/permanent`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: [{ type: 'Product', id: 'LIST' }],
+    }),
+
+    // ============= Media Management =============
+
+    getProductMedia: builder.query<Media[], string>({
+      query: (productId) => API_PRODUCT_MEDIA(productId),
+      transformResponse: (response: ApiResponse<Media[]>): Media[] => response.data,
+      providesTags: (result, error, productId) => [
+        { type: 'ProductMedia', id: productId },
+      ],
+    }),
+
+    addProductMedia: builder.mutation<
+      Media,
+      {
+        productId: string;
+        file_url: string;
+        file_name: string;
+        media_type: 'image' | 'video';
+        mime_type?: string;
+        file_size?: number;
+        sort_order?: number;
+      }
+    >({
+      query: ({ productId, ...body }) => ({
+        url: API_PRODUCT_MEDIA(productId),
+        method: 'POST',
+        body,
+      }),
+      transformResponse: (response: ApiResponse<Media>): Media => response.data,
+      invalidatesTags: (result, error, { productId }) => [
+        { type: 'ProductMedia', id: productId },
+        { type: 'Product', id: productId },
+      ],
+    }),
+
+    removeProductMedia: builder.mutation<void, { mediaId: string; productId: string }>({
+      query: ({ mediaId }) => ({
+        url: API_PRODUCT_MEDIA_REMOVE(mediaId),
+        method: 'DELETE',
+      }),
+      invalidatesTags: (result, error, { productId }) => [
+        { type: 'ProductMedia', id: productId },
+        { type: 'Product', id: productId },
+      ],
+    }),
+
+    updateMediaSortOrder: builder.mutation<
+      Media,
+      { mediaId: string; sort_order: number; productId: string }
+    >({
+      query: ({ mediaId, sort_order }) => ({
+        url: API_PRODUCT_MEDIA_SORT(mediaId),
+        method: 'PATCH',
+        body: { sort_order },
+      }),
+      transformResponse: (response: ApiResponse<Media>): Media => response.data,
+      invalidatesTags: (result, error, { productId }) => [
+        { type: 'ProductMedia', id: productId },
+      ],
+    }),
+
+    // ============= Category Management =============
+
+    updateProductCategories: builder.mutation<
+      void,
+      { productId: string; category_ids: string[] }
+    >({
+      query: ({ productId, category_ids }) => ({
+        url: API_PRODUCT_CATEGORIES(productId),
+        method: 'PUT',
+        body: { category_ids },
+      }),
+      invalidatesTags: (result, error, { productId }) => [
+        { type: 'Product', id: productId },
         { type: 'Product', id: 'LIST' },
       ],
     }),
@@ -135,7 +187,10 @@ export const {
   useCreateProductMutation,
   useUpdateProductMutation,
   useDeleteProductMutation,
-  useGetProductImagesQuery,
-  useAddProductImageMutation,
-  useRemoveProductImageMutation,
+  useDeleteProductPermanentMutation,
+  useGetProductMediaQuery,
+  useAddProductMediaMutation,
+  useRemoveProductMediaMutation,
+  useUpdateMediaSortOrderMutation,
+  useUpdateProductCategoriesMutation,
 } = productApi;
