@@ -37,9 +37,7 @@ export const Header = () => {
     {
       key: "username",
       icon: user && (
-        <div
-          style={{ borderBottom: "1px solid #f0f0f0" }}
-        >
+        <div style={{ borderBottom: "1px solid #f0f0f0" }}>
           <Space direction="vertical" size={4}>
             <Text strong>{user.username}</Text>
             <Tag color={getRoleColor(user.role)} style={{ margin: 0 }}>
@@ -125,10 +123,7 @@ export const Header = () => {
         />
 
         {/* User Menu */}
-        <Dropdown
-          menu={{ items: menuItems }}
-          placement="bottomRight"
-        >
+        <Dropdown menu={{ items: menuItems }} placement="bottomRight">
           <Button
             type="text"
             style={{

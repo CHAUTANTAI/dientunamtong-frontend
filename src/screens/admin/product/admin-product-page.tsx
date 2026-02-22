@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
 /**
  * Product List Page
  * Shows product table with view, edit, delete actions
  */
 
-import { useEffect, useState } from 'react';
-import type { ColumnsType } from 'antd/es/table';
+import { useEffect, useState } from "react";
+import type { ColumnsType } from "antd/es/table";
 import {
   Table,
   Button,
@@ -20,17 +20,17 @@ import {
   message,
   Image,
   Upload,
-} from 'antd';
+} from "antd";
 import {
   EyeOutlined,
   EditOutlined,
   DeleteOutlined,
   PlusOutlined,
   UploadOutlined,
-} from '@ant-design/icons';
-import type { UploadFile } from 'antd';
-import Link from 'next/link';
-import { useForm } from 'react-hook-form';
+} from "@ant-design/icons";
+import type { UploadFile } from "antd";
+import Link from "next/link";
+import { useForm } from "react-hook-form";
 import {
   useGetProductsQuery,
   useGetProductQuery,
@@ -38,13 +38,13 @@ import {
   useUpdateProductMutation,
   useAddProductImageMutation,
   useRemoveProductImageMutation,
-} from '@/store/api/productApi';
-import type { Product, ProductWithImages, ProductImage } from '@/types/product';
-import { ROUTES } from '@/constants/routes';
-import { FormInput, FormSubmitButton } from '@/components/common/form';
-import { ProductImage as ProductImageComponent } from '@/components/common/ProductImage';
-import { EntityFormSkeleton } from '@/components/common/EntityFormSkeleton';
-import { uploadToSupabase, deleteFromSupabase } from '@/utils/supabase';
+} from "@/store/api/productApi";
+import type { Product, ProductWithImages, ProductImage } from "@/types/product";
+import { ROUTES } from "@/constants/routes";
+import { FormInput, FormSubmitButton } from "@/components/common/form";
+import { ProductImage as ProductImageComponent } from "@/components/common/ProductImage";
+import { EntityFormSkeleton } from "@/components/common/EntityFormSkeleton";
+import { uploadToSupabase, deleteFromSupabase } from "@/utils/supabase";
 
 interface ProductFormValues {
   name: string;
@@ -54,9 +54,9 @@ interface ProductFormValues {
   is_active?: boolean;
 }
 
-const formatPrice = (price: Product['price']) => {
-  if (price === null || price === undefined || price === '') return '-';
-  const value = typeof price === 'string' ? Number(price) : price;
+const formatPrice = (price: Product["price"]) => {
+  if (price === null || price === undefined || price === "") return "-";
+  const value = typeof price === "string" ? Number(price) : price;
   if (Number.isNaN(value)) return String(price);
   return value.toLocaleString(undefined, {
     minimumFractionDigits: 0,
@@ -66,7 +66,7 @@ const formatPrice = (price: Product['price']) => {
 
 const parsePrice = (price?: string) => {
   if (!price) return null;
-  const normalized = price.replace(/,/g, '');
+  const normalized = price.replace(/,/g, "");
   const value = Number(normalized);
   if (Number.isNaN(value)) return null;
   return value;
@@ -76,10 +76,13 @@ export default function AdminProductPage() {
   const { data: products, isLoading, refetch } = useGetProductsQuery();
   const [deleteProduct, { isLoading: isDeleting }] = useDeleteProductMutation();
   const [updateProduct, { isLoading: isUpdating }] = useUpdateProductMutation();
-  const [addProductImage, { isLoading: isAddingImage }] = useAddProductImageMutation();
-  const [removeProductImage, { isLoading: isRemovingImage }] = useRemoveProductImageMutation();
+  const [addProductImage, { isLoading: isAddingImage }] =
+    useAddProductImageMutation();
+  const [removeProductImage, { isLoading: isRemovingImage }] =
+    useRemoveProductImageMutation();
 
-  const [selectedProduct, setSelectedProduct] = useState<ProductWithImages | null>(null);
+  const [selectedProduct, setSelectedProduct] =
+    useState<ProductWithImages | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [editFileList, setEditFileList] = useState<UploadFile[]>([]);
@@ -99,12 +102,10 @@ export default function AdminProductPage() {
     formState: { isSubmitting },
   } = useForm<ProductFormValues>();
 
-  const {
-    data: editingProduct,
-    isLoading: isLoadingEditingProduct,
-  } = useGetProductQuery(editingProductId as string, {
-    skip: !editingProductId,
-  });
+  const { data: editingProduct, isLoading: isLoadingEditingProduct } =
+    useGetProductQuery(editingProductId as string, {
+      skip: !editingProductId,
+    });
 
   // Sync form and selectedProduct when editingProduct loads
   useEffect(() => {
@@ -114,10 +115,10 @@ export default function AdminProductPage() {
       name: editingProduct.name,
       price:
         editingProduct.price === null || editingProduct.price === undefined
-          ? ''
+          ? ""
           : String(editingProduct.price),
-      short_description: editingProduct.short_description ?? '',
-      description: editingProduct.description ?? '',
+      short_description: editingProduct.short_description ?? "",
+      description: editingProduct.description ?? "",
       is_active: editingProduct.is_active ?? true,
     });
 
@@ -141,11 +142,10 @@ export default function AdminProductPage() {
   const handleDelete = async (record: ProductWithImages) => {
     try {
       await deleteProduct(record.id).unwrap();
-      message.success('Product deleted successfully');
+      message.success("Product deleted successfully");
     } catch (error) {
-       
       console.error(error);
-      message.error('Failed to delete product');
+      message.error("Failed to delete product");
     }
   };
 
@@ -179,7 +179,7 @@ export default function AdminProductPage() {
               imageId: primaryImage.id,
             }).unwrap();
           } catch (error) {
-            console.warn('Failed to remove old image:', error);
+            console.warn("Failed to remove old image:", error);
             // Continue with upload even if delete fails
           }
         }
@@ -187,7 +187,9 @@ export default function AdminProductPage() {
         try {
           // Upload new image to Supabase storage using common utility
           const fileName = `${selectedProduct.id}_${file.name}`;
-          const { path } = await uploadToSupabase(file, 'product', { fileName });
+          const { path } = await uploadToSupabase(file, "product", {
+            fileName,
+          });
 
           // Add new product image record
           const imageUrl = `/${path}`;
@@ -197,13 +199,13 @@ export default function AdminProductPage() {
             sort_order: 0,
           }).unwrap();
         } catch (error) {
-          console.error('Upload error:', error);
-          message.error('Failed to upload image');
+          console.error("Upload error:", error);
+          message.error("Failed to upload image");
           return;
         }
       }
 
-      message.success('Product updated successfully');
+      message.success("Product updated successfully");
       setIsEditOpen(false);
       setSelectedProduct(null);
       setEditFileList([]);
@@ -212,9 +214,8 @@ export default function AdminProductPage() {
       // Reload product list to ensure latest data is shown
       refetch();
     } catch (error) {
-       
       console.error(error);
-      message.error('Failed to update product');
+      message.error("Failed to update product");
     }
   };
 
@@ -228,42 +229,46 @@ export default function AdminProductPage() {
 
   const columns: ColumnsType<Product> = [
     {
-      title: 'Name',
-      dataIndex: 'name',
-      key: 'name',
+      title: "Name",
+      dataIndex: "name",
+      key: "name",
     },
     {
-      title: 'Price',
-      dataIndex: 'price',
-      key: 'price',
-      render: (value: Product['price']) => formatPrice(value),
+      title: "Price",
+      dataIndex: "price",
+      key: "price",
+      render: (value: Product["price"]) => formatPrice(value),
     },
     {
-      title: 'Short Description',
-      dataIndex: 'short_description',
-      key: 'short_description',
+      title: "Short Description",
+      dataIndex: "short_description",
+      key: "short_description",
       ellipsis: true,
-      render: (value: Product['short_description']) => value || '-',
-      responsive: ['md'],
+      render: (value: Product["short_description"]) => value || "-",
+      responsive: ["md"],
     },
     {
-      title: 'Status',
-      dataIndex: 'is_active',
-      key: 'is_active',
-      render: (value: Product['is_active']) =>
-        value ? <Tag color="green">Active</Tag> : <Tag color="red">Inactive</Tag>,
+      title: "Status",
+      dataIndex: "is_active",
+      key: "is_active",
+      render: (value: Product["is_active"]) =>
+        value ? (
+          <Tag color="green">Active</Tag>
+        ) : (
+          <Tag color="red">Inactive</Tag>
+        ),
     },
     {
-      title: 'Created At',
-      dataIndex: 'created_at',
-      key: 'created_at',
-      render: (value: Product['created_at']) =>
-        value ? new Date(value).toLocaleString() : '-',
-      responsive: ['lg'],
+      title: "Created At",
+      dataIndex: "created_at",
+      key: "created_at",
+      render: (value: Product["created_at"]) =>
+        value ? new Date(value).toLocaleString() : "-",
+      responsive: ["lg"],
     },
     {
-      title: 'Actions',
-      key: 'actions',
+      title: "Actions",
+      key: "actions",
       render: (_, record) => (
         <Space>
           <Tooltip title="View details">
@@ -298,14 +303,14 @@ export default function AdminProductPage() {
     <>
       <Space
         style={{
-          width: '100%',
+          width: "100%",
           marginBottom: 16,
-          display: 'flex',
-          justifyContent: 'space-between',
+          display: "flex",
+          justifyContent: "space-between",
         }}
       >
         <span style={{ fontWeight: 500 }}>Product List</span>
-        <Link href={ROUTES.PRODUCT + '/create'}>
+        <Link href={ROUTES.PRODUCT + "/create"}>
           <Button type="primary" icon={<PlusOutlined />}>
             Create New Product
           </Button>
@@ -329,7 +334,9 @@ export default function AdminProductPage() {
       >
         {selectedProduct && (
           <Descriptions bordered column={1} size="small">
-            <Descriptions.Item label="ID">{selectedProduct.id}</Descriptions.Item>
+            <Descriptions.Item label="ID">
+              {selectedProduct.id}
+            </Descriptions.Item>
             <Descriptions.Item label="Name">
               {selectedProduct.name}
             </Descriptions.Item>
@@ -337,10 +344,10 @@ export default function AdminProductPage() {
               {formatPrice(selectedProduct.price)}
             </Descriptions.Item>
             <Descriptions.Item label="Short Description">
-              {selectedProduct.short_description || '-'}
+              {selectedProduct.short_description || "-"}
             </Descriptions.Item>
             <Descriptions.Item label="Description">
-              {selectedProduct.description || '-'}
+              {selectedProduct.description || "-"}
             </Descriptions.Item>
             <Descriptions.Item label="Status">
               {selectedProduct.is_active ? (
@@ -352,12 +359,12 @@ export default function AdminProductPage() {
             <Descriptions.Item label="Created At">
               {selectedProduct.created_at
                 ? new Date(selectedProduct.created_at).toLocaleString()
-                : '-'}
+                : "-"}
             </Descriptions.Item>
             <Descriptions.Item label="Updated At">
               {selectedProduct.updated_at
                 ? new Date(selectedProduct.updated_at).toLocaleString()
-                : '-'}
+                : "-"}
             </Descriptions.Item>
             <Descriptions.Item label="Image">
               {(() => {
@@ -368,10 +375,10 @@ export default function AdminProductPage() {
                     alt={selectedProduct.name}
                     width={200}
                     height={200}
-                    style={{ objectFit: 'cover', borderRadius: 4 }}
+                    style={{ objectFit: "cover", borderRadius: 4 }}
                   />
                 ) : (
-                  '-'
+                  "-"
                 );
               })()}
             </Descriptions.Item>
@@ -386,7 +393,7 @@ export default function AdminProductPage() {
                         alt={selectedProduct.name}
                         width={100}
                         height={100}
-                        style={{ objectFit: 'cover', borderRadius: 4 }}
+                        style={{ objectFit: "cover", borderRadius: 4 }}
                       />
                     ))}
                   </Space>
@@ -409,10 +416,7 @@ export default function AdminProductPage() {
         footer={null}
         destroyOnHidden
       >
-        <Form
-          layout="vertical"
-          onFinish={handleSubmit(onSubmitEdit)}
-        >
+        <Form layout="vertical" onFinish={handleSubmit(onSubmitEdit)}>
           {isLoadingEditingProduct || !selectedProduct ? (
             <EntityFormSkeleton fieldCount={4} showImage showActions />
           ) : (
@@ -423,10 +427,10 @@ export default function AdminProductPage() {
                 label="Name"
                 placeholder="Enter product name"
                 rules={{
-                  required: 'Name is required',
+                  required: "Name is required",
                   maxLength: {
                     value: 255,
-                    message: 'Name must not exceed 255 characters',
+                    message: "Name must not exceed 255 characters",
                   },
                 }}
               />
@@ -441,10 +445,10 @@ export default function AdminProductPage() {
                     if (!value) return true;
                     const numeric = parsePrice(value);
                     if (numeric === null) {
-                      return 'Price must be a valid number';
+                      return "Price must be a valid number";
                     }
                     if (numeric < 0) {
-                      return 'Price must be greater than or equal to 0';
+                      return "Price must be greater than or equal to 0";
                     }
                     return true;
                   },
@@ -460,7 +464,7 @@ export default function AdminProductPage() {
                 rules={{
                   maxLength: {
                     value: 255,
-                    message: 'Short description must not exceed 255 characters',
+                    message: "Short description must not exceed 255 characters",
                   },
                 }}
               />
@@ -474,7 +478,7 @@ export default function AdminProductPage() {
                 rules={{
                   maxLength: {
                     value: 1000,
-                    message: 'Description must not exceed 1000 characters',
+                    message: "Description must not exceed 1000 characters",
                   },
                 }}
               />
@@ -484,7 +488,7 @@ export default function AdminProductPage() {
                   checked={!!control._formValues.is_active}
                   onChange={(checked) =>
                     control._formValues &&
-                    (control._formValues.is_active == checked)
+                    control._formValues.is_active == checked
                   }
                 />
               </Form.Item>
@@ -498,7 +502,7 @@ export default function AdminProductPage() {
                       alt={selectedProduct.name}
                       width={200}
                       height={200}
-                      style={{ objectFit: 'cover', borderRadius: 4 }}
+                      style={{ objectFit: "cover", borderRadius: 4 }}
                     />
                   </Form.Item>
                 ) : null;
@@ -514,15 +518,17 @@ export default function AdminProductPage() {
                 >
                   <Button icon={<UploadOutlined />}>Select New Image</Button>
                 </Upload>
-                <div style={{ marginTop: 8, color: '#999', fontSize: '12px' }}>
+                <div style={{ marginTop: 8, color: "#999", fontSize: "12px" }}>
                   {editFileList.length > 0
-                    ? 'New image will replace the current image'
-                    : 'Select a new image to replace the current one (optional)'}
+                    ? "New image will replace the current image"
+                    : "Select a new image to replace the current one (optional)"}
                 </div>
               </Form.Item>
 
               <FormSubmitButton
-                isLoading={isSubmitting || isUpdating || isAddingImage || isRemovingImage}
+                isLoading={
+                  isSubmitting || isUpdating || isAddingImage || isRemovingImage
+                }
                 style={{ marginTop: 8 }}
               >
                 Save Changes
@@ -534,4 +540,3 @@ export default function AdminProductPage() {
     </>
   );
 }
-

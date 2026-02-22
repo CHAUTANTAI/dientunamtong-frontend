@@ -3,16 +3,23 @@
  * Handles image upload flow: Frontend → Supabase Storage → Create Media → Get media_id
  */
 
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { Upload, Button, message, Spin } from 'antd';
-import { UploadOutlined, DeleteOutlined, LoadingOutlined } from '@ant-design/icons';
-import type { UploadRequestOption } from 'rc-upload/lib/interface';
-import { uploadToSupabase } from '@/utils/supabase';
-import { useCreateMediaMutation, useDeleteMediaMutation } from '@/store/api/mediaApi';
-import type { Media, MediaType } from '@/types/media';
-import { ProductImage } from './ProductImage';
+import { useState } from "react";
+import { Upload, Button, App, Spin } from "antd";
+import {
+  UploadOutlined,
+  DeleteOutlined,
+  LoadingOutlined,
+} from "@ant-design/icons";
+import type { UploadRequestOption } from "rc-upload/lib/interface";
+import { uploadToSupabase } from "@/utils/supabase";
+import {
+  useCreateMediaMutation,
+  useDeleteMediaMutation,
+} from "@/store/api/mediaApi";
+import type { Media, MediaType } from "@/types/media";
+import { ProductImage } from "./ProductImage";
 
 interface CategoryImageUploadProps {
   value?: string | null; // media_id
@@ -27,12 +34,14 @@ export const CategoryImageUpload = ({
   existingMedia,
   disabled = false,
 }: CategoryImageUploadProps) => {
+  const { message } = App.useApp();
+
   const [uploading, setUploading] = useState(false);
   const [imageUrl, setImageUrl] = useState<string | null>(
-    existingMedia?.file_url || null
+    existingMedia?.file_url || null,
   );
   const [currentMediaId, setCurrentMediaId] = useState<string | null>(
-    value || existingMedia?.id || null
+    value || existingMedia?.id || null,
   );
 
   const [createMedia] = useCreateMediaMutation();
@@ -46,13 +55,13 @@ export const CategoryImageUpload = ({
       setUploading(true);
 
       // Step 1: Upload to Supabase Storage using common utility
-      const { path: relativePath } = await uploadToSupabase(file, 'category');
+      const { path: relativePath } = await uploadToSupabase(file, "category");
 
       // Step 2: Create Media record in database
       const mediaData = await createMedia({
         file_name: file.name,
         file_url: relativePath, // Store relative path for signed URL generation
-        media_type: 'image' as MediaType,
+        media_type: "image" as MediaType,
         mime_type: file.type,
         file_size: file.size,
         is_active: true,
@@ -63,12 +72,12 @@ export const CategoryImageUpload = ({
       setCurrentMediaId(mediaData.id);
       onChange?.(mediaData.id);
 
-      message.success('Image uploaded successfully');
+      message.success("Image uploaded successfully");
       return true;
     } catch (error) {
-      console.error('Upload error:', error);
+      console.error("Upload error:", error);
       message.error(
-        error instanceof Error ? error.message : 'Failed to upload image'
+        error instanceof Error ? error.message : "Failed to upload image",
       );
       return false;
     } finally {
@@ -93,10 +102,10 @@ export const CategoryImageUpload = ({
       setCurrentMediaId(null);
       onChange?.(null);
 
-      message.success('Image removed successfully');
+      message.success("Image removed successfully");
     } catch (error) {
-      console.error('Remove error:', error);
-      message.error('Failed to remove image');
+      console.error("Remove error:", error);
+      message.error("Failed to remove image");
     } finally {
       setUploading(false);
     }
@@ -112,7 +121,7 @@ export const CategoryImageUpload = ({
     if (success) {
       onSuccess?.(null);
     } else {
-      onError?.(new Error('Upload failed'));
+      onError?.(new Error("Upload failed"));
     }
   };
 
@@ -120,15 +129,15 @@ export const CategoryImageUpload = ({
    * Validate file before upload
    */
   const beforeUpload = (file: File) => {
-    const isImage = file.type.startsWith('image/');
+    const isImage = file.type.startsWith("image/");
     if (!isImage) {
-      message.error('You can only upload image files!');
+      message.error("You can only upload image files!");
       return false;
     }
 
     const isLt5M = file.size / 1024 / 1024 < 5;
     if (!isLt5M) {
-      message.error('Image must be smaller than 5MB!');
+      message.error("Image must be smaller than 5MB!");
       return false;
     }
 
@@ -139,13 +148,13 @@ export const CategoryImageUpload = ({
     <div className="category-image-upload">
       {imageUrl ? (
         // Show existing image with remove button
-        <div style={{ position: 'relative', display: 'inline-block' }}>
+        <div style={{ position: "relative", display: "inline-block" }}>
           <ProductImage
             imageUrl={imageUrl}
             alt="Category"
             width={200}
             height={200}
-            style={{ objectFit: 'cover', borderRadius: 8 }}
+            style={{ objectFit: "cover", borderRadius: 8 }}
             preview
           />
           {!disabled && (
@@ -155,7 +164,7 @@ export const CategoryImageUpload = ({
               onClick={handleRemove}
               loading={uploading}
               style={{
-                position: 'absolute',
+                position: "absolute",
                 top: 8,
                 right: 8,
               }}
@@ -178,7 +187,7 @@ export const CategoryImageUpload = ({
             disabled={disabled || uploading}
             loading={uploading}
           >
-            {uploading ? 'Uploading...' : 'Upload Image'}
+            {uploading ? "Uploading..." : "Upload Image"}
           </Button>
         </Upload>
       )}
@@ -192,5 +201,4 @@ export const CategoryImageUpload = ({
   );
 };
 
-CategoryImageUpload.displayName = 'CategoryImageUpload';
-
+CategoryImageUpload.displayName = "CategoryImageUpload";

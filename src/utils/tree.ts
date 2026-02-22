@@ -3,7 +3,7 @@
  * Helper functions for building and manipulating tree structures
  */
 
-export interface TreeNode<T = any> {
+export interface TreeNode<T = unknown> {
   key: string;
   data: T;
   children?: TreeNode<T>[];

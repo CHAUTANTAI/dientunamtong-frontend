@@ -1,34 +1,34 @@
-'use client';
+"use client";
 
 /**
  * Create Product Page
  * Allows creating a new product
  */
 
-import { useState } from 'react';
-import { Button, Card, Form, message, Upload } from 'antd';
-import { UploadOutlined } from '@ant-design/icons';
-import type { UploadFile } from 'antd';
-import { useRouter } from 'next/navigation';
-import { useForm } from 'react-hook-form';
+import { useState } from "react";
+import { Button, Card, Form, message, Upload } from "antd";
+import { UploadOutlined } from "@ant-design/icons";
+import type { UploadFile } from "antd";
+import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
 import {
   useCreateProductMutation,
   useAddProductImageMutation,
-} from '@/store/api/productApi';
-import type { Product } from '@/types/product';
-import { ROUTES } from '@/constants/routes';
-import { FormInput, FormSubmitButton } from '@/components/common/form';
-import { uploadToSupabase } from '@/utils/supabase';
+} from "@/store/api/productApi";
+import type { Product } from "@/types/product";
+import { ROUTES } from "@/constants/routes";
+import { FormInput, FormSubmitButton } from "@/components/common/form";
+import { uploadToSupabase } from "@/utils/supabase";
 
 type CreateProductFormValues = Pick<
   Product,
-  'name' | 'price' | 'short_description' | 'description'
+  "name" | "price" | "short_description" | "description"
 >;
 
 const parsePrice = (price?: string | number | null) => {
-  if (price === null || price === undefined || price === '') return null;
-  if (typeof price === 'number') return price;
-  const normalized = price.replace(/,/g, '');
+  if (price === null || price === undefined || price === "") return null;
+  if (typeof price === "number") return price;
+  const normalized = price.replace(/,/g, "");
   const value = Number(normalized);
   if (Number.isNaN(value)) return null;
   return value;
@@ -49,10 +49,10 @@ export default function AdminProductCreatePage() {
     formState: { isSubmitting },
   } = useForm<CreateProductFormValues>({
     defaultValues: {
-      name: '',
-      price: '',
-      short_description: '',
-      description: '',
+      name: "",
+      price: "",
+      short_description: "",
+      description: "",
     },
   });
 
@@ -76,7 +76,9 @@ export default function AdminProductCreatePage() {
         try {
           // Upload to Supabase storage using common utility
           const fileName = `${product.id}_${file.name}`;
-          const { path } = await uploadToSupabase(file, 'product', { fileName });
+          const { path } = await uploadToSupabase(file, "product", {
+            fileName,
+          });
 
           // Step 3: Add product image record
           // Store relative path without bucket name: product/id_filename
@@ -87,20 +89,19 @@ export default function AdminProductCreatePage() {
             sort_order: 0,
           }).unwrap();
         } catch (error) {
-          console.error('Upload error:', error);
-          message.error('Failed to upload image');
+          console.error("Upload error:", error);
+          message.error("Failed to upload image");
           return;
         }
       }
 
-      message.success('Product created successfully');
+      message.success("Product created successfully");
       reset();
       setFileList([]);
       router.push(ROUTES.PRODUCT);
     } catch (error) {
-       
       console.error(error);
-      message.error('Failed to create product');
+      message.error("Failed to create product");
     }
   };
 
@@ -121,10 +122,10 @@ export default function AdminProductCreatePage() {
           label="Name"
           placeholder="Enter product name"
           rules={{
-            required: 'Name is required',
+            required: "Name is required",
             maxLength: {
               value: 255,
-              message: 'Name must not exceed 255 characters',
+              message: "Name must not exceed 255 characters",
             },
           }}
         />
@@ -139,10 +140,10 @@ export default function AdminProductCreatePage() {
               if (!value) return true;
               const numeric = parsePrice(value);
               if (numeric === null) {
-                return 'Price must be a valid number';
+                return "Price must be a valid number";
               }
               if (numeric < 0) {
-                return 'Price must be greater than or equal to 0';
+                return "Price must be greater than or equal to 0";
               }
               return true;
             },
@@ -158,7 +159,7 @@ export default function AdminProductCreatePage() {
           rules={{
             maxLength: {
               value: 255,
-              message: 'Short description must not exceed 255 characters',
+              message: "Short description must not exceed 255 characters",
             },
           }}
         />
@@ -172,7 +173,7 @@ export default function AdminProductCreatePage() {
           rules={{
             maxLength: {
               value: 1000,
-              message: 'Description must not exceed 1000 characters',
+              message: "Description must not exceed 1000 characters",
             },
           }}
         />
@@ -187,7 +188,7 @@ export default function AdminProductCreatePage() {
           >
             <Button icon={<UploadOutlined />}>Select Image</Button>
           </Upload>
-          <div style={{ marginTop: 8, color: '#999', fontSize: '12px' }}>
+          <div style={{ marginTop: 8, color: "#999", fontSize: "12px" }}>
             Select one image file (optional)
           </div>
         </Form.Item>
@@ -202,4 +203,3 @@ export default function AdminProductCreatePage() {
     </Card>
   );
 }
-

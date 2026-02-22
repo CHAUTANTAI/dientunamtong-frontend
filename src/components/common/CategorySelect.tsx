@@ -4,17 +4,17 @@
  * Prevents circular reference (can't select self or descendants)
  */
 
-'use client';
+"use client";
 
-import { useMemo } from 'react';
-import { TreeSelect, Spin } from 'antd';
-import type { TreeSelectProps } from 'antd/es/tree-select';
-import type { DataNode } from 'antd/es/tree';
-import { useGetCategoriesQuery } from '@/store/api/categoryApi';
-import type { Category } from '@/types/category';
-import { buildTree, getDescendants, type TreeNode } from '@/utils/tree';
+import { useMemo } from "react";
+import { TreeSelect, Spin } from "antd";
+import type { TreeSelectProps } from "antd/es/tree-select";
+import type { DataNode } from "antd/es/tree";
+import { useGetCategoriesQuery } from "@/store/api/categoryApi";
+import type { Category } from "@/types/category";
+import { buildTree, getDescendants, type TreeNode } from "@/utils/tree";
 
-interface CategorySelectProps extends Omit<TreeSelectProps, 'treeData'> {
+interface CategorySelectProps extends Omit<TreeSelectProps, "treeData"> {
   value?: string | null;
   onChange?: (value: string | null) => void;
   excludeId?: string; // Exclude this category and its descendants (for editing)
@@ -27,7 +27,7 @@ export const CategorySelect = ({
   value,
   onChange,
   excludeId,
-  placeholder = 'Select parent category',
+  placeholder = "Select parent category",
   allowClear = true,
   disabled = false,
   ...restProps
@@ -42,16 +42,18 @@ export const CategorySelect = ({
 
     // Build tree structure
     const tree = buildTree<Category>(categories, {
-      sortBy: 'sort_order',
+      sortBy: "name",
     });
 
     // Get excluded IDs (self + descendants)
     const excludedIds = new Set<string>();
     if (excludeId) {
       excludedIds.add(excludeId);
-      
+
       // Find excluded node and get all descendants
-      const findNode = (nodes: TreeNode<Category>[]): TreeNode<Category> | null => {
+      const findNode = (
+        nodes: TreeNode<Category>[],
+      ): TreeNode<Category> | null => {
         for (const node of nodes) {
           if (node.key === excludeId) return node;
           if (node.children) {
@@ -73,11 +75,11 @@ export const CategorySelect = ({
      * Convert tree nodes to TreeSelect format
      */
     const convertToTreeSelectData = (
-      nodes: TreeNode<Category>[]
+      nodes: TreeNode<Category>[],
     ): DataNode[] => {
       return nodes.map((node) => {
         const isExcluded = excludedIds.has(node.key);
-        
+
         return {
           title: node.data.name,
           value: node.key,
@@ -113,12 +115,13 @@ export const CategorySelect = ({
       treeDefaultExpandAll
       treeNodeFilterProp="title"
       treeData={treeData}
-      notFoundContent={isLoading ? <Spin size="small" /> : 'No categories found'}
-      style={{ width: '100%' }}
+      notFoundContent={
+        isLoading ? <Spin size="small" /> : "No categories found"
+      }
+      style={{ width: "100%" }}
       {...restProps}
     />
   );
 };
 
-CategorySelect.displayName = 'CategorySelect';
-
+CategorySelect.displayName = "CategorySelect";

@@ -3,11 +3,11 @@
  * Displays categories in tree structure with expand/collapse and inline actions
  */
 
-'use client';
+"use client";
 
-import { useState, useMemo } from 'react';
-import { Table, Button, Space, Tag, Tooltip } from 'antd';
-import type { ColumnsType } from 'antd/es/table';
+import { useState, useMemo, useCallback } from "react";
+import { Table, Button, Space, Tag, Tooltip } from "antd";
+import type { ColumnsType } from "antd/es/table";
 import {
   DownOutlined,
   RightOutlined,
@@ -15,9 +15,9 @@ import {
   EyeOutlined,
   EditOutlined,
   DeleteOutlined,
-} from '@ant-design/icons';
-import type { Category } from '@/types/category';
-import { buildTree, type TreeNode } from '@/utils/tree';
+} from "@ant-design/icons";
+import type { Category } from "@/types/category";
+import { buildTree, type TreeNode } from "@/utils/tree";
 
 interface CategoryTreeTableProps {
   categories: Category[];
@@ -49,19 +49,23 @@ export const CategoryTreeTable = ({
   const [expandedKeys, setExpandedKeys] = useState<Set<string>>(new Set());
 
   // Debug log
-  console.log('[CategoryTreeTable] canDelete prop:', canDelete);
+  console.log("[CategoryTreeTable] canDelete prop:", canDelete);
 
   /**
    * Build tree and flatten for table display
    */
   const flattenedData = useMemo(() => {
     const tree = buildTree<Category>(categories, {
-      sortBy: 'sort_order',
+      sortBy: "name",
     });
 
     const flattened: FlattenedCategory[] = [];
 
-    const traverse = (nodes: TreeNode<Category>[], level: number, parentKey?: string) => {
+    const traverse = (
+      nodes: TreeNode<Category>[],
+      level: number,
+      parentKey?: string,
+    ) => {
       nodes.forEach((node) => {
         const hasChildren = node.children && node.children.length > 0;
         const isExpanded = expandedKeys.has(node.key);
@@ -87,7 +91,7 @@ export const CategoryTreeTable = ({
   /**
    * Toggle expand/collapse
    */
-  const toggleExpand = (key: string) => {
+  const toggleExpand = useCallback((key: string) => {
     setExpandedKeys((prev) => {
       const newSet = new Set(prev);
       if (newSet.has(key)) {
@@ -97,125 +101,157 @@ export const CategoryTreeTable = ({
       }
       return newSet;
     });
-  };
+  }, []);
 
   /**
    * Expand all nodes
    */
-  const expandAll = () => {
+  const expandAll = useCallback(() => {
     const allKeys = new Set(categories.map((cat) => cat.id));
     setExpandedKeys(allKeys);
-  };
+  }, [categories]);
 
   /**
    * Collapse all nodes
    */
-  const collapseAll = () => {
+  const collapseAll = useCallback(() => {
     setExpandedKeys(new Set());
-  };
+  }, []);
 
-  const columns: ColumnsType<FlattenedCategory> = [
-    {
-      title: (
-        <Space>
-          <span>Name</span>
-          <Space size="small">
-            <Button type="link" size="small" onClick={expandAll}>
-              Expand All
-            </Button>
-            <Button type="link" size="small" onClick={collapseAll}>
-              Collapse All
-            </Button>
+  /**
+   * Memoize columns to prevent re-creation on every render
+   */
+  const columns: ColumnsType<FlattenedCategory> = useMemo(
+    () => [
+      {
+        title: (
+          <Space>
+            <span>Name</span>
+            <Space size="small">
+              <Button type="link" size="small" onClick={expandAll}>
+                Expand All
+              </Button>
+              <Button type="link" size="small" onClick={collapseAll}>
+                Collapse All
+              </Button>
+            </Space>
           </Space>
-        </Space>
-      ),
-      dataIndex: 'name',
-      key: 'name',
-      render: (name: string, record: FlattenedCategory) => {
-        const indent = record.level * 24; // 24px per level
+        ),
+        dataIndex: "name",
+        key: "name",
+        render: (name: string, record: FlattenedCategory) => {
+          const indent = record.level * 24;
 
-        return (
-          <div style={{ display: 'flex', alignItems: 'center', marginLeft: indent }}>
-            {record.hasChildren ? (
-              <Button
-                type="text"
-                size="small"
-                icon={
-                  expandedKeys.has(record.id) ? (
-                    <DownOutlined style={{ fontSize: 12 }} />
-                  ) : (
-                    <RightOutlined style={{ fontSize: 12 }} />
-                  )
-                }
-                onClick={() => toggleExpand(record.id)}
-                style={{ marginRight: 8, padding: 0, width: 24, height: 24 }}
-              />
-            ) : (
-              <span style={{ width: 24, marginRight: 8, display: 'inline-block' }} />
-            )}
-            <strong>{name}</strong>
-          </div>
-        );
+          return (
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                marginLeft: indent,
+              }}
+            >
+              {record.hasChildren ? (
+                <Button
+                  type="text"
+                  size="small"
+                  icon={
+                    expandedKeys.has(record.id) ? (
+                      <DownOutlined style={{ fontSize: 12 }} />
+                    ) : (
+                      <RightOutlined style={{ fontSize: 12 }} />
+                    )
+                  }
+                  onClick={() => toggleExpand(record.id)}
+                  style={{ marginRight: 8, padding: 0, width: 24, height: 24 }}
+                />
+              ) : (
+                <span
+                  style={{ width: 24, marginRight: 8, display: "inline-block" }}
+                />
+              )}
+              <strong>{name}</strong>
+            </div>
+          );
+        },
       },
-    },
-    {
-      title: 'Status',
-      dataIndex: 'is_active',
-      key: 'is_active',
-      width: 100,
-      align: 'center',
-      render: (value: boolean) =>
-        value ? <Tag color="green">Active</Tag> : <Tag color="red">Inactive</Tag>,
-    },
-    {
-      title: 'Actions',
-      key: 'actions',
-      width: 200,
-      align: 'center',
-      render: (_, record: FlattenedCategory) => (
-        <Space size="small">
-          <Tooltip title="Add child category">
-            <Button
-              type="default"
-              size="small"
-              icon={<PlusOutlined />}
-              onClick={() => onAddChild(record)}
-            />
-          </Tooltip>
-          <Tooltip title="View details">
-            <Button
-              type="default"
-              size="small"
-              icon={<EyeOutlined />}
-              onClick={() => onView(record)}
-            />
-          </Tooltip>
-          <Tooltip title="Edit">
-            <Button
-              type="default"
-              size="small"
-              icon={<EditOutlined />}
-              onClick={() => onEdit(record)}
-            />
-          </Tooltip>
-          {canDelete && (
-            <Tooltip title="Delete">
+      {
+        title: "Status",
+        dataIndex: "is_active",
+        key: "is_active",
+        width: 100,
+        align: "center",
+        render: (value: boolean) =>
+          value ? (
+            <Tag color="green">Active</Tag>
+          ) : (
+            <Tag color="red">Inactive</Tag>
+          ),
+      },
+      {
+        title: "Actions",
+        key: "actions",
+        width: 200,
+        align: "center",
+        render: (_, record: FlattenedCategory) => (
+          <Space size="small">
+            <Tooltip title="Add child category">
               <Button
-                danger
+                type="default"
                 size="small"
-                icon={<DeleteOutlined />}
-                loading={isDeleting}
-                onClick={() => {
-                  console.log('[CategoryTreeTable] Delete button clicked:', record);
-                  onDelete(record);
-                }}
+                icon={<PlusOutlined />}
+                onClick={() => onAddChild(record)}
               />
             </Tooltip>
-          )}
-        </Space>
-      ),
-    },
-  ];
+            <Tooltip title="View details">
+              <Button
+                type="default"
+                size="small"
+                icon={<EyeOutlined />}
+                onClick={() => onView(record)}
+              />
+            </Tooltip>
+            <Tooltip title="Edit">
+              <Button
+                type="default"
+                size="small"
+                icon={<EditOutlined />}
+                onClick={() => onEdit(record)}
+              />
+            </Tooltip>
+            {canDelete && (
+              <Tooltip title="Delete">
+                <Button
+                  danger
+                  size="small"
+                  icon={<DeleteOutlined />}
+                  loading={isDeleting}
+                  onClick={() => {
+                    console.log(
+                      "[CategoryTreeTable] Delete button clicked:",
+                      record,
+                    );
+                    onDelete(record);
+                  }}
+                />
+              </Tooltip>
+            )}
+          </Space>
+        ),
+      },
+    ],
+    [
+      expandedKeys,
+      canDelete,
+      isDeleting,
+      onView,
+      onEdit,
+      onDelete,
+      onAddChild,
+      expandAll,
+      collapseAll,
+      toggleExpand,
+    ],
+  );
 
   return (
     <Table<FlattenedCategory>

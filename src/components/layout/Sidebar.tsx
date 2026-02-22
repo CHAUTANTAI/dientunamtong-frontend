@@ -26,7 +26,7 @@ interface SidebarProps {
 export const Sidebar = ({ collapsed = false, onToggle }: SidebarProps) => {
   const pathname = usePathname();
   const { user } = useAuth();
-  
+
   // Fetch profile for logo
   const { data: profile } = useGetProfileQuery();
   const signedLogoUrl = useSignedImageUrl(profile?.logo || "");
@@ -34,17 +34,17 @@ export const Sidebar = ({ collapsed = false, onToggle }: SidebarProps) => {
   // Filter menu items based on user role
   const visibleMenuItems = ADMIN_MENU_ITEMS.filter((item) => {
     if (!user) return false;
-    
+
     // If item has specific roles requirement
     if (item.roles && item.roles.length > 0) {
       return hasAnyRole(user.role, item.roles);
     }
-    
+
     // If item has minimum role requirement
     if (item.minRole) {
       return hasMinimumRole(user.role, item.minRole);
     }
-    
+
     // No restriction, show to all
     return true;
   });
@@ -210,9 +210,7 @@ export const Sidebar = ({ collapsed = false, onToggle }: SidebarProps) => {
               ? "transparent"
               : "linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(147, 51, 234, 0.1))",
             borderRadius: "12px",
-            border: collapsed
-              ? "none"
-              : "1px solid rgba(255, 255, 255, 0.15)",
+            border: collapsed ? "none" : "1px solid rgba(255, 255, 255, 0.15)",
             boxShadow: collapsed ? "none" : "0 4px 12px rgba(0, 0, 0, 0.1)",
             transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
             opacity: collapsed ? 0 : 1,

@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 /**
  * EntityFormSkeleton
@@ -6,7 +6,7 @@
  * Uses Ant Design Skeleton components to mimic labels, inputs and actions.
  */
 
-import { Skeleton, Space } from 'antd';
+import { Skeleton, Space } from "antd";
 
 interface EntityFormSkeletonProps {
   fieldCount?: number;
@@ -28,18 +28,25 @@ export const EntityFormSkeleton = ({
   const fields = Array.from({ length: fieldCount });
 
   return (
-    <Space direction="vertical" style={{ width: '100%' }} size="middle">
+    <Space direction="vertical" style={{ width: "100%" }} size="middle">
       {fields.map((_, index) => (
-         
         <div key={index}>
-          <Skeleton.Input style={{ width: 120, marginBottom: 8 }} active size="small" />
+          <Skeleton.Input
+            style={{ width: 120, marginBottom: 8 }}
+            active
+            size="small"
+          />
           <Skeleton.Input block active />
         </div>
       ))}
 
       {showImage && (
         <div>
-          <Skeleton.Input style={{ width: 160, marginBottom: 8 }} active size="small" />
+          <Skeleton.Input
+            style={{ width: 160, marginBottom: 8 }}
+            active
+            size="small"
+          />
           <Skeleton.Image
             style={{ width: 200, height: 200, borderRadius: 4 }}
             active
@@ -56,4 +63,3 @@ export const EntityFormSkeleton = ({
     </Space>
   );
 };
-
