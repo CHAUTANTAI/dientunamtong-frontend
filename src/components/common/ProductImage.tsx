@@ -25,19 +25,14 @@ export const ProductImage = ({ imageUrl, alt, ...imageProps }: ProductImageProps
 
   const { width, height, style } = imageProps;
   const skeletonStyle: React.CSSProperties = {
-    width: typeof width === 'number' ? width : width ?? 200,
-    height: typeof height === 'number' ? height : height ?? 200,
+    width: typeof width === 'number' ? width : (width ?? 200),
+    height: typeof height === 'number' ? height : (height ?? 200),
     borderRadius: style?.borderRadius ?? 4,
   };
 
   return (
     <>
-      {!isLoaded && (
-        <Skeleton.Image
-          style={skeletonStyle}
-          active
-        />
-      )}
+      {!isLoaded && <Skeleton.Image style={skeletonStyle} active />}
       {signedUrl && (
         <Image
           src={signedUrl}

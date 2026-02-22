@@ -66,4 +66,3 @@ export interface SupabaseUploadResponse {
   id: string;
   fullPath: string;
 }
-

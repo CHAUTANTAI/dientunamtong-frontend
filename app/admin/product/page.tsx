@@ -3,11 +3,10 @@
  * Admin product list page
  */
 
-"use client";
+'use client';
 
-import AdminProductPage from "@/screens/admin/product/admin-product-page";
+import AdminProductPage from '@/screens/admin/product/admin-product-page';
 
 export default function Page() {
   return <AdminProductPage />;
 }
-

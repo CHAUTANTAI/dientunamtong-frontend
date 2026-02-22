@@ -3,16 +3,12 @@
  * Reusable password input field with react-hook-form integration
  */
 
-"use client";
+'use client';
 
-import { Input, Form } from "antd";
-import { LockOutlined } from "@ant-design/icons";
-import type {
-  FieldPath,
-  UseControllerProps,
-  FieldValues,
-} from "react-hook-form";
-import { useController } from "react-hook-form";
+import { Input, Form } from 'antd';
+import { LockOutlined } from '@ant-design/icons';
+import type { FieldPath, UseControllerProps, FieldValues } from 'react-hook-form';
+import { useController } from 'react-hook-form';
 
 interface FormPasswordProps<
   TFieldValues extends FieldValues = FieldValues,
@@ -37,7 +33,7 @@ export const FormPassword = <
   return (
     <Form.Item
       label={label}
-      validateStatus={fieldState.error ? "error" : ""}
+      validateStatus={fieldState.error ? 'error' : ''}
       help={fieldState.error?.message}
     >
       <Input.Password
@@ -45,10 +41,10 @@ export const FormPassword = <
         placeholder={placeholder}
         disabled={disabled}
         prefix={<LockOutlined />}
-        status={fieldState.error ? "error" : ""}
+        status={fieldState.error ? 'error' : ''}
       />
     </Form.Item>
   );
 };
 
-FormPassword.displayName = "FormPassword";
+FormPassword.displayName = 'FormPassword';

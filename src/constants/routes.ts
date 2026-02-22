@@ -5,15 +5,15 @@
 
 export const ROUTES = {
   // Public routes
-  LOGIN: "/auth/login",
+  LOGIN: '/auth/login',
 
   // Admin routes
-  DASHBOARD: "/admin/dashboard",
-  CATEGORY: "/admin/category",
-  PRODUCT: "/admin/product",
-  PROFILE: "/admin/profile",
+  DASHBOARD: '/admin/dashboard',
+  CATEGORY: '/admin/category',
+  PRODUCT: '/admin/product',
+  PROFILE: '/admin/profile',
 
-  ADMIN_ROOT: "/",
+  ADMIN_ROOT: '/',
 
   // Can be extended with more admin routes
   // USERS: '/users',
@@ -31,32 +31,32 @@ export interface AdminRoute {
 
 export const ADMIN_ROUTES: AdminRoute[] = [
   {
-    path: "/admin/dashboard",
-    label: "Dashboard",
+    path: '/admin/dashboard',
+    label: 'Dashboard',
   },
   {
-    path: "/admin/category",
-    label: "Category",
-    parent: "/admin",
+    path: '/admin/category',
+    label: 'Category',
+    parent: '/admin',
   },
   {
-    path: "/admin/category/create",
-    label: "Create Category",
-    parent: "/admin/category",
+    path: '/admin/category/create',
+    label: 'Create Category',
+    parent: '/admin/category',
   },
   {
-    path: "/admin/product",
-    label: "Product",
-    parent: "/admin",
+    path: '/admin/product',
+    label: 'Product',
+    parent: '/admin',
   },
   {
-    path: "/admin/product/create",
-    label: "Create Product",
-    parent: "/admin/product",
+    path: '/admin/product/create',
+    label: 'Create Product',
+    parent: '/admin/product',
   },
   {
-    path: "/admin/profile",
-    label: "Profile",
-    parent: "/admin",
-  }
+    path: '/admin/profile',
+    label: 'Profile',
+    parent: '/admin',
+  },
 ];

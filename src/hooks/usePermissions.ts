@@ -22,4 +22,3 @@ export const usePermissions = (): Permission => {
 
   return permissions;
 };
-

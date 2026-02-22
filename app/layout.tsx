@@ -1,11 +1,11 @@
-import type { Metadata } from "next";
-import ReduxProvider from "@/providers/ReduxProvider";
-import AntdProvider from "@/providers/AntdProvider";
-import "./globals.css";
+import type { Metadata } from 'next';
+import ReduxProvider from '@/providers/ReduxProvider';
+import AntdProvider from '@/providers/AntdProvider';
+import './globals.css';
 
 export const metadata: Metadata = {
-  title: "Admin Panel",
-  description: "Admin system for managing applications",
+  title: 'Admin Panel',
+  description: 'Admin system for managing applications',
 };
 
 export default function RootLayout({

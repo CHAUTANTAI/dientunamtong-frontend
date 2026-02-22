@@ -1,6 +1,6 @@
 // src/utils/buildBreadcrumbs.ts
 
-import { ADMIN_ROUTES } from "@/constants/routes";
+import { ADMIN_ROUTES } from '@/constants/routes';
 
 export const buildBreadcrumbs = (pathname: string) => {
   const map = new Map(ADMIN_ROUTES.map((r) => [r.path, r]));

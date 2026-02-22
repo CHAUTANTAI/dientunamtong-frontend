@@ -24,11 +24,7 @@ export function buildTree<T extends { id: string; parent_id?: string | null }>(
     sortBy?: keyof T;
   } = {}
 ): TreeNode<T>[] {
-  const {
-    idKey = 'id' as keyof T,
-    parentIdKey = 'parent_id' as keyof T,
-    sortBy,
-  } = options;
+  const { idKey = 'id' as keyof T, parentIdKey = 'parent_id' as keyof T, sortBy } = options;
 
   // Create map for quick lookup
   const itemMap = new Map<string, TreeNode<T>>();

@@ -3,11 +3,11 @@
  * Displays categories in tree structure with expand/collapse and inline actions
  */
 
-"use client";
+'use client';
 
-import { useState, useMemo, useCallback } from "react";
-import { Table, Button, Space, Tag, Tooltip } from "antd";
-import type { ColumnsType } from "antd/es/table";
+import { useState, useMemo, useCallback } from 'react';
+import { Table, Button, Space, Tag, Tooltip } from 'antd';
+import type { ColumnsType } from 'antd/es/table';
 import {
   DownOutlined,
   RightOutlined,
@@ -15,9 +15,9 @@ import {
   EyeOutlined,
   EditOutlined,
   DeleteOutlined,
-} from "@ant-design/icons";
-import type { Category } from "@/types/category";
-import { buildTree, type TreeNode } from "@/utils/tree";
+} from '@ant-design/icons';
+import type { Category } from '@/types/category';
+import { buildTree, type TreeNode } from '@/utils/tree';
 
 interface CategoryTreeTableProps {
   categories: Category[];
@@ -49,23 +49,19 @@ export const CategoryTreeTable = ({
   const [expandedKeys, setExpandedKeys] = useState<Set<string>>(new Set());
 
   // Debug log
-  console.log("[CategoryTreeTable] canDelete prop:", canDelete);
+  console.log('[CategoryTreeTable] canDelete prop:', canDelete);
 
   /**
    * Build tree and flatten for table display
    */
   const flattenedData = useMemo(() => {
     const tree = buildTree<Category>(categories, {
-      sortBy: "name",
+      sortBy: 'name',
     });
 
     const flattened: FlattenedCategory[] = [];
 
-    const traverse = (
-      nodes: TreeNode<Category>[],
-      level: number,
-      parentKey?: string,
-    ) => {
+    const traverse = (nodes: TreeNode<Category>[], level: number, parentKey?: string) => {
       nodes.forEach((node) => {
         const hasChildren = node.children && node.children.length > 0;
         const isExpanded = expandedKeys.has(node.key);
@@ -137,16 +133,16 @@ export const CategoryTreeTable = ({
             </Space>
           </Space>
         ),
-        dataIndex: "name",
-        key: "name",
+        dataIndex: 'name',
+        key: 'name',
         render: (name: string, record: FlattenedCategory) => {
           const indent = record.level * 24;
 
           return (
             <div
               style={{
-                display: "flex",
-                alignItems: "center",
+                display: 'flex',
+                alignItems: 'center',
                 marginLeft: indent,
               }}
             >
@@ -165,9 +161,7 @@ export const CategoryTreeTable = ({
                   style={{ marginRight: 8, padding: 0, width: 24, height: 24 }}
                 />
               ) : (
-                <span
-                  style={{ width: 24, marginRight: 8, display: "inline-block" }}
-                />
+                <span style={{ width: 24, marginRight: 8, display: 'inline-block' }} />
               )}
               <strong>{name}</strong>
             </div>
@@ -175,23 +169,19 @@ export const CategoryTreeTable = ({
         },
       },
       {
-        title: "Status",
-        dataIndex: "is_active",
-        key: "is_active",
+        title: 'Status',
+        dataIndex: 'is_active',
+        key: 'is_active',
         width: 100,
-        align: "center",
+        align: 'center',
         render: (value: boolean) =>
-          value ? (
-            <Tag color="green">Active</Tag>
-          ) : (
-            <Tag color="red">Inactive</Tag>
-          ),
+          value ? <Tag color="green">Active</Tag> : <Tag color="red">Inactive</Tag>,
       },
       {
-        title: "Actions",
-        key: "actions",
+        title: 'Actions',
+        key: 'actions',
         width: 200,
-        align: "center",
+        align: 'center',
         render: (_, record: FlattenedCategory) => (
           <Space size="small">
             <Tooltip title="Add child category">
@@ -226,10 +216,7 @@ export const CategoryTreeTable = ({
                   icon={<DeleteOutlined />}
                   loading={isDeleting}
                   onClick={() => {
-                    console.log(
-                      "[CategoryTreeTable] Delete button clicked:",
-                      record,
-                    );
+                    console.log('[CategoryTreeTable] Delete button clicked:', record);
                     onDelete(record);
                   }}
                 />
@@ -250,7 +237,7 @@ export const CategoryTreeTable = ({
       expandAll,
       collapseAll,
       toggleExpand,
-    ],
+    ]
   );
 
   return (

@@ -3,21 +3,16 @@
  * Top header for admin layout
  */
 
-"use client";
+'use client';
 
-import { Layout, Button, Dropdown, Typography, Space, Badge, Tag } from "antd";
-import {
-  LogoutOutlined,
-  BellOutlined,
-  SettingOutlined,
-  UserOutlined,
-} from "@ant-design/icons";
-import { useRouter } from "next/navigation";
-import { useAuth } from "@/hooks/useAuth";
-import { useGetProfileQuery } from "@/store/api/profileApi";
-import { ROUTES } from "@/constants/routes";
-import { getRoleDisplayName, getRoleColor } from "@/utils/rbac";
-import type { MenuProps } from "antd";
+import { Layout, Button, Dropdown, Typography, Space, Badge, Tag } from 'antd';
+import { LogoutOutlined, BellOutlined, SettingOutlined, UserOutlined } from '@ant-design/icons';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/hooks/useAuth';
+import { useGetProfileQuery } from '@/store/api/profileApi';
+import { ROUTES } from '@/constants/routes';
+import { getRoleDisplayName, getRoleColor } from '@/utils/rbac';
+import type { MenuProps } from 'antd';
 
 const { Text } = Typography;
 
@@ -33,11 +28,11 @@ export const Header = () => {
     router.push(ROUTES.LOGIN);
   };
 
-  const menuItems: MenuProps["items"] = [
+  const menuItems: MenuProps['items'] = [
     {
-      key: "username",
+      key: 'username',
       icon: user && (
-        <div style={{ borderBottom: "1px solid #f0f0f0" }}>
+        <div style={{ borderBottom: '1px solid #f0f0f0' }}>
           <Space direction="vertical" size={4}>
             <Text strong>{user.username}</Text>
             <Tag color={getRoleColor(user.role)} style={{ margin: 0 }}>
@@ -48,18 +43,18 @@ export const Header = () => {
       ),
     },
     {
-      key: "profile",
+      key: 'profile',
       icon: <UserOutlined />,
-      label: "Profile",
+      label: 'Profile',
       onClick: () => router.push(ROUTES.PROFILE),
     },
     {
-      type: "divider",
+      type: 'divider',
     },
     {
-      key: "logout",
+      key: 'logout',
       icon: <LogoutOutlined />,
-      label: "Logout",
+      label: 'Logout',
       onClick: handleLogout,
       danger: true,
     },
@@ -68,44 +63,44 @@ export const Header = () => {
   return (
     <Layout.Header
       style={{
-        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        padding: "0 24px",
-        position: "sticky",
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        padding: '0 24px',
+        position: 'sticky',
         top: 0,
         zIndex: 999,
-        height: "64px",
+        height: '64px',
       }}
     >
       {/* Left Section - Company Name */}
       <Space size="large">
         <Text
           style={{
-            color: "#fff",
-            fontSize: "18px",
+            color: '#fff',
+            fontSize: '18px',
             fontWeight: 600,
-            letterSpacing: "0.3px",
+            letterSpacing: '0.3px',
           }}
         >
-          {profile?.company_name || "Nam Tông"}
+          {profile?.company_name || 'Nam Tông'}
         </Text>
       </Space>
 
       {/* Right Section */}
-      <Space size="large" style={{ marginLeft: "auto" }}>
+      <Space size="large" style={{ marginLeft: 'auto' }}>
         {/* Notifications */}
         <Badge count={0} showZero={false}>
           <Button
             type="text"
-            icon={<BellOutlined style={{ fontSize: "18px" }} />}
+            icon={<BellOutlined style={{ fontSize: '18px' }} />}
             style={{
-              color: "#fff",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
+              color: '#fff',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
             }}
           />
         </Badge>
@@ -113,12 +108,12 @@ export const Header = () => {
         {/* Settings */}
         <Button
           type="text"
-          icon={<SettingOutlined style={{ fontSize: "18px" }} />}
+          icon={<SettingOutlined style={{ fontSize: '18px' }} />}
           style={{
-            color: "#fff",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
+            color: '#fff',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
           }}
         />
 
@@ -127,23 +122,23 @@ export const Header = () => {
           <Button
             type="text"
             style={{
-              height: "auto",
-              padding: "8px 16px",
-              background: "rgba(255, 255, 255, 0.1)",
-              border: "1px solid rgba(255, 255, 255, 0.2)",
-              borderRadius: "24px",
-              transition: "all 0.3s ease",
+              height: 'auto',
+              padding: '8px 16px',
+              background: 'rgba(255, 255, 255, 0.1)',
+              border: '1px solid rgba(255, 255, 255, 0.2)',
+              borderRadius: '24px',
+              transition: 'all 0.3s ease',
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.background = "rgba(255, 255, 255, 0.2)";
+              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.2)';
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.background = "rgba(255, 255, 255, 0.1)";
+              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
             }}
           >
             <Text
               style={{
-                color: "#fff",
+                color: '#fff',
                 fontWeight: 500,
               }}
             >
@@ -156,4 +151,4 @@ export const Header = () => {
   );
 };
 
-Header.displayName = "Header";
+Header.displayName = 'Header';

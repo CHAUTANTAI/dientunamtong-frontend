@@ -9,6 +9,7 @@ Common utility functions used across the application.
 Common utilities for handling API errors consistently.
 
 **Main function:**
+
 ```typescript
 getErrorMessage(error: unknown, fallbackMessage?: string): string
 ```
@@ -16,6 +17,7 @@ getErrorMessage(error: unknown, fallbackMessage?: string): string
 Extracts user-friendly error messages from various error types (RTK Query, Axios, generic errors).
 
 **Usage:**
+
 ```typescript
 import { getErrorMessage } from '@/utils/error';
 
@@ -27,6 +29,7 @@ try {
 ```
 
 **Helper functions:**
+
 - `isApiError(error, statusCode?)` - Check if error is API error
 - `isValidationError(error)` - Check for 400 errors
 - `isAuthError(error)` - Check for 401 errors
@@ -42,6 +45,7 @@ try {
 Vietnamese-friendly URL slug generation utilities.
 
 **Main function:**
+
 ```typescript
 generateSlug(text: string): string
 ```
@@ -49,12 +53,14 @@ generateSlug(text: string): string
 Converts Vietnamese text to URL-friendly slugs.
 
 **Examples:**
+
 ```typescript
-generateSlug('Điện Tử Máy Tính') // → 'dien-tu-may-tinh'
-generateSlug('Laptop Gaming')     // → 'laptop-gaming'
+generateSlug('Điện Tử Máy Tính'); // → 'dien-tu-may-tinh'
+generateSlug('Laptop Gaming'); // → 'laptop-gaming'
 ```
 
 **Helper functions:**
+
 - `isValidSlug(slug)` - Validate slug format
 - `ensureUniqueSlug(baseSlug, existingSlugs)` - Make slug unique
 - `generateUniqueSlug(text, existingSlugs)` - Generate + ensure unique
@@ -66,6 +72,7 @@ generateSlug('Laptop Gaming')     // → 'laptop-gaming'
 Supabase client and storage utilities.
 
 **Functions:**
+
 - `supabase` - Supabase client instance
 - `getSupabaseSignedUrl(imageUrl, expiresIn)` - Get signed URL for private files
 - `getSupabaseImageUrl(imageUrl, expiresIn)` - Get signed URL with caching
@@ -110,4 +117,3 @@ When adding new utilities:
 ---
 
 **Last Updated:** February 2026
-

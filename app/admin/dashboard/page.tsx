@@ -3,9 +3,9 @@
  * Admin dashboard home page
  */
 
-"use client";
+'use client';
 
-import DashboardPage from "@/screens/admin/dashboard/admin-dashboard-page";
+import DashboardPage from '@/screens/admin/dashboard/admin-dashboard-page';
 
 export default function Page() {
   return <DashboardPage />;

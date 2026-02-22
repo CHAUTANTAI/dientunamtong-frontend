@@ -25,20 +25,14 @@ export const hasRole = (userRole: UserRole, requiredRole: UserRole): boolean => 
  * Check if user has at least the required role level
  * (e.g., ADMIN has access to MANAGER and STAFF level resources)
  */
-export const hasMinimumRole = (
-  userRole: UserRole,
-  minimumRole: UserRole
-): boolean => {
+export const hasMinimumRole = (userRole: UserRole, minimumRole: UserRole): boolean => {
   return ROLE_HIERARCHY[userRole] >= ROLE_HIERARCHY[minimumRole];
 };
 
 /**
  * Check if user has ANY of the required roles
  */
-export const hasAnyRole = (
-  userRole: UserRole,
-  requiredRoles: UserRole[]
-): boolean => {
+export const hasAnyRole = (userRole: UserRole, requiredRoles: UserRole[]): boolean => {
   return requiredRoles.includes(userRole);
 };
 
@@ -89,16 +83,16 @@ export interface Permission {
   canEditCategory: boolean;
   canDeleteCategory: boolean;
   canViewCategory: boolean;
-  
+
   // Product permissions
   canCreateProduct: boolean;
   canEditProduct: boolean;
   canDeleteProduct: boolean;
   canViewProduct: boolean;
-  
+
   // User management permissions
   canManageUsers: boolean;
-  
+
   // Settings permissions
   canEditSettings: boolean;
 }
@@ -176,14 +170,13 @@ export const getPermissions = (role: UserRole | null): Permission => {
 
 /**
  * Example usage:
- * 
+ *
  * const permissions = getPermissions(user.role);
  * if (permissions.canDeleteCategory) {
  *   // Show delete button
  * }
- * 
+ *
  * if (isAdmin(user.role)) {
  *   // Show admin panel
  * }
  */
-

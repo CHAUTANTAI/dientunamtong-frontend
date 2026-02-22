@@ -4,11 +4,7 @@
 
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { getAuthToken } from '@/utils/auth';
-import type {
-  Product,
-  ProductWithImages,
-  ProductImage,
-} from '@/types/product';
+import type { Product, ProductWithImages, ProductImage } from '@/types/product';
 import type { ApiResponse } from '@/types/api';
 import {
   API_BASE_URL,
@@ -51,32 +47,26 @@ export const productApi = createApi({
     // GET /admin/product/:id -> { status, data: ProductWithImages }
     getProduct: builder.query<ProductWithImages, string>({
       query: (id) => API_PRODUCT_DETAIL(id),
-      transformResponse: (
-        response: ApiResponse<ProductWithImages>,
-      ): ProductWithImages => response.data,
+      transformResponse: (response: ApiResponse<ProductWithImages>): ProductWithImages =>
+        response.data,
       providesTags: (result, error, id) => [{ type: 'Product', id }],
     }),
 
     // POST /admin/product -> { status, data: Product }
     createProduct: builder.mutation<Product, Partial<Product>>({
       query: (body) => ({ url: API_PRODUCTS, method: 'POST', body }),
-      transformResponse: (response: ApiResponse<Product>): Product =>
-        response.data,
+      transformResponse: (response: ApiResponse<Product>): Product => response.data,
       invalidatesTags: [{ type: 'Product', id: 'LIST' }],
     }),
 
     // PUT /admin/product/:id -> { status, data: Product }
-    updateProduct: builder.mutation<
-      Product,
-      { id: string; body: Partial<Product> }
-    >({
+    updateProduct: builder.mutation<Product, { id: string; body: Partial<Product> }>({
       query: ({ id, body }) => ({
         url: API_PRODUCT_DETAIL(id),
         method: 'PUT',
         body,
       }),
-      transformResponse: (response: ApiResponse<Product>): Product =>
-        response.data,
+      transformResponse: (response: ApiResponse<Product>): Product => response.data,
       invalidatesTags: (result, error, { id }) => [{ type: 'Product', id }],
     }),
 
@@ -90,9 +80,7 @@ export const productApi = createApi({
     // GET /admin/product/:productId/images -> { status, data: ProductImage[] }
     getProductImages: builder.query<ProductImage[], string>({
       query: (productId) => API_PRODUCT_IMAGES(productId),
-      transformResponse: (
-        response: ApiResponse<ProductImage[]>,
-      ): ProductImage[] =>
+      transformResponse: (response: ApiResponse<ProductImage[]>): ProductImage[] =>
         Array.isArray(response.data) ? response.data : [],
       providesTags: (result, error, productId) =>
         result && result.length > 0
@@ -120,8 +108,7 @@ export const productApi = createApi({
           sort_order: sort_order ?? 0,
         },
       }),
-      transformResponse: (response: ApiResponse<ProductImage>): ProductImage =>
-        response.data,
+      transformResponse: (response: ApiResponse<ProductImage>): ProductImage => response.data,
       invalidatesTags: (result, error, { productId }) => [
         { type: 'ProductImage', id: `PRODUCT_${productId}` },
         { type: 'Product', id: 'LIST' },
@@ -129,10 +116,7 @@ export const productApi = createApi({
     }),
 
     // DELETE /admin/product/:productId/images/:imageId -> { status, data: null | undefined }
-    removeProductImage: builder.mutation<
-      void,
-      { imageId: string }
-    >({
+    removeProductImage: builder.mutation<void, { imageId: string }>({
       query: ({ imageId }) => ({
         url: API_PRODUCT_IMAGE_DELETE(imageId),
         method: 'DELETE',

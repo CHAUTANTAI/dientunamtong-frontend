@@ -3,10 +3,10 @@
  * Reusable submit button for forms
  */
 
-"use client";
+'use client';
 
-import { Button } from "antd";
-import type { ButtonProps } from "antd";
+import { Button } from 'antd';
+import type { ButtonProps } from 'antd';
 
 interface FormSubmitButtonProps extends ButtonProps {
   isLoading?: boolean;
@@ -15,7 +15,7 @@ interface FormSubmitButtonProps extends ButtonProps {
 
 export const FormSubmitButton = ({
   isLoading,
-  children = "Submit",
+  children = 'Submit',
   ...buttonProps
 }: FormSubmitButtonProps) => {
   return (
@@ -32,4 +32,4 @@ export const FormSubmitButton = ({
   );
 };
 
-FormSubmitButton.displayName = "FormSubmitButton";
+FormSubmitButton.displayName = 'FormSubmitButton';

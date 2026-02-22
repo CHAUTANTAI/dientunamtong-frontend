@@ -3,9 +3,9 @@
  * Admin profile page
  */
 
-"use client";
+'use client';
 
-import AdminProfilePage from "@/screens/admin/profile/admin-profile-page";
+import AdminProfilePage from '@/screens/admin/profile/admin-profile-page';
 
 export default function Page() {
   return <AdminProfilePage />;

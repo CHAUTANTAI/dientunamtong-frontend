@@ -4,19 +4,14 @@
  * Synchronized with backend auth system
  */
 
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { getAuthToken } from "@/utils/auth";
-import type { LoginRequest, AuthResponseDto, AuthUser } from "@/types/auth";
-import type { ApiResponse } from "@/types/api";
-import {
-  API_BASE_URL,
-  API_AUTH_LOGIN,
-  API_AUTH_LOGOUT,
-  API_AUTH_ME,
-} from "@/constants/api";
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { getAuthToken } from '@/utils/auth';
+import type { LoginRequest, AuthResponseDto, AuthUser } from '@/types/auth';
+import type { ApiResponse } from '@/types/api';
+import { API_BASE_URL, API_AUTH_LOGIN, API_AUTH_LOGOUT, API_AUTH_ME } from '@/constants/api';
 
 export const authApi = createApi({
-  reducerPath: "authApi",
+  reducerPath: 'authApi',
   baseQuery: fetchBaseQuery({
     baseUrl: API_BASE_URL,
   }),
@@ -26,7 +21,7 @@ export const authApi = createApi({
     login: builder.mutation<AuthResponseDto, LoginRequest>({
       query: (credentials) => ({
         url: API_AUTH_LOGIN,
-        method: "POST",
+        method: 'POST',
         body: credentials,
       }),
       transformResponse: (response: ApiResponse<AuthResponseDto>) => response.data,
@@ -38,7 +33,7 @@ export const authApi = createApi({
         const token = getAuthToken();
         return {
           url: API_AUTH_LOGOUT,
-          method: "POST",
+          method: 'POST',
           headers: token ? { Authorization: `Bearer ${token}` } : {},
         };
       },
@@ -50,7 +45,7 @@ export const authApi = createApi({
         const token = getAuthToken();
         return {
           url: API_AUTH_ME,
-          method: "GET",
+          method: 'GET',
           headers: token ? { Authorization: `Bearer ${token}` } : {},
         };
       },
@@ -59,5 +54,4 @@ export const authApi = createApi({
   }),
 });
 
-export const { useLoginMutation, useLogoutMutation, useGetCurrentUserQuery } =
-  authApi;
+export const { useLoginMutation, useLogoutMutation, useGetCurrentUserQuery } = authApi;

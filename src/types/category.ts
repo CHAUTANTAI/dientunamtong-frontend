@@ -17,7 +17,7 @@ export interface Category {
   is_active: boolean;
   created_at: string;
   updated_at: string;
-  
+
   // Relations (populated when requested)
   parent?: Category | null;
   children?: Category[];

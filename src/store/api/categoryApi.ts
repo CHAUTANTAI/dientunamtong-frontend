@@ -5,9 +5,9 @@
 
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { getAuthToken } from '@/utils/auth';
-import type { 
-  Category, 
-  CreateCategoryDto, 
+import type {
+  Category,
+  CreateCategoryDto,
   UpdateCategoryDto,
   CategoryTreeNode,
   CategoryBreadcrumb,
@@ -44,28 +44,26 @@ export const categoryApi = createApi({
       providesTags: (result) =>
         result && result.length > 0
           ? [
-            ...result.map(({ id }) => ({
-              type: 'Category' as const,
-              id,
-            })),
-            { type: 'Category', id: 'LIST' },
-          ]
+              ...result.map(({ id }) => ({
+                type: 'Category' as const,
+                id,
+              })),
+              { type: 'Category', id: 'LIST' },
+            ]
           : [{ type: 'Category', id: 'LIST' }],
     }),
 
     // GET /category/:id -> { status, data: Category }
     getCategory: builder.query<Category, string>({
       query: (id) => API_CATEGORY_DETAIL(id),
-      transformResponse: (response: ApiResponse<Category>): Category =>
-        response.data,
+      transformResponse: (response: ApiResponse<Category>): Category => response.data,
       providesTags: (result, error, id) => [{ type: 'Category', id }],
     }),
 
     // POST /admin/category -> { success, data: Category }
     createCategory: builder.mutation<Category, CreateCategoryDto>({
       query: (body) => ({ url: API_CATEGORY, method: 'POST', body }),
-      transformResponse: (response: ApiResponse<Category>): Category =>
-        response.data,
+      transformResponse: (response: ApiResponse<Category>): Category => response.data,
       invalidatesTags: [
         { type: 'Category', id: 'LIST' },
         { type: 'Category', id: 'TREE' },
@@ -74,17 +72,13 @@ export const categoryApi = createApi({
     }),
 
     // PUT /admin/category/:id -> { success, data: Category }
-    updateCategory: builder.mutation<
-      Category,
-      { id: string; body: UpdateCategoryDto }
-    >({
+    updateCategory: builder.mutation<Category, { id: string; body: UpdateCategoryDto }>({
       query: ({ id, body }) => ({
         url: API_CATEGORY_DETAIL(id),
         method: 'PUT',
         body,
       }),
-      transformResponse: (response: ApiResponse<Category>): Category =>
-        response.data,
+      transformResponse: (response: ApiResponse<Category>): Category => response.data,
       invalidatesTags: (result, error, { id }) => [
         { type: 'Category', id },
         { type: 'Category', id: 'LIST' },
@@ -94,9 +88,9 @@ export const categoryApi = createApi({
 
     // DELETE /admin/category/:id/permanent?cascade=true/false -> { success }
     deleteCategoryPermanent: builder.mutation<void, { id: string; cascade: boolean }>({
-      query: ({ id, cascade }) => ({ 
-        url: `${API_CATEGORY_DETAIL(id)}/permanent?cascade=${cascade}`, 
-        method: 'DELETE' 
+      query: ({ id, cascade }) => ({
+        url: `${API_CATEGORY_DETAIL(id)}/permanent?cascade=${cascade}`,
+        method: 'DELETE',
       }),
       invalidatesTags: [
         { type: 'Category', id: 'LIST' },

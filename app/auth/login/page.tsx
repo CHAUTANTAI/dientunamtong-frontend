@@ -3,24 +3,20 @@
  * Simple admin login page using unified API response format
  */
 
-"use client";
+'use client';
 
-import { Suspense } from "react";
-import { Form, Card, Typography, Spin } from "antd";
-import { useForm } from "react-hook-form";
-import { useRouter, useSearchParams } from "next/navigation";
-import { useLoginMutation } from "@/store/api/authApi";
-import { getErrorMessage } from "@/utils/api-interceptor";
-import {
-  FormInput,
-  FormPassword,
-  FormSubmitButton,
-} from "@/components/common/form";
-import { validateUsername, validatePassword } from "@/utils/validators";
-import { ROUTES } from "@/constants/routes";
-import type { LoginRequest } from "@/types/auth";
-import styles from "./page.module.css";
-import { useAuth } from "@/hooks/useAuth";
+import { Suspense } from 'react';
+import { Form, Card, Typography, Spin } from 'antd';
+import { useForm } from 'react-hook-form';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useLoginMutation } from '@/store/api/authApi';
+import { getErrorMessage } from '@/utils/api-interceptor';
+import { FormInput, FormPassword, FormSubmitButton } from '@/components/common/form';
+import { validateUsername, validatePassword } from '@/utils/validators';
+import { ROUTES } from '@/constants/routes';
+import type { LoginRequest } from '@/types/auth';
+import styles from './page.module.css';
+import { useAuth } from '@/hooks/useAuth';
 
 const { Title, Text } = Typography;
 
@@ -40,8 +36,8 @@ function LoginForm() {
     setError,
   } = useForm<LoginRequest>({
     defaultValues: {
-      username: "",
-      password: "",
+      username: '',
+      password: '',
     },
   });
 
@@ -56,14 +52,14 @@ function LoginForm() {
         // Redirect to callback URL (preserved from before login) or dashboard
         router.push(callbackUrl);
       } else {
-        setError("root", {
-          message: "Login failed. Invalid response from server.",
+        setError('root', {
+          message: 'Login failed. Invalid response from server.',
         });
       }
     } catch (error) {
       // Error handling with unified format
       const message = getErrorMessage(error);
-      setError("root", { message });
+      setError('root', { message });
     }
   };
 
@@ -72,16 +68,14 @@ function LoginForm() {
       <Card className={styles.card}>
         <div className={styles.header}>
           <Title level={2}>Admin Login</Title>
-          <Text type="secondary">
-            Enter your credentials to access the admin panel
-          </Text>
+          <Text type="secondary">Enter your credentials to access the admin panel</Text>
         </div>
 
         <Form layout="vertical" onFinish={handleSubmit(onSubmit)}>
           {/* Root error */}
           {errors.root && (
             <Form.Item>
-              <Typography.Text type="danger" style={{ fontSize: "14px" }}>
+              <Typography.Text type="danger" style={{ fontSize: '14px' }}>
                 {errors.root.message}
               </Typography.Text>
             </Form.Item>
@@ -111,13 +105,13 @@ function LoginForm() {
 
           {/* Submit Button */}
           <FormSubmitButton isLoading={isLoading}>
-            {isLoading ? "Logging in..." : "Login"}
+            {isLoading ? 'Logging in...' : 'Login'}
           </FormSubmitButton>
         </Form>
 
         {/* Demo credentials hint */}
         <div className={styles.hint}>
-          <Text type="secondary" style={{ fontSize: "12px" }}>
+          <Text type="secondary" style={{ fontSize: '12px' }}>
             Demo: username <code>admin</code>, password <code>admin123</code>
           </Text>
         </div>
@@ -132,10 +126,10 @@ export default function LoginPage() {
       fallback={
         <div
           style={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            height: "100vh",
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            height: '100vh',
           }}
         >
           <Spin size="large" />

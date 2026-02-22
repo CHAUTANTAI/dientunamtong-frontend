@@ -3,11 +3,10 @@
  * Admin create category page
  */
 
-"use client";
+'use client';
 
-import AdminCategoryCreatePage from "@/screens/admin/category/admin-category-create-page";
+import AdminCategoryCreatePage from '@/screens/admin/category/admin-category-create-page';
 
 export default function Page() {
   return <AdminCategoryCreatePage />;
 }
-

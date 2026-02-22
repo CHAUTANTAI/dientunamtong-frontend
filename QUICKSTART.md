@@ -27,6 +27,7 @@ The app will be available at `http://localhost:3000`
 ### 4. Explore the Dashboard
 
 After login, you'll see the admin dashboard with:
+
 - Left sidebar with navigation menu
 - Top header with user profile dropdown
 - Main content area with page title and breadcrumbs
@@ -102,15 +103,19 @@ const { user, isAuthenticated, logout } = useAuth();
 ## 🛠️ Troubleshooting
 
 ### "Module not found" errors
+
 → Check path aliases in `tsconfig.json` (they should point to `./src/*`)
 
 ### Redux not working
+
 → Ensure `Provider` wraps the app in `app/layout.tsx`
 
 ### Forms not submitting
+
 → Make sure to pass `control` from `useForm()` to form components
 
 ### Auth not persisting
+
 → Check that localStorage is enabled and auth_token is being saved
 
 ---

@@ -3,18 +3,13 @@
  * Custom hook for authentication state and operations
  */
 
-"use client";
+'use client';
 
-import { useEffect } from "react";
-import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { restoreAuth, clearAuth } from "@/store/slices/authSlice";
-import {
-  getAuthToken,
-  getAuthUser,
-  saveAuthToken,
-  saveAuthUser,
-} from "@/utils/auth";
-import type { AuthUser } from "@/types/auth";
+import { useEffect } from 'react';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { restoreAuth, clearAuth } from '@/store/slices/authSlice';
+import { getAuthToken, getAuthUser, saveAuthToken, saveAuthUser } from '@/utils/auth';
+import type { AuthUser } from '@/types/auth';
 
 export const useAuth = () => {
   const dispatch = useAppDispatch();
@@ -45,9 +40,9 @@ export const useAuth = () => {
    */
   const logout = () => {
     dispatch(clearAuth());
-    localStorage.removeItem("auth_token");
-    localStorage.removeItem("auth_user");
-    document.cookie = "auth_token=; path=/; max-age=0";
+    localStorage.removeItem('auth_token');
+    localStorage.removeItem('auth_user');
+    document.cookie = 'auth_token=; path=/; max-age=0';
   };
 
   return {

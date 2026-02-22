@@ -1,32 +1,22 @@
-"use client";
+'use client';
 
 /**
  * Create Category Page
  * Complete category creation with media upload, parent selection, and slug generation
  */
 
-import { useState, useEffect, Suspense } from "react";
-import {
-  Card,
-  Form,
-  Input,
-  InputNumber,
-  Switch,
-  Space,
-  Divider,
-  message,
-  Spin,
-} from "antd";
-import { useRouter, useSearchParams } from "next/navigation";
-import { useForm, Controller, useWatch } from "react-hook-form";
-import { useCreateCategoryMutation } from "@/store/api/categoryApi";
-import type { CreateCategoryDto } from "@/types/category";
-import { ROUTES } from "@/constants/routes";
-import { FormInput, FormSubmitButton } from "@/components/common/form";
-import { CategoryImageUpload } from "@/components/common/CategoryImageUpload";
-import { CategorySelect } from "@/components/common/CategorySelect";
-import { generateSlug, isValidSlug } from "@/utils/slug";
-import { getErrorMessage } from "@/utils/error";
+import { useState, useEffect, Suspense } from 'react';
+import { Card, Form, Input, InputNumber, Switch, Space, Divider, message, Spin } from 'antd';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useForm, Controller, useWatch } from 'react-hook-form';
+import { useCreateCategoryMutation } from '@/store/api/categoryApi';
+import type { CreateCategoryDto } from '@/types/category';
+import { ROUTES } from '@/constants/routes';
+import { FormInput, FormSubmitButton } from '@/components/common/form';
+import { CategoryImageUpload } from '@/components/common/CategoryImageUpload';
+import { CategorySelect } from '@/components/common/CategorySelect';
+import { generateSlug, isValidSlug } from '@/utils/slug';
+import { getErrorMessage } from '@/utils/error';
 
 interface CreateCategoryFormValues {
   name: string;
@@ -41,7 +31,7 @@ interface CreateCategoryFormValues {
 function AdminCategoryCreatePageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const parentId = searchParams.get("parent_id");
+  const parentId = searchParams.get('parent_id');
   const [createCategory, { isLoading }] = useCreateCategoryMutation();
   const [autoSlug, setAutoSlug] = useState(true);
 
@@ -53,9 +43,9 @@ function AdminCategoryCreatePageContent() {
     formState: { isSubmitting, errors },
   } = useForm<CreateCategoryFormValues>({
     defaultValues: {
-      name: "",
-      slug: "",
-      description: "",
+      name: '',
+      slug: '',
+      description: '',
       parent_id: parentId || null,
       media_id: null,
       sort_order: 0,
@@ -63,7 +53,7 @@ function AdminCategoryCreatePageContent() {
     },
   });
 
-  const nameValue = useWatch({ control, name: "name" });
+  const nameValue = useWatch({ control, name: 'name' });
 
   /**
    * Auto-generate slug from name
@@ -71,7 +61,7 @@ function AdminCategoryCreatePageContent() {
   useEffect(() => {
     if (autoSlug && nameValue) {
       const slug = generateSlug(nameValue);
-      setValue("slug", slug);
+      setValue('slug', slug);
     }
   }, [nameValue, autoSlug, setValue]);
 
@@ -82,9 +72,7 @@ function AdminCategoryCreatePageContent() {
     try {
       // Validate slug
       if (!isValidSlug(values.slug)) {
-        message.error(
-          "Invalid slug format. Use lowercase letters, numbers, and hyphens only.",
-        );
+        message.error('Invalid slug format. Use lowercase letters, numbers, and hyphens only.');
         return;
       }
 
@@ -100,17 +88,17 @@ function AdminCategoryCreatePageContent() {
 
       await createCategory(dto).unwrap();
 
-      message.success("Category created successfully");
+      message.success('Category created successfully');
       reset();
       router.push(ROUTES.CATEGORY);
     } catch (error) {
-      console.error("Create category error:", error);
-      message.error(getErrorMessage(error, "Failed to create category"));
+      console.error('Create category error:', error);
+      message.error(getErrorMessage(error, 'Failed to create category'));
     }
   };
 
   return (
-    <Card title={parentId ? "Create Child Category" : "Create Root Category"}>
+    <Card title={parentId ? 'Create Child Category' : 'Create Root Category'}>
       <Form layout="vertical" onFinish={handleSubmit(onSubmit)}>
         {/* Name */}
         <FormInput
@@ -119,10 +107,10 @@ function AdminCategoryCreatePageContent() {
           label="Category Name"
           placeholder="Enter category name"
           rules={{
-            required: "Name is required",
+            required: 'Name is required',
             maxLength: {
               value: 255,
-              message: "Name must not exceed 255 characters",
+              message: 'Name must not exceed 255 characters',
             },
           }}
         />
@@ -130,25 +118,20 @@ function AdminCategoryCreatePageContent() {
         {/* Slug */}
         <Form.Item
           label="Slug (URL-friendly)"
-          validateStatus={errors.slug ? "error" : ""}
+          validateStatus={errors.slug ? 'error' : ''}
           help={errors.slug?.message}
           required
         >
-          <Space direction="vertical" style={{ width: "100%" }}>
+          <Space direction="vertical" style={{ width: '100%' }}>
             <Controller
               name="slug"
               control={control}
               rules={{
-                required: "Slug is required",
-                validate: (value) =>
-                  isValidSlug(value) || "Invalid slug format",
+                required: 'Slug is required',
+                validate: (value) => isValidSlug(value) || 'Invalid slug format',
               }}
               render={({ field }) => (
-                <Input
-                  {...field}
-                  placeholder="category-slug"
-                  disabled={autoSlug}
-                />
+                <Input {...field} placeholder="category-slug" disabled={autoSlug} />
               )}
             />
             <Switch
@@ -170,7 +153,7 @@ function AdminCategoryCreatePageContent() {
           rules={{
             maxLength: {
               value: 1000,
-              message: "Description must not exceed 1000 characters",
+              message: 'Description must not exceed 1000 characters',
             },
           }}
         />
@@ -198,10 +181,7 @@ function AdminCategoryCreatePageContent() {
             name="media_id"
             control={control}
             render={({ field }) => (
-              <CategoryImageUpload
-                value={field.value}
-                onChange={field.onChange}
-              />
+              <CategoryImageUpload value={field.value} onChange={field.onChange} />
             )}
           />
         </Form.Item>
@@ -212,12 +192,7 @@ function AdminCategoryCreatePageContent() {
             name="sort_order"
             control={control}
             render={({ field }) => (
-              <InputNumber
-                {...field}
-                min={0}
-                style={{ width: "100%" }}
-                placeholder="0"
-              />
+              <InputNumber {...field} min={0} style={{ width: '100%' }} placeholder="0" />
             )}
           />
         </Form.Item>
@@ -239,10 +214,7 @@ function AdminCategoryCreatePageContent() {
         </Form.Item>
 
         {/* Submit Button */}
-        <FormSubmitButton
-          isLoading={isSubmitting || isLoading}
-          style={{ marginTop: 16 }}
-        >
+        <FormSubmitButton isLoading={isSubmitting || isLoading} style={{ marginTop: 16 }}>
           Create Category
         </FormSubmitButton>
       </Form>
@@ -254,7 +226,7 @@ export default function AdminCategoryCreatePage() {
   return (
     <Suspense
       fallback={
-        <div style={{ textAlign: "center", padding: "50px" }}>
+        <div style={{ textAlign: 'center', padding: '50px' }}>
           <Spin size="large" />
         </div>
       }

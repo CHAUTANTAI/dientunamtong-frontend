@@ -3,15 +3,11 @@
  * Reusable input field with react-hook-form integration
  */
 
-"use client";
+'use client';
 
-import { Input, Form } from "antd";
-import type {
-  FieldPath,
-  UseControllerProps,
-  FieldValues,
-} from "react-hook-form";
-import { useController } from "react-hook-form";
+import { Input, Form } from 'antd';
+import type { FieldPath, UseControllerProps, FieldValues } from 'react-hook-form';
+import { useController } from 'react-hook-form';
 
 interface FormInputProps<
   TFieldValues extends FieldValues = FieldValues,
@@ -32,7 +28,7 @@ export const FormInput = <
   label,
   placeholder,
   disabled,
-  type = "text",
+  type = 'text',
   max,
   ...controllerProps
 }: FormInputProps<TFieldValues, TName>) => {
@@ -41,7 +37,7 @@ export const FormInput = <
   return (
     <Form.Item
       label={label}
-      validateStatus={fieldState.error ? "error" : ""}
+      validateStatus={fieldState.error ? 'error' : ''}
       help={fieldState.error?.message}
     >
       {controllerProps.textarea ? (
@@ -50,7 +46,7 @@ export const FormInput = <
           placeholder={placeholder}
           disabled={disabled}
           maxLength={max}
-          status={fieldState.error ? "error" : ""}
+          status={fieldState.error ? 'error' : ''}
           autoSize={{ minRows: 3, maxRows: 6 }}
         />
       ) : (
@@ -60,11 +56,11 @@ export const FormInput = <
           placeholder={placeholder}
           disabled={disabled}
           maxLength={max}
-          status={fieldState.error ? "error" : ""}
+          status={fieldState.error ? 'error' : ''}
         />
       )}
     </Form.Item>
   );
 };
 
-FormInput.displayName = "FormInput";
+FormInput.displayName = 'FormInput';

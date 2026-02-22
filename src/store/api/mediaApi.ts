@@ -7,11 +7,7 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { getAuthToken } from '@/utils/auth';
 import type { Media, CreateMediaDto, UpdateMediaDto } from '@/types/media';
 import type { ApiResponse } from '@/types/api';
-import {
-  API_BASE_URL,
-  API_MEDIA,
-  API_MEDIA_DETAIL,
-} from '@/constants/api';
+import { API_BASE_URL, API_MEDIA, API_MEDIA_DETAIL } from '@/constants/api';
 
 export const mediaApi = createApi({
   reducerPath: 'mediaApi',
@@ -45,8 +41,7 @@ export const mediaApi = createApi({
     // GET /admin/media/:id -> { success, data: Media }
     getMedia: builder.query<Media, string>({
       query: (id) => API_MEDIA_DETAIL(id),
-      transformResponse: (response: ApiResponse<Media>): Media =>
-        response.data,
+      transformResponse: (response: ApiResponse<Media>): Media => response.data,
       providesTags: (result, error, id) => [{ type: 'Media', id }],
     }),
 
@@ -57,23 +52,18 @@ export const mediaApi = createApi({
         method: 'POST',
         body,
       }),
-      transformResponse: (response: ApiResponse<Media>): Media =>
-        response.data,
+      transformResponse: (response: ApiResponse<Media>): Media => response.data,
       invalidatesTags: [{ type: 'Media', id: 'LIST' }],
     }),
 
     // PUT /admin/media/:id -> { success, data: Media }
-    updateMedia: builder.mutation<
-      Media,
-      { id: string; body: UpdateMediaDto }
-    >({
+    updateMedia: builder.mutation<Media, { id: string; body: UpdateMediaDto }>({
       query: ({ id, body }) => ({
         url: API_MEDIA_DETAIL(id),
         method: 'PUT',
         body,
       }),
-      transformResponse: (response: ApiResponse<Media>): Media =>
-        response.data,
+      transformResponse: (response: ApiResponse<Media>): Media => response.data,
       invalidatesTags: (result, error, { id }) => [
         { type: 'Media', id },
         { type: 'Media', id: 'LIST' },
@@ -98,4 +88,3 @@ export const {
   useUpdateMediaMutation,
   useDeleteMediaMutation,
 } = mediaApi;
-

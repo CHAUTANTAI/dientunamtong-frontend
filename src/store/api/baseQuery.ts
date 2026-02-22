@@ -3,8 +3,8 @@
  * Applies unified API response processing to all RTK Query endpoints
  */
 
-import { fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { API_BASE_URL } from "@/constants/api";
+import { fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { API_BASE_URL } from '@/constants/api';
 
 /**
  * Create a custom base query that wraps fetchBaseQuery
@@ -25,19 +25,19 @@ export const createBaseQueryWithInterceptor = () => {
   return async (
     args: Parameters<typeof baseQuery>[0],
     api: Parameters<typeof baseQuery>[1],
-    extraOptions: Parameters<typeof baseQuery>[2],
+    extraOptions: Parameters<typeof baseQuery>[2]
   ) => {
     let result = await baseQuery(args, api, extraOptions);
 
     // Process response if successful
-    if (result.data && typeof result.data === "object") {
+    if (result.data && typeof result.data === 'object') {
       try {
         // Validate the response matches our unified format
         const responseData = result.data as Record<string, unknown>;
         if (
-          "status" in responseData &&
-          "message" in responseData &&
-          typeof responseData.status === "number"
+          'status' in responseData &&
+          'message' in responseData &&
+          typeof responseData.status === 'number'
         ) {
           const customStatus = responseData.status as number;
           // If custom status is not 200, convert to error

@@ -3,33 +3,20 @@
  * Complete category editing with media upload, parent selection, and slug management
  */
 
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import {
-  Card,
-  Form,
-  Input,
-  InputNumber,
-  Switch,
-  Space,
-  Divider,
-  Spin,
-  message,
-} from "antd";
-import { useRouter } from "next/navigation";
-import { useForm, Controller, useWatch } from "react-hook-form";
-import {
-  useGetCategoryQuery,
-  useUpdateCategoryMutation,
-} from "@/store/api/categoryApi";
-import type { UpdateCategoryDto } from "@/types/category";
-import { ROUTES } from "@/constants/routes";
-import { FormInput, FormSubmitButton } from "@/components/common/form";
-import { CategoryImageUpload } from "@/components/common/CategoryImageUpload";
-import { CategorySelect } from "@/components/common/CategorySelect";
-import { generateSlug, isValidSlug } from "@/utils/slug";
-import { getErrorMessage } from "@/utils/error";
+import { useState, useEffect } from 'react';
+import { Card, Form, Input, InputNumber, Switch, Space, Divider, Spin, message } from 'antd';
+import { useRouter } from 'next/navigation';
+import { useForm, Controller, useWatch } from 'react-hook-form';
+import { useGetCategoryQuery, useUpdateCategoryMutation } from '@/store/api/categoryApi';
+import type { UpdateCategoryDto } from '@/types/category';
+import { ROUTES } from '@/constants/routes';
+import { FormInput, FormSubmitButton } from '@/components/common/form';
+import { CategoryImageUpload } from '@/components/common/CategoryImageUpload';
+import { CategorySelect } from '@/components/common/CategorySelect';
+import { generateSlug, isValidSlug } from '@/utils/slug';
+import { getErrorMessage } from '@/utils/error';
 
 interface EditCategoryFormValues {
   name: string;
@@ -45,14 +32,10 @@ interface AdminCategoryEditPageProps {
   categoryId: string;
 }
 
-export default function AdminCategoryEditPage({
-  categoryId,
-}: AdminCategoryEditPageProps) {
+export default function AdminCategoryEditPage({ categoryId }: AdminCategoryEditPageProps) {
   const router = useRouter();
-  const { data: category, isLoading: isLoadingCategory } =
-    useGetCategoryQuery(categoryId);
-  const [updateCategory, { isLoading: isUpdating }] =
-    useUpdateCategoryMutation();
+  const { data: category, isLoading: isLoadingCategory } = useGetCategoryQuery(categoryId);
+  const [updateCategory, { isLoading: isUpdating }] = useUpdateCategoryMutation();
   const [autoSlug, setAutoSlug] = useState(false);
 
   const {
@@ -63,7 +46,7 @@ export default function AdminCategoryEditPage({
     formState: { isSubmitting, errors },
   } = useForm<EditCategoryFormValues>();
 
-  const nameValue = useWatch({ control, name: "name" });
+  const nameValue = useWatch({ control, name: 'name' });
 
   /**
    * Load category data into form
@@ -73,7 +56,7 @@ export default function AdminCategoryEditPage({
       reset({
         name: category.name,
         slug: category.slug,
-        description: category.description || "",
+        description: category.description || '',
         parent_id: category.parent_id || null,
         media_id: category.media_id || null,
         sort_order: category.sort_order || 0,
@@ -88,7 +71,7 @@ export default function AdminCategoryEditPage({
   useEffect(() => {
     if (autoSlug && nameValue) {
       const slug = generateSlug(nameValue);
-      setValue("slug", slug);
+      setValue('slug', slug);
     }
   }, [nameValue, autoSlug, setValue]);
 
@@ -99,9 +82,7 @@ export default function AdminCategoryEditPage({
     try {
       // Validate slug
       if (!isValidSlug(values.slug)) {
-        message.error(
-          "Invalid slug format. Use lowercase letters, numbers, and hyphens only.",
-        );
+        message.error('Invalid slug format. Use lowercase letters, numbers, and hyphens only.');
         return;
       }
 
@@ -117,18 +98,18 @@ export default function AdminCategoryEditPage({
 
       await updateCategory({ id: categoryId, body: dto }).unwrap();
 
-      message.success("Category updated successfully");
+      message.success('Category updated successfully');
       router.push(ROUTES.CATEGORY);
     } catch (error) {
-      console.error("Update category error:", error);
-      message.error(getErrorMessage(error, "Failed to update category"));
+      console.error('Update category error:', error);
+      message.error(getErrorMessage(error, 'Failed to update category'));
     }
   };
 
   if (isLoadingCategory) {
     return (
       <Card>
-        <div style={{ textAlign: "center", padding: "40px 0" }}>
+        <div style={{ textAlign: 'center', padding: '40px 0' }}>
           <Spin size="large" />
           <p style={{ marginTop: 16 }}>Loading category...</p>
         </div>
@@ -154,10 +135,10 @@ export default function AdminCategoryEditPage({
           label="Category Name"
           placeholder="Enter category name"
           rules={{
-            required: "Name is required",
+            required: 'Name is required',
             maxLength: {
               value: 255,
-              message: "Name must not exceed 255 characters",
+              message: 'Name must not exceed 255 characters',
             },
           }}
         />
@@ -165,25 +146,20 @@ export default function AdminCategoryEditPage({
         {/* Slug */}
         <Form.Item
           label="Slug (URL-friendly)"
-          validateStatus={errors.slug ? "error" : ""}
+          validateStatus={errors.slug ? 'error' : ''}
           help={errors.slug?.message}
           required
         >
-          <Space direction="vertical" style={{ width: "100%" }}>
+          <Space direction="vertical" style={{ width: '100%' }}>
             <Controller
               name="slug"
               control={control}
               rules={{
-                required: "Slug is required",
-                validate: (value) =>
-                  isValidSlug(value) || "Invalid slug format",
+                required: 'Slug is required',
+                validate: (value) => isValidSlug(value) || 'Invalid slug format',
               }}
               render={({ field }) => (
-                <Input
-                  {...field}
-                  placeholder="category-slug"
-                  disabled={autoSlug}
-                />
+                <Input {...field} placeholder="category-slug" disabled={autoSlug} />
               )}
             />
             <Switch
@@ -205,7 +181,7 @@ export default function AdminCategoryEditPage({
           rules={{
             maxLength: {
               value: 1000,
-              message: "Description must not exceed 1000 characters",
+              message: 'Description must not exceed 1000 characters',
             },
           }}
         />
@@ -249,12 +225,7 @@ export default function AdminCategoryEditPage({
             name="sort_order"
             control={control}
             render={({ field }) => (
-              <InputNumber
-                {...field}
-                min={0}
-                style={{ width: "100%" }}
-                placeholder="0"
-              />
+              <InputNumber {...field} min={0} style={{ width: '100%' }} placeholder="0" />
             )}
           />
         </Form.Item>
@@ -277,10 +248,7 @@ export default function AdminCategoryEditPage({
 
         {/* Submit Button */}
         <Space>
-          <FormSubmitButton
-            isLoading={isSubmitting || isUpdating}
-            style={{ marginTop: 16 }}
-          >
+          <FormSubmitButton isLoading={isSubmitting || isUpdating} style={{ marginTop: 16 }}>
             Update Category
           </FormSubmitButton>
           <button
@@ -288,11 +256,11 @@ export default function AdminCategoryEditPage({
             onClick={() => router.push(ROUTES.CATEGORY)}
             style={{
               marginTop: 16,
-              padding: "4px 15px",
-              border: "1px solid #d9d9d9",
-              borderRadius: "6px",
-              background: "#fff",
-              cursor: "pointer",
+              padding: '4px 15px',
+              border: '1px solid #d9d9d9',
+              borderRadius: '6px',
+              background: '#fff',
+              cursor: 'pointer',
             }}
           >
             Cancel

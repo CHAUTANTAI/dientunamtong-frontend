@@ -116,32 +116,38 @@ If authenticated → Render dashboard
 ## 🎯 Key Architectural Decisions
 
 ### 1. **Layout Groups for Separation**
+
 - `(auth)` - Public pages (login)
 - `(admin)` - Protected pages (dashboard, etc.)
 - **Benefit:** Different UI shells without URL changes
 
 ### 2. **RTK Query for API Calls**
+
 - Automatic caching & deduplication
 - Request/response hooks (useLoginMutation)
 - Single source of truth for API data
 - **Follows Vercel Best Practice:** `async-parallel`, `server-cache-react`
 
 ### 3. **Redux for Auth State**
+
 - Centralized auth state management
 - Easy access from any component
 - Persistence via useAuth hook
 
 ### 4. **Composition Pattern for Forms**
+
 - `FormInput`, `FormPassword` encapsulate react-hook-form integration
 - Reusable, DRY form fields
 - Consistent validation
 
 ### 5. **Server Components by Default**
+
 - Pages are Server Components
 - Client Components used only for interactivity (forms, dropdowns)
 - Smaller JS bundle
 
 ### 6. **Middleware for Route Protection**
+
 - Centralized auth check
 - Redirects non-auth users to login
 - No component-level guards needed
@@ -360,9 +366,7 @@ export const store = configureStore({
     [userApi.reducerPath]: userApi.reducer, // Add this
   },
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware()
-      .concat(authApi.middleware)
-      .concat(userApi.middleware), // Add this
+    getDefaultMiddleware().concat(authApi.middleware).concat(userApi.middleware), // Add this
 });
 ```
 
@@ -379,15 +383,15 @@ await createUser({ name: 'John' });
 
 ## 📝 Best Practices Applied
 
-| Practice | Implementation | Benefit |
-|----------|----------------|---------|
-| **DRY (Don't Repeat)** | Common components, hooks, utils | Easy to maintain |
-| **Composition** | Form components, layout components | Reusable, flexible |
-| **Type Safety** | Strict TypeScript, centralized types | Catch errors early |
-| **Separation of Concerns** | API → store → hooks → components | Clear dependencies |
-| **Scalability** | Folder structure supports growth | Easy to add features |
-| **Performance** | Server components, lazy loading ready | Smaller JS bundle |
-| **Auth Protection** | Middleware + layout checks | Secure routes |
+| Practice                   | Implementation                        | Benefit              |
+| -------------------------- | ------------------------------------- | -------------------- |
+| **DRY (Don't Repeat)**     | Common components, hooks, utils       | Easy to maintain     |
+| **Composition**            | Form components, layout components    | Reusable, flexible   |
+| **Type Safety**            | Strict TypeScript, centralized types  | Catch errors early   |
+| **Separation of Concerns** | API → store → hooks → components      | Clear dependencies   |
+| **Scalability**            | Folder structure supports growth      | Easy to add features |
+| **Performance**            | Server components, lazy loading ready | Smaller JS bundle    |
+| **Auth Protection**        | Middleware + layout checks            | Secure routes        |
 
 ---
 

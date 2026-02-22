@@ -6,10 +6,10 @@
 import { createClient } from '@supabase/supabase-js';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || '';
-const supabaseServiceRoleKey = process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+const supabaseServiceRoleKey =
+  process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 
 if (!supabaseUrl || !supabaseServiceRoleKey) {
-   
   console.warn('Supabase URL or Service Role Key is missing');
 }
 
@@ -32,10 +32,10 @@ export const supabase = createClient(supabaseUrl, supabaseServiceRoleKey, {
  */
 export const getSupabaseSignedUrl = async (
   imageUrl: string,
-  expiresIn: number = 3600,
+  expiresIn: number = 3600
 ): Promise<string> => {
   if (!imageUrl) return '';
-  
+
   // If imageUrl already includes http/https, return as is
   if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
     return imageUrl;
@@ -43,22 +43,18 @@ export const getSupabaseSignedUrl = async (
 
   // Remove leading slash if present to get clean path
   const path = imageUrl.startsWith('/') ? imageUrl.slice(1) : imageUrl;
-  
+
   try {
     // Create signed URL for private bucket
-    const { data, error } = await supabase.storage
-      .from('content')
-      .createSignedUrl(path, expiresIn);
+    const { data, error } = await supabase.storage.from('content').createSignedUrl(path, expiresIn);
 
     if (error) {
-       
       console.error('Error creating signed URL:', error);
       return '';
     }
 
     return data?.signedUrl || '';
   } catch (error) {
-     
     console.error('Error creating signed URL:', error);
     return '';
   }
@@ -77,14 +73,14 @@ const signedUrlCache = new Map<string, { url: string; expiresAt: number }>();
  */
 export const getSupabaseImageUrl = async (
   imageUrl: string,
-  expiresIn: number = 3600,
+  expiresIn: number = 3600
 ): Promise<string> => {
   if (!imageUrl) return '';
 
   // Check cache first
   const cached = signedUrlCache.get(imageUrl);
   const now = Date.now();
-  
+
   // Use cached URL if still valid (refresh 5 minutes before expiry)
   if (cached && cached.expiresAt > now + 5 * 60 * 1000) {
     return cached.url;
@@ -92,7 +88,7 @@ export const getSupabaseImageUrl = async (
 
   // Generate new signed URL
   const signedUrl = await getSupabaseSignedUrl(imageUrl, expiresIn);
-  
+
   if (signedUrl) {
     // Cache the URL
     signedUrlCache.set(imageUrl, {
@@ -141,12 +137,10 @@ export const uploadToSupabase = async (
   const filePath = `${folder}/${fileName}`;
 
   // Upload to Supabase Storage
-  const { data, error } = await supabase.storage
-    .from('content')
-    .upload(filePath, file, {
-      cacheControl: options?.cacheControl || '3600',
-      upsert: options?.upsert || false,
-    });
+  const { data, error } = await supabase.storage.from('content').upload(filePath, file, {
+    cacheControl: options?.cacheControl || '3600',
+    upsert: options?.upsert || false,
+  });
 
   if (error) {
     throw new Error(`Upload failed: ${error.message}`);
@@ -175,9 +169,7 @@ export const deleteFromSupabase = async (path: string): Promise<void> => {
   // Remove leading slash if present
   const cleanPath = path.startsWith('/') ? path.slice(1) : path;
 
-  const { error } = await supabase.storage
-    .from('content')
-    .remove([cleanPath]);
+  const { error } = await supabase.storage.from('content').remove([cleanPath]);
 
   if (error) {
     throw new Error(`Delete failed: ${error.message}`);

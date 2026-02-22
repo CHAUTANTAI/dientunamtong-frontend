@@ -44,4 +44,3 @@ export const apiClient = async <T = unknown>(
   // Process response using unified format
   return processApiResponse<T>(response, data);
 };
-

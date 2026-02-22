@@ -21,10 +21,12 @@ All major tasks have been completed successfully:
 ### 1. Complete Type System
 
 **Files:**
+
 - `src/types/category.ts` - Category types with tree structure
 - `src/types/media.ts` - Media types with Supabase support
 
 **Features:**
+
 - Full Category interface with all backend fields
 - Tree-specific types (CategoryTreeNode, CategoryBreadcrumb)
 - DTOs for Create/Update operations
@@ -33,11 +35,13 @@ All major tasks have been completed successfully:
 ### 2. Media Upload Flow
 
 **Flow:**
+
 ```
 Frontend Upload → Supabase Storage → Get URL → Create Media Record → Get media_id → Use in Category
 ```
 
 **Component:** `CategoryImageUpload`
+
 - Upload to Supabase Storage (`content` bucket)
 - Create media record via API
 - Preview uploaded image
@@ -47,6 +51,7 @@ Frontend Upload → Supabase Storage → Get URL → Create Media Record → Get
 ### 3. Category Tree Support
 
 **API Endpoints:**
+
 - `GET /admin/category/tree` - Full category tree
 - `GET /admin/category/roots` - Root categories only
 - `GET /admin/category/:id/children` - Direct children
@@ -54,6 +59,7 @@ Frontend Upload → Supabase Storage → Get URL → Create Media Record → Get
 - `GET /admin/category/search?q=keyword` - Search categories
 
 **Component:** `CategorySelect`
+
 - Display categories with tree indentation
 - Prevent circular reference (can't select self or descendants)
 - Search functionality
@@ -64,6 +70,7 @@ Frontend Upload → Supabase Storage → Get URL → Create Media Record → Get
 **Utility:** `src/utils/slug.ts`
 
 **Features:**
+
 - Vietnamese diacritics removal (à→a, đ→d, etc.)
 - URL-friendly format (lowercase, hyphens)
 - Auto-generation from name (toggleable)
@@ -71,15 +78,17 @@ Frontend Upload → Supabase Storage → Get URL → Create Media Record → Get
 - Uniqueness helper
 
 **Examples:**
+
 ```typescript
-generateSlug('Điện Tử Máy Tính') // → 'dien-tu-may-tinh'
-generateSlug('Laptop Gaming') // → 'laptop-gaming'
-generateSlug('iPhone 15 Pro Max!!!') // → 'iphone-15-pro-max'
+generateSlug('Điện Tử Máy Tính'); // → 'dien-tu-may-tinh'
+generateSlug('Laptop Gaming'); // → 'laptop-gaming'
+generateSlug('iPhone 15 Pro Max!!!'); // → 'iphone-15-pro-max'
 ```
 
 ### 5. Complete CRUD Pages
 
 #### Create Page (`admin-category-create-page.tsx`)
+
 - Name input with auto-slug generation
 - Slug field (auto/manual toggle)
 - Description textarea
@@ -90,6 +99,7 @@ generateSlug('iPhone 15 Pro Max!!!') // → 'iphone-15-pro-max'
 - Full validation
 
 #### Edit Page (`admin-category-edit-page.tsx`)
+
 - Load existing category data
 - All create page features
 - Prevent selecting self as parent
@@ -97,6 +107,7 @@ generateSlug('iPhone 15 Pro Max!!!') // → 'iphone-15-pro-max'
 - Cancel button
 
 #### List Page (`admin-category-page.tsx`)
+
 - Tree structure display with indentation
 - Image thumbnails
 - Parent/Level/Sort info
@@ -214,7 +225,7 @@ import { CategoryImageUpload } from '@/components/common/CategoryImageUpload';
       existingMedia={category?.media} // Optional for edit
     />
   )}
-/>
+/>;
 ```
 
 ### CategorySelect
@@ -232,7 +243,7 @@ import { CategorySelect } from '@/components/common/CategorySelect';
       excludeId={categoryId} // Prevent circular reference
     />
   )}
-/>
+/>;
 ```
 
 ### Slug Generation
@@ -260,7 +271,7 @@ try {
 } catch (error) {
   console.error('Create error:', error);
   message.error(getErrorMessage(error, 'Failed to create category'));
-  
+
   // Optional: Handle specific error types
   if (isValidationError(error)) {
     // Handle validation error
@@ -366,6 +377,7 @@ The frontend expects these backend endpoints to work:
 ## 🧪 Testing Checklist
 
 ### Create Category
+
 - [ ] Create root category (no parent)
 - [ ] Create child category (with parent)
 - [ ] Upload image
@@ -376,6 +388,7 @@ The frontend expects these backend endpoints to work:
 - [ ] Toggle active status
 
 ### Edit Category
+
 - [ ] Load existing category
 - [ ] Change name (auto-update slug if enabled)
 - [ ] Change parent (prevent circular)
@@ -385,6 +398,7 @@ The frontend expects these backend endpoints to work:
 - [ ] Cancel without saving
 
 ### List Categories
+
 - [ ] Display tree structure with indentation
 - [ ] Show category images
 - [ ] Search by name/slug
@@ -395,6 +409,7 @@ The frontend expects these backend endpoints to work:
 - [ ] Pagination
 
 ### Edge Cases
+
 - [ ] Create category with duplicate name (should error)
 - [ ] Create category with duplicate slug (should error)
 - [ ] Try to select self as parent (should be disabled)
@@ -429,12 +444,14 @@ NEXT_PUBLIC_API_URL=http://localhost:4000/api
 ## 📚 Next Steps (Optional Enhancements)
 
 ### Priority: Medium
+
 - [ ] Add drag-drop reordering for sort_order
 - [ ] Bulk operations (delete multiple, change status)
 - [ ] Export categories to CSV/JSON
 - [ ] Import categories from file
 
 ### Priority: Low
+
 - [ ] Category analytics (product count, views)
 - [ ] Category templates
 - [ ] Duplicate category feature
@@ -466,4 +483,3 @@ NEXT_PUBLIC_API_URL=http://localhost:4000/api
 **Refactor Completed:** February 2026  
 **Status:** ✅ Production Ready  
 **All TODOs Completed:** 9/10 (1 cancelled - drag-drop optional)
-

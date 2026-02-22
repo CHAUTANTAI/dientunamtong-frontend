@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
-import { Breadcrumb } from "antd";
-import { HomeOutlined } from "@ant-design/icons";
-import { usePathname } from "next/navigation";
-import Link from "next/link";
-import { buildBreadcrumbs } from "@/utils/build-breadcrumbs";
-import { ROUTES } from "@/constants/routes";
+import { Breadcrumb } from 'antd';
+import { HomeOutlined } from '@ant-design/icons';
+import { usePathname } from 'next/navigation';
+import Link from 'next/link';
+import { buildBreadcrumbs } from '@/utils/build-breadcrumbs';
+import { ROUTES } from '@/constants/routes';
 
 export const Breadcrumbs = () => {
   const pathname = usePathname();
@@ -22,19 +22,15 @@ export const Breadcrumbs = () => {
           ),
         },
         ...items.map((item) => ({
-          title: item.href ? (
-            <Link href={item.href}>{item.title}</Link>
-          ) : (
-            item.title
-          ),
+          title: item.href ? <Link href={item.href}>{item.title}</Link> : item.title,
         })),
       ]}
       style={{
         marginBottom: 16,
-        padding: "12px 16px",
-        background: "rgba(255, 255, 255, 0.7)",
-        borderRadius: "8px",
-        backdropFilter: "blur(10px)",
+        padding: '12px 16px',
+        background: 'rgba(255, 255, 255, 0.7)',
+        borderRadius: '8px',
+        backdropFilter: 'blur(10px)',
       }}
     />
   );

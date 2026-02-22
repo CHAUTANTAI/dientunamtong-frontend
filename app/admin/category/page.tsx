@@ -3,11 +3,10 @@
  * Admin category list page
  */
 
-"use client";
+'use client';
 
-import AdminCategoryPage from "@/screens/admin/category/admin-category-page";
+import AdminCategoryPage from '@/screens/admin/category/admin-category-page';
 
 export default function Page() {
   return <AdminCategoryPage />;
 }
-
