@@ -1,13 +1,12 @@
 /**
  * ProductMediaUpload Component
- * Multiple file upload: max 9 images + 1 video (total 10)
- * With preview, sort, and delete functionality
+ * Separate upload sections for images (max 9) and video (max 1)
  */
 
 'use client';
 
 import { useState } from 'react';
-import { Upload, Button, Card, Space, Tag, Modal, App } from 'antd';
+import { Upload, Button, Card, Space, Tag, Modal, App, Divider } from 'antd';
 import {
   PlusOutlined,
   DeleteOutlined,
@@ -29,8 +28,8 @@ interface ProductMediaUploadProps {
   value?: MediaFile[];
   onChange?: (files: MediaFile[]) => void;
   disabled?: boolean;
-  maxImages?: number; // Default 9
-  maxVideos?: number; // Default 1
+  maxImages?: number;
+  maxVideos?: number;
 }
 
 export const ProductMediaUpload = ({
@@ -41,62 +40,103 @@ export const ProductMediaUpload = ({
   maxVideos = 1,
 }: ProductMediaUploadProps) => {
   const { message } = App.useApp();
-  // Use value directly instead of maintaining separate state
   const fileList = value;
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewUrl, setPreviewUrl] = useState('');
   const [previewType, setPreviewType] = useState<'image' | 'video'>('image');
 
-  const imageCount = fileList.filter((f) => f.type === 'image').length;
-  const videoCount = fileList.filter((f) => f.type === 'video').length;
+  const images = fileList.filter((f) => f.type === 'image');
+  const videos = fileList.filter((f) => f.type === 'video');
 
   /**
-   * Handle file selection
+   * Handle image selection (multiple)
    */
-  const handleBeforeUpload = (file: File) => {
+  const handleImageBeforeUpload = (file: File, fileListFromUpload: File[]) => {
     const isImage = file.type.startsWith('image/');
-    const isVideo = file.type.startsWith('video/');
 
-    if (!isImage && !isVideo) {
-      message.error('You can only upload image or video files!');
-      return false;
-    }
-
-    // Check limits
-    if (isImage && imageCount >= maxImages) {
-      message.error(`Maximum ${maxImages} images allowed!`);
-      return false;
-    }
-
-    if (isVideo && videoCount >= maxVideos) {
-      message.error(`Maximum ${maxVideos} video allowed!`);
-      return false;
-    }
-
-    if (fileList.length >= maxImages + maxVideos) {
-      message.error(`Maximum ${maxImages + maxVideos} files allowed!`);
+    if (!isImage) {
+      message.error('You can only upload image files!');
       return false;
     }
 
     // Check file size
-    const maxSize = isVideo ? 100 * 1024 * 1024 : 5 * 1024 * 1024; // 100MB for video, 5MB for image
-    if (file.size > maxSize) {
-      message.error(
-        `File size exceeds limit: ${isVideo ? '100MB' : '5MB'} maximum!`
+    if (file.size > 5 * 1024 * 1024) {
+      message.error('Image size must be less than 5MB!');
+      return false;
+    }
+
+    // Calculate how many new images we can add
+    const currentImageCount = images.length;
+    const availableSlots = maxImages - currentImageCount;
+
+    if (availableSlots <= 0) {
+      message.error(`Maximum ${maxImages} images allowed!`);
+      return false;
+    }
+
+    // Take only the files that fit within the limit
+    const filesToAdd = fileListFromUpload.slice(0, availableSlots);
+    const filesExceeded = fileListFromUpload.length - filesToAdd.length;
+
+    // Show warning if some files were rejected
+    if (filesExceeded > 0) {
+      message.warning(
+        `Added ${filesToAdd.length} images. ${filesExceeded} file(s) exceeded the limit of ${maxImages} images.`
       );
+    }
+
+    // Only process if this file is in the allowed list
+    if (!filesToAdd.includes(file)) {
       return false;
     }
 
     // Add to file list
     const newFile: MediaFile = {
-      uid: `${Date.now()}-${file.name}`,
+      uid: crypto.randomUUID(),
       file,
-      type: isImage ? 'image' : 'video',
+      type: 'image',
       sort_order: fileList.length,
     };
 
     const updated = [...fileList, newFile];
     onChange?.(updated);
+
+    return false; // Prevent auto upload
+  };
+
+  /**
+   * Handle video selection (single)
+   */
+  const handleVideoBeforeUpload = (file: File) => {
+    const isVideo = file.type.startsWith('video/');
+
+    if (!isVideo) {
+      message.error('You can only upload video files!');
+      return false;
+    }
+
+    // Check file size
+    if (file.size > 100 * 1024 * 1024) {
+      message.error('Video size must be less than 100MB!');
+      return false;
+    }
+
+    // Replace existing video if any
+    const newFile: MediaFile = {
+      uid: crypto.randomUUID(),
+      file,
+      type: 'video',
+      sort_order: fileList.length,
+    };
+
+    // Remove old video and add new one
+    const withoutVideo = fileList.filter((f) => f.type !== 'video');
+    const updated = [...withoutVideo, newFile];
+    onChange?.(updated);
+
+    if (videos.length > 0) {
+      message.success('Video replaced successfully!');
+    }
 
     return false; // Prevent auto upload
   };
@@ -130,17 +170,21 @@ export const ProductMediaUpload = ({
 
   return (
     <>
-      <Space direction="vertical" style={{ width: '100%' }} size="middle">
-        {/* File List */}
-        {fileList.length > 0 && (
-          <Space wrap size="middle">
-            {fileList.map((file) => (
-              <Card
-                key={file.uid}
-                size="small"
-                style={{ width: 150 }}
-                cover={
-                  file.type === 'image' ? (
+      <Space direction="vertical" style={{ width: '100%' }} size="large">
+        {/* Images Section */}
+        <div>
+          <div style={{ marginBottom: 8, fontWeight: 500 }}>
+            Product Images ({images.length}/{maxImages})
+          </div>
+
+          {images.length > 0 && (
+            <Space wrap size="middle" style={{ marginBottom: 12 }}>
+              {images.map((file) => (
+                <Card
+                  key={file.uid}
+                  size="small"
+                  style={{ width: 150 }}
+                  cover={
                     file.url ? (
                       <ProductImage
                         imageUrl={file.url}
@@ -163,7 +207,64 @@ export const ProductMediaUpload = ({
                         <FileImageOutlined style={{ fontSize: 32, color: '#999' }} />
                       </div>
                     )
-                  ) : (
+                  }
+                  actions={[
+                    <EyeOutlined key="preview" onClick={() => handlePreview(file)} />,
+                    <DeleteOutlined
+                      key="delete"
+                      onClick={() => handleRemove(file.uid)}
+                      style={{ color: '#ff4d4f' }}
+                    />,
+                  ]}
+                >
+                  <Card.Meta
+                    description={
+                      <span style={{ fontSize: 11 }}>
+                        {file.file?.name || 'Existing file'}
+                      </span>
+                    }
+                  />
+                </Card>
+              ))}
+            </Space>
+          )}
+
+          {!disabled && images.length < maxImages && (
+            <Upload
+              beforeUpload={handleImageBeforeUpload}
+              showUploadList={false}
+              accept="image/*"
+              disabled={disabled}
+              multiple
+            >
+              <Button icon={<PlusOutlined />} block>
+                Add Images (Max {maxImages})
+              </Button>
+            </Upload>
+          )}
+
+          <div style={{ fontSize: 12, color: '#999', marginTop: 8 }}>
+            • Select multiple images at once (max {maxImages} total)
+            <br />• Max file size: 5MB per image
+          </div>
+        </div>
+
+        <Divider style={{ margin: '12px 0' }} />
+
+        {/* Video Section */}
+        <div>
+          <div style={{ marginBottom: 8, fontWeight: 500 }}>
+            Demo Video ({videos.length}/{maxVideos})
+          </div>
+
+          {videos.length > 0 && (
+            <Space wrap size="middle" style={{ marginBottom: 12 }}>
+              {videos.map((file) => (
+                <Card
+                  key={file.uid}
+                  size="small"
+                  style={{ width: 150 }}
+                  cover={
                     <div
                       style={{
                         width: 150,
@@ -174,59 +275,48 @@ export const ProductMediaUpload = ({
                         background: '#f0f0f0',
                       }}
                     >
-                      <VideoCameraOutlined style={{ fontSize: 32, color: '#999' }} />
+                      <VideoCameraOutlined style={{ fontSize: 32, color: '#52c41a' }} />
                     </div>
-                  )
-                }
-                actions={[
-                  <EyeOutlined key="preview" onClick={() => handlePreview(file)} />,
-                  <DeleteOutlined
-                    key="delete"
-                    onClick={() => handleRemove(file.uid)}
-                    style={{ color: '#ff4d4f' }}
-                  />,
-                ]}
-              >
-                <Card.Meta
-                  description={
-                    <Space direction="vertical" size={0}>
-                      <Tag color={file.type === 'image' ? 'blue' : 'green'}>
-                        {file.type.toUpperCase()}
-                      </Tag>
-                      <span style={{ fontSize: 11 }}>
-                        {file.file?.name || 'Existing file'}
-                      </span>
-                    </Space>
                   }
-                />
-              </Card>
-            ))}
-          </Space>
-        )}
+                  actions={[
+                    <EyeOutlined key="preview" onClick={() => handlePreview(file)} />,
+                    <DeleteOutlined
+                      key="delete"
+                      onClick={() => handleRemove(file.uid)}
+                      style={{ color: '#ff4d4f' }}
+                    />,
+                  ]}
+                >
+                  <Card.Meta
+                    description={
+                      <Space direction="vertical" size={0}>
+                        <Tag color="green">VIDEO</Tag>
+                        <span style={{ fontSize: 11 }}>
+                          {file.file?.name || 'Existing file'}
+                        </span>
+                      </Space>
+                    }
+                  />
+                </Card>
+              ))}
+            </Space>
+          )}
 
-        {/* Upload Button */}
-        {!disabled && fileList.length < maxImages + maxVideos && (
           <Upload
-            beforeUpload={handleBeforeUpload}
+            beforeUpload={handleVideoBeforeUpload}
             showUploadList={false}
-            accept="image/*,video/*"
+            accept="video/*"
             disabled={disabled}
           >
-            <Button icon={<PlusOutlined />} block>
-              Add Media ({fileList.length}/{maxImages + maxVideos})
+            <Button icon={<VideoCameraOutlined />} block>
+              {videos.length > 0 ? 'Replace Video' : 'Add Video'}
             </Button>
           </Upload>
-        )}
 
-        {/* Info */}
-        <div style={{ fontSize: 12, color: '#999' }}>
-          <p style={{ margin: 0 }}>
-            • Images: {imageCount}/{maxImages}
-          </p>
-          <p style={{ margin: 0 }}>
-            • Videos: {videoCount}/{maxVideos}
-          </p>
-          <p style={{ margin: 0 }}>• Max file size: 5MB (images), 100MB (videos)</p>
+          <div style={{ fontSize: 12, color: '#999', marginTop: 8 }}>
+            • Only 1 video allowed (selecting new video will replace current)
+            <br />• Max file size: 100MB
+          </div>
         </div>
       </Space>
 
