@@ -143,23 +143,39 @@ export function ProductForm({ mode, product, isLoading }: ProductFormProps) {
 
         // Upload media files
         if (values.media.length > 0) {
-          for (const mediaFile of values.media) {
-            if (mediaFile.file) {
-              const result = await uploadToSupabase(
-                mediaFile.file,
-                `products/${newProduct.id}`
-              );
+          try {
+            for (const mediaFile of values.media) {
+              if (mediaFile.file) {
+                console.log('Uploading media:', {
+                  fileName: mediaFile.file.name,
+                  type: mediaFile.type,
+                  size: mediaFile.file.size,
+                });
 
-              await addProductMedia({
-                productId: newProduct.id,
-                file_url: `/${result.path}`,
-                file_name: mediaFile.file.name,
-                media_type: mediaFile.type,
-                mime_type: mediaFile.file.type,
-                file_size: mediaFile.file.size,
-                sort_order: mediaFile.sort_order,
-              }).unwrap();
+                const result = await uploadToSupabase(
+                  mediaFile.file,
+                  `products/${newProduct.id}`
+                );
+
+                console.log('Supabase upload result:', result);
+
+                await addProductMedia({
+                  productId: newProduct.id,
+                  file_url: `/${result.path}`,
+                  file_name: mediaFile.file.name,
+                  media_type: mediaFile.type,
+                  mime_type: mediaFile.file.type,
+                  file_size: mediaFile.file.size,
+                  sort_order: mediaFile.sort_order,
+                }).unwrap();
+
+                console.log('Media added to product successfully');
+              }
             }
+          } catch (mediaError) {
+            console.error('Media upload error:', mediaError);
+            message.error(getErrorMessage(mediaError, 'Failed to upload media'));
+            // Continue to success message since product is created
           }
         }
 
@@ -194,6 +210,9 @@ export function ProductForm({ mode, product, isLoading }: ProductFormProps) {
       }
     } catch (error) {
       console.error('Submit error:', error);
+      console.error('Error type:', typeof error);
+      console.error('Error keys:', error ? Object.keys(error) : 'null');
+      console.error('Error stringified:', JSON.stringify(error, null, 2));
       message.error(getErrorMessage(error, `Failed to ${mode} product`));
     }
   };
