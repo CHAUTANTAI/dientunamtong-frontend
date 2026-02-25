@@ -41,20 +41,33 @@ export const SpecificationInput = ({
   useEffect(() => {
     const entries = Object.entries(value);
     
-    // Check if external value is different from current rows
-    const currentKeys = new Set(rows.filter(r => r.key.trim()).map(r => r.key.trim()));
-    const newKeys = new Set(entries.map(([k]) => k));
+    // Skip sync if we're just typing (rows exist and some are empty)
+    const hasEmptyRows = rows.some(r => !r.key.trim() || !r.value.trim());
+    if (hasEmptyRows && entries.length > 0) {
+      // User is actively editing, don't sync
+      return;
+    }
     
-    // Only sync if there's a meaningful difference (keys added/removed from outside)
-    const hasStructuralChange = 
-      entries.length !== currentKeys.size ||
-      entries.some(([k]) => !currentKeys.has(k)) ||
-      rows.filter(r => r.key.trim()).some(r => !newKeys.has(r.key.trim()));
-
-    if (hasStructuralChange && entries.length > 0) {
-      setRows(entries.map(([key, val]) => ({ id: crypto.randomUUID(), key, value: val })));
+    // Only sync if external value has meaningful data and it's different from current state
+    if (entries.length > 0) {
+      const currentData = rows
+        .filter(r => r.key.trim() && r.value.trim())
+        .reduce((acc, r) => {
+          acc[r.key.trim()] = r.value.trim();
+          return acc;
+        }, {} as Record<string, string>);
+      
+      const externalData = entries.reduce((acc, [k, v]) => {
+        acc[k] = v;
+        return acc;
+      }, {} as Record<string, string>);
+      
+      // Only sync if data is actually different (form reset or external change)
+      if (JSON.stringify(currentData) !== JSON.stringify(externalData)) {
+        setRows(entries.map(([key, val]) => ({ id: crypto.randomUUID(), key, value: val })));
+      }
     } else if (entries.length === 0 && rows.every(r => !r.key.trim() && !r.value.trim())) {
-      // Reset to single empty row if everything is cleared
+      // Reset to single empty row if everything is cleared from outside
       setRows([{ id: crypto.randomUUID(), key: '', value: '' }]);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
