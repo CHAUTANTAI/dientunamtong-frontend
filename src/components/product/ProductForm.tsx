@@ -14,6 +14,7 @@ import {
   useUpdateProductMutation,
   useUpdateProductCategoriesMutation,
   useAddProductMediaMutation,
+  useRemoveProductMediaMutation,
 } from '@/store/api/productApi';
 import type { Product, CreateProductDto, UpdateProductDto } from '@/types/product';
 import { ROUTES } from '@/constants/routes';
@@ -55,6 +56,10 @@ export function ProductForm({ mode, product, isLoading }: ProductFormProps) {
   const [updateProduct] = useUpdateProductMutation();
   const [updateCategories] = useUpdateProductCategoriesMutation();
   const [addProductMedia] = useAddProductMediaMutation();
+  const [removeProductMedia] = useRemoveProductMediaMutation();
+
+  // Track original media IDs to detect deletions
+  const [originalMediaIds, setOriginalMediaIds] = useState<string[]>([]);
 
   const {
     control,
@@ -85,6 +90,17 @@ export function ProductForm({ mode, product, isLoading }: ProductFormProps) {
   // Load existing data for edit mode
   useEffect(() => {
     if (mode === 'edit' && product) {
+      // Convert Media[] from backend to MediaFile[] format
+      const existingMedia: MediaFile[] = (product.media || []).map((media) => ({
+        uid: media.id,
+        url: media.file_url,
+        type: media.media_type === 'video' ? 'video' : 'image',
+        sort_order: media.sort_order,
+      }));
+
+      // Track original media IDs to detect deletions
+      setOriginalMediaIds(existingMedia.map((m) => m.uid));
+
       reset({
         name: product.name,
         slug: product.slug,
@@ -95,7 +111,7 @@ export function ProductForm({ mode, product, isLoading }: ProductFormProps) {
         specifications: product.specifications || {},
         category_ids: product.categories?.map((c) => c.id) || [],
         tags: product.tags?.join(', ') || '',
-        media: [],
+        media: existingMedia,
         is_active: product.is_active ?? true,
         in_stock: product.in_stock ?? true,
       });
@@ -203,6 +219,61 @@ export function ProductForm({ mode, product, isLoading }: ProductFormProps) {
             productId: product!.id,
             category_ids: values.category_ids,
           }).unwrap();
+        }
+
+        // Media management: Add new files, Remove deleted files
+        try {
+          // Step 1: Detect deleted media (original IDs not in current list)
+          const currentMediaIds = values.media.map((m) => m.uid);
+          const deletedMediaIds = originalMediaIds.filter((id) => !currentMediaIds.includes(id));
+
+          if (deletedMediaIds.length > 0) {
+            console.log(`Deleting ${deletedMediaIds.length} removed media...`);
+            for (const mediaId of deletedMediaIds) {
+              await removeProductMedia({ mediaId, productId: product!.id }).unwrap();
+              console.log(`Deleted media: ${mediaId}`);
+            }
+          }
+
+          // Step 2: Upload new media files (files with 'file' property)
+          const newMediaFiles = values.media.filter((m) => m.file);
+          if (newMediaFiles.length > 0) {
+            console.log(`Uploading ${newMediaFiles.length} new media files...`);
+            for (const mediaFile of newMediaFiles) {
+              console.log('Uploading media:', {
+                fileName: mediaFile.file!.name,
+                type: mediaFile.type,
+                size: mediaFile.file!.size,
+              });
+
+              const result = await uploadToSupabase(
+                mediaFile.file!,
+                `products/${product!.id}`
+              );
+
+              console.log('Supabase upload result:', result);
+
+              await addProductMedia({
+                productId: product!.id,
+                file_url: `/${result.path}`,
+                file_name: mediaFile.file!.name,
+                media_type: mediaFile.type,
+                mime_type: mediaFile.file!.type,
+                file_size: mediaFile.file!.size,
+                sort_order: mediaFile.sort_order,
+              }).unwrap();
+
+              console.log('Media added successfully');
+            }
+          }
+
+          if (deletedMediaIds.length > 0 || newMediaFiles.length > 0) {
+            console.log('Media update completed');
+          }
+        } catch (mediaError) {
+          console.error('Media update error:', mediaError);
+          message.error(getErrorMessage(mediaError, 'Failed to update media'));
+          // Continue to success message since product info is updated
         }
 
         message.success('Product updated successfully!');
@@ -329,26 +400,22 @@ export function ProductForm({ mode, product, isLoading }: ProductFormProps) {
 
         <FormInput name="tags" control={control} label="Tags (comma-separated)" />
 
-        {mode === 'create' && (
-          <>
-            <Divider orientation="left">Media</Divider>
+        <Divider orientation="left">Media</Divider>
 
-            <Form.Item label="Product Media">
-              <Controller
-                name="media"
-                control={control}
-                render={({ field }) => (
-                  <ProductMediaUpload
-                    value={field.value}
-                    onChange={field.onChange}
-                    maxImages={9}
-                    maxVideos={1}
-                  />
-                )}
+        <Form.Item label="Product Media">
+          <Controller
+            name="media"
+            control={control}
+            render={({ field }) => (
+              <ProductMediaUpload
+                value={field.value}
+                onChange={field.onChange}
+                maxImages={9}
+                maxVideos={1}
               />
-            </Form.Item>
-          </>
-        )}
+            )}
+          />
+        </Form.Item>
 
         <Divider orientation="left">Status</Divider>
 

@@ -15,6 +15,90 @@ import {
   FileImageOutlined,
 } from '@ant-design/icons';
 import { ProductImage } from './ProductImage';
+import { useSignedImageUrl } from '@/hooks/useSignedImageUrl';
+
+/**
+ * MediaPreview Component - Internal component to render image/video with signed URLs
+ */
+const MediaPreview = ({ file }: { file: MediaFile }) => {
+  // For existing files (from backend), use signed URL
+  // For new files (local), use createObjectURL
+  const signedUrl = useSignedImageUrl(file.url && !file.file ? file.url : null);
+  const previewSrc = file.file ? URL.createObjectURL(file.file) : signedUrl;
+
+  console.log('MediaPreview:', {
+    fileUrl: file.url,
+    hasFile: !!file.file,
+    signedUrl,
+    previewSrc,
+    type: file.type,
+  });
+
+  if (file.type === 'video') {
+    return previewSrc ? (
+      <video
+        src={previewSrc}
+        style={{
+          width: 150,
+          height: 150,
+          objectFit: 'cover',
+          background: '#000',
+        }}
+        muted
+      />
+    ) : (
+      <div
+        style={{
+          width: 150,
+          height: 150,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: '#f0f0f0',
+        }}
+      >
+        <VideoCameraOutlined style={{ fontSize: 32, color: '#52c41a' }} />
+      </div>
+    );
+  }
+
+  // Image
+  return previewSrc ? (
+    signedUrl && !file.file ? (
+      <ProductImage
+        imageUrl={signedUrl}
+        alt="Preview"
+        width={150}
+        height={150}
+        style={{ objectFit: 'cover' }}
+      />
+    ) : (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        src={previewSrc}
+        alt="Preview"
+        style={{
+          width: 150,
+          height: 150,
+          objectFit: 'cover',
+        }}
+      />
+    )
+  ) : (
+    <div
+      style={{
+        width: 150,
+        height: 150,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: '#f0f0f0',
+      }}
+    >
+      <FileImageOutlined style={{ fontSize: 32, color: '#999' }} />
+    </div>
+  );
+};
 
 export interface MediaFile {
   uid: string;
@@ -222,51 +306,12 @@ export const ProductMediaUpload = ({
           {images.length > 0 && (
             <Space wrap size="middle" style={{ marginBottom: 12 }}>
               {images.map((file) => {
-                // Create preview URL from File object or use existing URL
-                const previewSrc = file.url || (file.file ? URL.createObjectURL(file.file) : null);
-                
                 return (
                   <Card
                     key={file.uid}
                     size="small"
                     style={{ width: 150 }}
-                    cover={
-                      previewSrc ? (
-                        file.url ? (
-                          <ProductImage
-                            imageUrl={file.url}
-                            alt="Preview"
-                            width={150}
-                            height={150}
-                            style={{ objectFit: 'cover' }}
-                          />
-                        ) : (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img
-                            src={previewSrc}
-                            alt="Preview"
-                            style={{
-                              width: 150,
-                              height: 150,
-                              objectFit: 'cover',
-                            }}
-                          />
-                        )
-                      ) : (
-                        <div
-                          style={{
-                            width: 150,
-                            height: 150,
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            background: '#f0f0f0',
-                          }}
-                        >
-                          <FileImageOutlined style={{ fontSize: 32, color: '#999' }} />
-                        </div>
-                      )
-                    }
+                    cover={<MediaPreview file={file} />}
                     actions={[
                       <EyeOutlined key="preview" onClick={() => handlePreview(file)} />,
                       <DeleteOutlined
@@ -320,41 +365,12 @@ export const ProductMediaUpload = ({
           {videos.length > 0 && (
             <Space wrap size="middle" style={{ marginBottom: 12 }}>
               {videos.map((file) => {
-                // Create preview URL from File object or use existing URL
-                const previewSrc = file.url || (file.file ? URL.createObjectURL(file.file) : null);
-                
                 return (
                   <Card
                     key={file.uid}
                     size="small"
                     style={{ width: 150 }}
-                    cover={
-                      previewSrc ? (
-                        <video
-                          src={previewSrc}
-                          style={{
-                            width: 150,
-                            height: 150,
-                            objectFit: 'cover',
-                            background: '#000',
-                          }}
-                          muted
-                        />
-                      ) : (
-                        <div
-                          style={{
-                            width: 150,
-                            height: 150,
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            background: '#f0f0f0',
-                          }}
-                        >
-                          <VideoCameraOutlined style={{ fontSize: 32, color: '#52c41a' }} />
-                        </div>
-                      )
-                    }
+                    cover={<MediaPreview file={file} />}
                     actions={[
                       <EyeOutlined key="preview" onClick={() => handlePreview(file)} />,
                       <DeleteOutlined
@@ -398,22 +414,51 @@ export const ProductMediaUpload = ({
         </div>
       </Space>
 
-      {/* Preview Modal */}
-      <Modal
+      {/* Preview Modal with Signed URL support */}
+      <PreviewModal
         open={previewOpen}
-        title="Preview"
-        footer={null}
-        onCancel={() => setPreviewOpen(false)}
-        width={800}
-      >
-        {previewType === 'image' ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={previewUrl} alt="Preview" style={{ width: '100%' }} />
-        ) : (
-          <video src={previewUrl} controls style={{ width: '100%' }} />
-        )}
-      </Modal>
+        url={previewUrl}
+        type={previewType}
+        onClose={() => setPreviewOpen(false)}
+      />
     </>
+  );
+};
+
+/**
+ * PreviewModal Component - Handles signed URL conversion for preview
+ */
+const PreviewModal = ({
+  open,
+  url,
+  type,
+  onClose,
+}: {
+  open: boolean;
+  url: string;
+  type: 'image' | 'video';
+  onClose: () => void;
+}) => {
+  // If URL is a relative path (from backend), convert to signed URL
+  // If URL is a data URL (from FileReader), use as is
+  const isDataUrl = url.startsWith('data:');
+  const signedUrl = useSignedImageUrl(!isDataUrl && url ? url : null);
+  const displayUrl = isDataUrl ? url : signedUrl;
+
+  return (
+    <Modal open={open} title="Preview" footer={null} onCancel={onClose} width={800}>
+      {type === 'image' ? (
+        displayUrl ? (
+          <ProductImage imageUrl={displayUrl} alt="Preview" width="100%" />
+        ) : (
+          <div>Loading...</div>
+        )
+      ) : displayUrl ? (
+        <video src={displayUrl} controls style={{ width: '100%', maxHeight: '80vh' }} />
+      ) : (
+        <div>Loading...</div>
+      )}
+    </Modal>
   );
 };
 

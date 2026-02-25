@@ -147,6 +147,17 @@ export const productApi = createApi({
       ],
     }),
 
+    removeAllProductMedia: builder.mutation<void, string>({
+      query: (productId) => ({
+        url: `/admin/product/${productId}/media/all`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: (result, error, productId) => [
+        { type: 'ProductMedia', id: productId },
+        { type: 'Product', id: productId },
+      ],
+    }),
+
     updateMediaSortOrder: builder.mutation<
       Media,
       { mediaId: string; sort_order: number; productId: string }
@@ -191,6 +202,7 @@ export const {
   useGetProductMediaQuery,
   useAddProductMediaMutation,
   useRemoveProductMediaMutation,
+  useRemoveAllProductMediaMutation,
   useUpdateMediaSortOrderMutation,
   useUpdateProductCategoriesMutation,
 } = productApi;

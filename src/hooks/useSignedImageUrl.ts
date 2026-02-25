@@ -22,8 +22,11 @@ export const useSignedImageUrl = (imageUrl: string | null | undefined): string =
         return;
       }
 
+      console.log('useSignedImageUrl: Fetching signed URL for:', imageUrl);
+
       try {
         const url = await getSupabaseImageUrl(imageUrl);
+        console.log('useSignedImageUrl: Got signed URL:', url);
         if (!cancelled) {
           setSignedUrl(url);
         }
