@@ -1,6 +1,4 @@
 import type { Metadata } from 'next';
-import ReduxProvider from '@/providers/ReduxProvider';
-import AntdProvider from '@/providers/AntdProvider';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -13,13 +11,5 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return (
-    <html lang="en">
-      <body>
-        <ReduxProvider>
-          <AntdProvider>{children}</AntdProvider>
-        </ReduxProvider>
-      </body>
-    </html>
-  );
+  return children;
 }

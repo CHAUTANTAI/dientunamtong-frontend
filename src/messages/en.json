@@ -1,0 +1,146 @@
+{
+  "common": {
+    "home": "Home",
+    "dashboard": "Dashboard",
+    "search": "Search",
+    "filter": "Filter",
+    "clear": "Clear",
+    "clearAll": "Clear All Filters",
+    "showing": "Showing {count} of {total} products",
+    "edit": "Edit",
+    "delete": "Delete",
+    "view": "View",
+    "create": "Create",
+    "update": "Update",
+    "cancel": "Cancel",
+    "close": "Close",
+    "save": "Save",
+    "loading": "Loading...",
+    "yes": "Yes",
+    "no": "No",
+    "active": "Active",
+    "inactive": "Inactive",
+    "inStock": "In Stock",
+    "outOfStock": "Out of Stock",
+    "actions": "Actions"
+  },
+  "navigation": {
+    "home": "Home",
+    "dashboard": "Dashboard",
+    "categories": "Categories",
+    "products": "Products",
+    "profile": "Profile",
+    "settings": "Settings",
+    "logout": "Logout"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "category": "Category",
+    "product": "Product",
+    "profile": "Profile",
+    "settings": "Settings"
+  },
+  "product": {
+    "title": "Products",
+    "create": "Create Product",
+    "edit": "Edit Product",
+    "delete": "Delete Product",
+    "detail": {
+      "title": "Product Details"
+    },
+    "labels": {
+      "name": "Product Name",
+      "slug": "Slug (URL-friendly)",
+      "slugHelp": "For URL, SEO (e.g., laptop-msi-gf63)",
+      "sku": "SKU (Stock Keeping Unit)",
+      "skuHelp": "Inventory code, optional (e.g., MSI-GF63-001)",
+      "price": "Price (VNĐ)",
+      "priceHelp": "Enter product price (e.g., 10000000 or 10,000,000)",
+      "shortDescription": "Short Description",
+      "description": "Full Description",
+      "specifications": "Technical Specifications",
+      "categories": "Categories",
+      "tags": "Tags",
+      "media": "Media",
+      "images": "Images",
+      "video": "Video",
+      "status": "Status",
+      "stock": "Stock"
+    },
+    "placeholders": {
+      "sku": "Product SKU (optional)",
+      "price": "Enter price",
+      "shortDescription": "Brief description (1-2 sentences)",
+      "description": "Detailed description",
+      "categories": "Select categories",
+      "tags": "Enter tags (comma-separated)"
+    },
+    "actions": {
+      "create": "Create Product",
+      "edit": "Edit Product",
+      "delete": "Delete Product",
+      "deletePermanently": "Delete Permanently",
+      "addSpecification": "Add Specification",
+      "autoGenerateSlug": "Auto-generate slug",
+      "search": "Search",
+      "filter": "Filter",
+      "clear": "Clear",
+      "clearAllFilters": "Clear All Filters"
+    },
+    "search": {
+      "searchByName": "Search by Name",
+      "searchPlaceholder": "Enter product name...",
+      "filterByCategory": "Filter by Category",
+      "categoryPlaceholder": "Select categories...",
+      "showingResults": "Showing {filtered} of {total} products",
+      "totalProducts": "Total {count} products"
+    },
+    "messages": {
+      "confirmDelete": "Are you sure you want to delete {name}?",
+      "deleteWarning": "This action cannot be undone. All associated media files will also be deleted.",
+      "deleteSuccess": "deleted successfully",
+      "deleteFailed": "Failed to delete product",
+      "createSuccess": "Product created successfully!",
+      "updateSuccess": "Product updated successfully!"
+    }
+  },
+  "category": {
+    "title": "Categories",
+    "create": "Create Category",
+    "edit": "Edit Category",
+    "delete": "Delete Category",
+    "name": "Category Name",
+    "description": "Description",
+    "parent": "Parent Category",
+    "image": "Image",
+    "selectParent": "Select parent category"
+  },
+  "auth": {
+    "login": "Login",
+    "logout": "Logout",
+    "username": "Username",
+    "password": "Password",
+    "loginButton": "Sign In"
+  },
+  "profile": {
+    "title": "Profile",
+    "companyName": "Company Name",
+    "phone": "Phone",
+    "address": "Address",
+    "email": "Email",
+    "logo": "Logo"
+  },
+  "validation": {
+    "required": "{field} is required",
+    "invalid": "Invalid {field}",
+    "minLength": "{field} must be at least {min} characters",
+    "maxLength": "{field} must not exceed {max} characters"
+  },
+  "errors": {
+    "somethingWentWrong": "Something went wrong",
+    "failedToLoad": "Failed to load data",
+    "failedToSave": "Failed to save",
+    "failedToDelete": "Failed to delete",
+    "networkError": "Network error. Please try again."
+  }
+}

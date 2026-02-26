@@ -9,6 +9,7 @@ import { Layout, Menu, Typography, Button, Image } from 'antd';
 import { LeftOutlined, RightOutlined } from '@ant-design/icons';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { ADMIN_MENU_ITEMS } from '@/constants/menu';
 import { useGetProfileQuery } from '@/store/api/profileApi';
 import { useSignedImageUrl } from '@/hooks/useSignedImageUrl';
@@ -24,6 +25,7 @@ interface SidebarProps {
 }
 
 export const Sidebar = ({ collapsed = false, onToggle }: SidebarProps) => {
+  const t = useTranslations();
   const pathname = usePathname();
   const { user } = useAuth();
 
@@ -52,7 +54,7 @@ export const Sidebar = ({ collapsed = false, onToggle }: SidebarProps) => {
   // Convert menu items to format compatible with Ant Design Menu
   const menuItems: MenuProps['items'] = visibleMenuItems.map((item) => ({
     key: item.key,
-    label: item.href ? <Link href={item.href as string}>{item.label}</Link> : item.label,
+    label: item.href ? <Link href={item.href as string}>{t(item.labelKey)}</Link> : t(item.labelKey),
     icon: item.icon,
   }));
 

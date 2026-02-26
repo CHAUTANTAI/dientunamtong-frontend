@@ -8,6 +8,7 @@
 import { useState, useEffect } from 'react';
 import { Space, Input, Button } from 'antd';
 import { PlusOutlined, MinusCircleOutlined } from '@ant-design/icons';
+import { useTranslations } from 'next-intl';
 
 const { TextArea } = Input;
 
@@ -28,6 +29,8 @@ export const SpecificationInput = ({
   onChange,
   disabled = false,
 }: SpecificationInputProps) => {
+  const t = useTranslations();
+  
   // Use local state to manage rows (including empty ones)
   const [rows, setRows] = useState<SpecificationRow[]>(() => {
     const entries = Object.entries(value);
@@ -159,7 +162,7 @@ export const SpecificationInput = ({
 
       {!disabled && (
         <Button type="dashed" onClick={addRow} icon={<PlusOutlined />} block>
-          Add Specification
+          {t('product.actions.addSpecification')}
         </Button>
       )}
     </Space>

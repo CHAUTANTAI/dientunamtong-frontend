@@ -12,6 +12,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useGetProfileQuery } from '@/store/api/profileApi';
 import { ROUTES } from '@/constants/routes';
 import { getRoleDisplayName, getRoleColor } from '@/utils/rbac';
+import { LanguageSwitcher } from '@/components/common/LanguageSwitcher';
 import type { MenuProps } from 'antd';
 
 const { Text } = Typography;
@@ -91,6 +92,9 @@ export const Header = () => {
 
       {/* Right Section */}
       <Space size="large" style={{ marginLeft: 'auto' }}>
+        {/* Language Switcher */}
+        <LanguageSwitcher />
+
         {/* Notifications */}
         <Badge count={0} showZero={false}>
           <Button

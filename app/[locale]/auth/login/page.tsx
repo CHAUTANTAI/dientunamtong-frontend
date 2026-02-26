@@ -9,6 +9,7 @@ import { Suspense } from 'react';
 import { Form, Card, Typography, Spin } from 'antd';
 import { useForm } from 'react-hook-form';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { useLoginMutation } from '@/store/api/authApi';
 import { getErrorMessage } from '@/utils/api-interceptor';
 import { FormInput, FormPassword, FormSubmitButton } from '@/components/common/form';
@@ -21,6 +22,7 @@ import { useAuth } from '@/hooks/useAuth';
 const { Title, Text } = Typography;
 
 function LoginForm() {
+  const t = useTranslations();
   const router = useRouter();
   const searchParams = useSearchParams();
   const [loginMutation, { isLoading }] = useLoginMutation();
@@ -67,12 +69,11 @@ function LoginForm() {
     <div className={styles.container}>
       <Card className={styles.card}>
         <div className={styles.header}>
-          <Title level={2}>Admin Login</Title>
+          <Title level={2}>{t('auth.login')}</Title>
           <Text type="secondary">Enter your credentials to access the admin panel</Text>
         </div>
 
         <Form layout="vertical" onFinish={handleSubmit(onSubmit)}>
-          {/* Root error */}
           {errors.root && (
             <Form.Item>
               <Typography.Text type="danger" style={{ fontSize: '14px' }}>
@@ -81,35 +82,31 @@ function LoginForm() {
             </Form.Item>
           )}
 
-          {/* Username Field */}
           <FormInput
             name="username"
             control={control}
-            label="Username"
-            placeholder="Enter your username"
+            label={t('auth.username')}
+            placeholder={t('auth.username')}
             rules={{
               validate: (value) => validateUsername(value) || true,
             }}
           />
 
-          {/* Password Field */}
           <FormPassword
             name="password"
             control={control}
-            label="Password"
-            placeholder="Enter your password"
+            label={t('auth.password')}
+            placeholder={t('auth.password')}
             rules={{
               validate: (value) => validatePassword(value) || true,
             }}
           />
 
-          {/* Submit Button */}
           <FormSubmitButton isLoading={isLoading}>
-            {isLoading ? 'Logging in...' : 'Login'}
+            {isLoading ? 'Logging in...' : t('auth.loginButton')}
           </FormSubmitButton>
         </Form>
 
-        {/* Demo credentials hint */}
         <div className={styles.hint}>
           <Text type="secondary" style={{ fontSize: '12px' }}>
             Demo: username <code>admin</code>, password <code>admin123</code>

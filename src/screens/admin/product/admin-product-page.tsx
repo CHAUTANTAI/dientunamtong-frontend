@@ -11,6 +11,7 @@ import type { ColumnsType } from 'antd/es/table';
 import { EyeOutlined, EditOutlined, DeleteOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import {
   useGetProductsQuery,
   useDeleteProductPermanentMutation,
@@ -88,6 +89,7 @@ const buildCategoryPath = (category: Category, allCategories: Category[]): strin
 };
 
 export default function AdminProductPage() {
+  const t = useTranslations();
   const router = useRouter();
   const { message } = App.useApp();
   const { data: productsData = [], isLoading } = useGetProductsQuery();
@@ -189,12 +191,12 @@ export default function AdminProductPage() {
 
     try {
       await deleteProduct(selectedProduct.id).unwrap();
-      message.success(`Product "${selectedProduct.name}" deleted successfully`);
+      message.success(`Product "${selectedProduct.name}" ${t('product.messages.deleteSuccess')}`);
       setIsDeleteModalOpen(false);
       setSelectedProduct(null);
     } catch (error) {
       console.error('Delete error:', error);
-      message.error(getErrorMessage(error, 'Failed to delete product'));
+      message.error(getErrorMessage(error, t('product.messages.deleteFailed')));
     }
   };
 
@@ -215,7 +217,7 @@ export default function AdminProductPage() {
 
   const columns: ColumnsType<Product> = [
     {
-      title: 'Product Name',
+      title: t('product.labels.name'),
       dataIndex: 'name',
       key: 'name',
       render: (name: string, record: Product) => (
@@ -226,7 +228,7 @@ export default function AdminProductPage() {
       ),
     },
     {
-      title: 'Price',
+      title: t('product.labels.price'),
       dataIndex: 'price',
       key: 'price',
       width: 150,
@@ -237,25 +239,25 @@ export default function AdminProductPage() {
       },
     },
     {
-      title: 'Status',
+      title: t('product.labels.status'),
       dataIndex: 'is_active',
       key: 'is_active',
       width: 100,
       align: 'center',
       render: (isActive: boolean) =>
-        isActive ? <Tag color="green">Active</Tag> : <Tag color="red">Inactive</Tag>,
+        isActive ? <Tag color="green">{t('common.active')}</Tag> : <Tag color="red">{t('common.inactive')}</Tag>,
     },
     {
-      title: 'Stock',
+      title: t('product.labels.stock'),
       dataIndex: 'in_stock',
       key: 'in_stock',
       width: 100,
       align: 'center',
       render: (inStock: boolean) =>
-        inStock ? <Tag color="blue">In Stock</Tag> : <Tag color="red">Out of Stock</Tag>,
+        inStock ? <Tag color="blue">{t('common.inStock')}</Tag> : <Tag color="red">{t('common.outOfStock')}</Tag>,
     },
     {
-      title: 'Actions',
+      title: t('common.actions'),
       key: 'actions',
       width: 150,
       align: 'center',
@@ -299,10 +301,10 @@ export default function AdminProductPage() {
           justifyContent: 'space-between',
         }}
       >
-        <h2 style={{ margin: 0 }}>Products</h2>
+        <h2 style={{ margin: 0 }}>{t('navigation.products')}</h2>
         <Link href={`${ROUTES.PRODUCT}/create`}>
           <Button type="primary" icon={<PlusOutlined />}>
-            Create Product
+            {t('product.actions.create')}
           </Button>
         </Link>
       </Space>
@@ -312,11 +314,11 @@ export default function AdminProductPage() {
         <Space direction="vertical" style={{ width: '100%' }} size="middle">
           <div>
             <label style={{ display: 'block', marginBottom: 8, fontWeight: 500 }}>
-              Search by Name
+              {t('product.search.searchByName')}
             </label>
             <Space.Compact style={{ width: '100%', maxWidth: 400 }}>
               <Input
-                placeholder="Enter product name..."
+                placeholder={t('product.search.searchPlaceholder')}
                 prefix={<SearchOutlined />}
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
@@ -324,23 +326,23 @@ export default function AdminProductPage() {
                 allowClear
               />
               <Button type="primary" onClick={handleSearch}>
-                Search
+                {t('product.actions.search')}
               </Button>
               <Button onClick={handleClearSearch}>
-                Clear
+                {t('product.actions.clear')}
               </Button>
             </Space.Compact>
           </div>
           <div>
             <label style={{ display: 'block', marginBottom: 8, fontWeight: 500 }}>
-              Filter by Category
+              {t('product.search.filterByCategory')}
             </label>
             <Space direction="horizontal" style={{ width: '100%', alignItems: 'flex-start' }}>
               <div style={{ flex: 1, minWidth: 600 }}>
                 <CategoryMultiSelect
                   value={selectedCategoryInput}
                   onChange={(value) => setSelectedCategoryInput(value as string[])}
-                  placeholder="Select categories..."
+                  placeholder={t('product.search.categoryPlaceholder')}
                   style={{ width: '100%' }}
                   popupMatchSelectWidth={false}
                   styles={{ 
@@ -355,10 +357,10 @@ export default function AdminProductPage() {
                 />
               </div>
               <Button type="primary" onClick={handleFilter}>
-                Filter
+                {t('product.actions.filter')}
               </Button>
               <Button onClick={handleClearCategory}>
-                Clear
+                {t('product.actions.clear')}
               </Button>
             </Space>
           </div>
@@ -368,10 +370,13 @@ export default function AdminProductPage() {
                 size="small"
                 onClick={handleClearAllFilters}
               >
-                Clear All Filters
+                {t('product.actions.clearAllFilters')}
               </Button>
               <span style={{ marginLeft: 8, color: '#666' }}>
-                Showing {filteredProducts.length} of {productsData.length} products
+                {t('product.search.showingResults', { 
+                  filtered: filteredProducts.length, 
+                  total: productsData.length 
+                })}
               </span>
             </div>
           )}
@@ -386,13 +391,13 @@ export default function AdminProductPage() {
         pagination={{
           pageSize: 20,
           showSizeChanger: true,
-          showTotal: (total) => `Total ${total} products`,
+          showTotal: (total) => t('product.search.totalProducts', { count: total }),
         }}
       />
 
       {/* Product Detail Modal */}
       <Modal
-        title={<span style={{ fontWeight: 600 }}>📦 Product Details</span>}
+        title={<span style={{ fontWeight: 600 }}>📦 {t('product.detail.title')}</span>}
         open={isDetailModalOpen}
         onCancel={() => {
           setIsDetailModalOpen(false);
@@ -400,7 +405,7 @@ export default function AdminProductPage() {
         }}
         footer={[
           <Button key="close" onClick={() => setIsDetailModalOpen(false)}>
-            Close
+            {t('common.close')}
           </Button>,
           <Button
             key="edit"
@@ -412,7 +417,7 @@ export default function AdminProductPage() {
               }
             }}
           >
-            Edit Product
+            {t('product.actions.edit')}
           </Button>,
         ]}
         width={800}
@@ -421,32 +426,32 @@ export default function AdminProductPage() {
           <Space direction="vertical" style={{ width: '100%' }} size="large">
             {/* Basic Information */}
             <Descriptions bordered column={2} size="small">
-              <Descriptions.Item label="Product Name" span={2}>
+              <Descriptions.Item label={t('product.labels.name')} span={2}>
                 <strong>{selectedProduct.name}</strong>
               </Descriptions.Item>
-              <Descriptions.Item label="SKU (Product Code)">
+              <Descriptions.Item label={t('product.labels.sku')}>
                 {selectedProduct.sku || '-'}
               </Descriptions.Item>
-              <Descriptions.Item label="Slug (URL)">
+              <Descriptions.Item label={t('product.labels.slug')}>
                 {selectedProduct.slug}
               </Descriptions.Item>
-              <Descriptions.Item label="Price" span={2}>
+              <Descriptions.Item label={t('product.labels.price')} span={2}>
                 {selectedProduct.price
                   ? `${Number(selectedProduct.price).toLocaleString('vi-VN')} đ`
                   : '-'}
               </Descriptions.Item>
-              <Descriptions.Item label="Status">
+              <Descriptions.Item label={t('product.labels.status')}>
                 {selectedProduct.is_active ? (
-                  <Tag color="green">Active</Tag>
+                  <Tag color="green">{t('common.active')}</Tag>
                 ) : (
-                  <Tag color="red">Inactive</Tag>
+                  <Tag color="red">{t('common.inactive')}</Tag>
                 )}
               </Descriptions.Item>
-              <Descriptions.Item label="Stock">
+              <Descriptions.Item label={t('product.labels.stock')}>
                 {selectedProduct.in_stock ? (
-                  <Tag color="blue">In Stock</Tag>
+                  <Tag color="blue">{t('common.inStock')}</Tag>
                 ) : (
-                  <Tag color="red">Out of Stock</Tag>
+                  <Tag color="red">{t('common.outOfStock')}</Tag>
                 )}
               </Descriptions.Item>
             </Descriptions>
@@ -454,7 +459,7 @@ export default function AdminProductPage() {
             {/* Categories */}
             {selectedProduct.categories && selectedProduct.categories.length > 0 && (
               <div>
-                <strong style={{ display: 'block', marginBottom: 8 }}>Categories:</strong>
+                <strong style={{ display: 'block', marginBottom: 8 }}>{t('product.labels.categories')}:</strong>
                 <Space wrap>
                   {selectedProduct.categories.map((cat) => (
                     <Tag key={cat.id} color="blue">
@@ -468,7 +473,7 @@ export default function AdminProductPage() {
             {/* Short Description */}
             {selectedProduct.short_description && (
               <div>
-                <strong style={{ display: 'block', marginBottom: 8 }}>Short Description:</strong>
+                <strong style={{ display: 'block', marginBottom: 8 }}>{t('product.labels.shortDescription')}:</strong>
                 <Paragraph style={{ marginBottom: 0 }}>
                   {selectedProduct.short_description}
                 </Paragraph>
@@ -478,7 +483,7 @@ export default function AdminProductPage() {
             {/* Description */}
             {selectedProduct.description && (
               <div>
-                <strong style={{ display: 'block', marginBottom: 8 }}>Description:</strong>
+                <strong style={{ display: 'block', marginBottom: 8 }}>{t('product.labels.description')}:</strong>
                 <Paragraph style={{ marginBottom: 0 }}>
                   {selectedProduct.description}
                 </Paragraph>
@@ -489,7 +494,7 @@ export default function AdminProductPage() {
             {selectedProduct.specifications &&
               Object.keys(selectedProduct.specifications).length > 0 && (
                 <div>
-                  <strong style={{ display: 'block', marginBottom: 8 }}>Specifications:</strong>
+                  <strong style={{ display: 'block', marginBottom: 8 }}>{t('product.labels.specifications')}:</strong>
                   <Descriptions bordered column={1} size="small">
                     {Object.entries(selectedProduct.specifications).map(([key, value]) => (
                       <Descriptions.Item key={key} label={key}>
@@ -503,7 +508,7 @@ export default function AdminProductPage() {
             {/* Tags */}
             {selectedProduct.tags && selectedProduct.tags.length > 0 && (
               <div>
-                <strong style={{ display: 'block', marginBottom: 8 }}>Tags:</strong>
+                <strong style={{ display: 'block', marginBottom: 8 }}>{t('product.labels.tags')}:</strong>
                 <Space wrap>
                   {selectedProduct.tags.map((tag) => (
                     <Tag key={tag}>{tag}</Tag>
@@ -515,7 +520,7 @@ export default function AdminProductPage() {
             {/* Media - Images */}
             {selectedProduct.media && selectedProduct.media.filter(m => m.media_type === 'image').length > 0 && (
               <div>
-                <strong style={{ display: 'block', marginBottom: 8 }}>Images:</strong>
+                <strong style={{ display: 'block', marginBottom: 8 }}>{t('product.labels.images')}:</strong>
                 <Space wrap size="middle">
                   {selectedProduct.media
                     .filter(m => m.media_type === 'image')
@@ -536,7 +541,7 @@ export default function AdminProductPage() {
             {/* Media - Videos */}
             {selectedProduct.media && selectedProduct.media.filter(m => m.media_type === 'video').length > 0 && (
               <div>
-                <strong style={{ display: 'block', marginBottom: 8 }}>Video:</strong>
+                <strong style={{ display: 'block', marginBottom: 8 }}>{t('product.labels.video')}:</strong>
                 <Space wrap size="middle">
                   {selectedProduct.media
                     .filter(m => m.media_type === 'video')
@@ -559,7 +564,7 @@ export default function AdminProductPage() {
       {/* Delete Confirmation Modal */}
       <Modal
         title={
-          <span style={{ color: '#ff4d4f', fontWeight: 600 }}>⚠️ Delete Product</span>
+          <span style={{ color: '#ff4d4f', fontWeight: 600 }}>⚠️ {t('product.actions.delete')}</span>
         }
         open={isDeleteModalOpen}
         onOk={confirmDelete}
@@ -567,17 +572,16 @@ export default function AdminProductPage() {
           setIsDeleteModalOpen(false);
           setSelectedProduct(null);
         }}
-        okText="Delete Permanently"
-        cancelText="Cancel"
+        okText={t('product.actions.deletePermanently')}
+        cancelText={t('common.cancel')}
         okButtonProps={{ danger: true, loading: isDeleting }}
         cancelButtonProps={{ disabled: isDeleting }}
       >
         <p>
-          Are you sure you want to delete <strong>{selectedProduct?.name}</strong>?
+          {t('product.messages.confirmDelete', { name: selectedProduct?.name || '' })}
         </p>
         <p style={{ color: '#ff4d4f', marginBottom: 0 }}>
-          ⚠️ This action <strong>cannot be undone</strong>. All associated media files will
-          also be deleted.
+          ⚠️ {t('product.messages.deleteWarning')}
         </p>
       </Modal>
     </>

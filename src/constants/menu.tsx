@@ -17,39 +17,42 @@ import { UserRole } from '@/types/auth';
 export interface AdminMenuItem {
   key: string;
   label: string;
+  labelKey: string; // Translation key
   href?: string;
   icon?: React.ReactNode;
-  roles?: UserRole[]; // If specified, only these roles can see this item
-  minRole?: UserRole; // If specified, user must have at least this role level
+  roles?: UserRole[];
+  minRole?: UserRole;
 }
 
 export const ADMIN_MENU_ITEMS: AdminMenuItem[] = [
   {
     key: 'dashboard',
     label: 'Dashboard',
+    labelKey: 'navigation.dashboard',
     href: ROUTES.DASHBOARD,
     icon: <DashboardOutlined />,
-    // All roles can see dashboard
   },
   {
     key: 'category',
     label: 'Categories',
+    labelKey: 'navigation.categories',
     href: ROUTES.CATEGORY,
     icon: <AppstoreOutlined />,
-    minRole: UserRole.MANAGER, // Manager and Admin can access
+    minRole: UserRole.MANAGER,
   },
   {
     key: 'product',
     label: 'Products',
+    labelKey: 'navigation.products',
     href: ROUTES.PRODUCT,
     icon: <ShoppingOutlined />,
-    minRole: UserRole.MANAGER, // Manager and Admin can access
+    minRole: UserRole.MANAGER,
   },
   {
     key: 'profile',
     label: 'Profile',
+    labelKey: 'navigation.profile',
     href: ROUTES.PROFILE,
     icon: <UserOutlined />,
-    // All roles can see profile
   },
 ];

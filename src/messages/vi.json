@@ -1,0 +1,139 @@
+{
+  "common": {
+    "home": "Trang chủ",
+    "dashboard": "Bảng điều khiển",
+    "search": "Tìm kiếm",
+    "filter": "Lọc",
+    "clear": "Xóa",
+    "clearAll": "Xóa tất cả bộ lọc",
+    "showing": "Hiển thị {count} trong {total} sản phẩm",
+    "edit": "Sửa",
+    "delete": "Xóa",
+    "view": "Xem",
+    "create": "Tạo mới",
+    "update": "Cập nhật",
+    "cancel": "Hủy",
+    "close": "Đóng",
+    "save": "Lưu",
+    "loading": "Đang tải...",
+    "yes": "Có",
+    "no": "Không",
+    "active": "Hoạt động",
+    "inactive": "Không hoạt động",
+    "inStock": "Còn hàng",
+    "outOfStock": "Hết hàng",
+    "actions": "Thao tác"
+  },
+  "navigation": {
+    "home": "Trang chủ",
+    "dashboard": "Bảng điều khiển",
+    "categories": "Danh mục",
+    "products": "Sản phẩm",
+    "profile": "Hồ sơ",
+    "settings": "Cài đặt",
+    "logout": "Đăng xuất"
+  },
+  "product": {
+    "title": "Sản phẩm",
+    "create": "Tạo sản phẩm",
+    "edit": "Sửa sản phẩm",
+    "delete": "Xóa sản phẩm",
+    "detail": {
+      "title": "Chi tiết sản phẩm"
+    },
+    "labels": {
+      "name": "Tên sản phẩm",
+      "slug": "Slug (URL thân thiện)",
+      "slugHelp": "Dùng cho URL, SEO (vd: laptop-msi-gf63)",
+      "sku": "SKU (Mã quản lý kho)",
+      "skuHelp": "Mã quản lý kho, không bắt buộc (vd: MSI-GF63-001)",
+      "price": "Giá (VNĐ)",
+      "priceHelp": "Nhập giá bán (VD: 10000000 hoặc 10,000,000)",
+      "shortDescription": "Mô tả ngắn",
+      "description": "Mô tả chi tiết",
+      "specifications": "Thông số kỹ thuật",
+      "categories": "Danh mục",
+      "tags": "Thẻ",
+      "media": "Media",
+      "images": "Hình ảnh",
+      "video": "Video",
+      "status": "Trạng thái",
+      "stock": "Kho"
+    },
+    "placeholders": {
+      "sku": "Mã SKU sản phẩm (tùy chọn)",
+      "price": "Nhập giá",
+      "shortDescription": "Mô tả ngắn gọn (1-2 câu)",
+      "description": "Mô tả chi tiết",
+      "categories": "Chọn danh mục",
+      "tags": "Nhập thẻ (phân cách bởi dấu phẩy)"
+    },
+    "actions": {
+      "create": "Tạo sản phẩm",
+      "edit": "Sửa sản phẩm",
+      "delete": "Xóa sản phẩm",
+      "deletePermanently": "Xóa vĩnh viễn",
+      "addSpecification": "Thêm thông số",
+      "autoGenerateSlug": "Tự động tạo slug",
+      "search": "Tìm kiếm",
+      "filter": "Lọc",
+      "clear": "Xóa",
+      "clearAllFilters": "Xóa tất cả bộ lọc"
+    },
+    "search": {
+      "searchByName": "Tìm theo tên",
+      "searchPlaceholder": "Nhập tên sản phẩm...",
+      "filterByCategory": "Lọc theo danh mục",
+      "categoryPlaceholder": "Chọn danh mục...",
+      "showingResults": "Hiển thị {filtered} trong {total} sản phẩm",
+      "totalProducts": "Tổng {count} sản phẩm"
+    },
+    "messages": {
+      "confirmDelete": "Bạn có chắc chắn muốn xóa {name}?",
+      "deleteWarning": "Hành động này không thể hoàn tác. Tất cả media liên quan cũng sẽ bị xóa.",
+      "deleteSuccess": "đã xóa thành công",
+      "deleteFailed": "Không thể xóa sản phẩm",
+      "createSuccess": "Tạo sản phẩm thành công!",
+      "updateSuccess": "Cập nhật sản phẩm thành công!"
+    }
+  },
+  "category": {
+    "title": "Danh mục",
+    "create": "Tạo danh mục",
+    "edit": "Sửa danh mục",
+    "delete": "Xóa danh mục",
+    "name": "Tên danh mục",
+    "description": "Mô tả",
+    "parent": "Danh mục cha",
+    "image": "Hình ảnh",
+    "selectParent": "Chọn danh mục cha"
+  },
+  "auth": {
+    "login": "Đăng nhập",
+    "logout": "Đăng xuất",
+    "username": "Tên đăng nhập",
+    "password": "Mật khẩu",
+    "loginButton": "Đăng nhập"
+  },
+  "profile": {
+    "title": "Hồ sơ",
+    "companyName": "Tên công ty",
+    "phone": "Số điện thoại",
+    "address": "Địa chỉ",
+    "email": "Email",
+    "logo": "Logo"
+  },
+  "validation": {
+    "required": "{field} là bắt buộc",
+    "invalid": "{field} không hợp lệ",
+    "minLength": "{field} phải có ít nhất {min} ký tự",
+    "maxLength": "{field} không được vượt quá {max} ký tự"
+  },
+  "errors": {
+    "somethingWentWrong": "Đã có lỗi xảy ra",
+    "failedToLoad": "Không thể tải dữ liệu",
+    "failedToSave": "Không thể lưu",
+    "failedToDelete": "Không thể xóa",
+    "networkError": "Lỗi mạng. Vui lòng thử lại."
+  }
+}

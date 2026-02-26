@@ -9,6 +9,7 @@ import { useEffect, useState } from 'react';
 import { Card, Form, InputNumber, Switch, Divider, Space, App } from 'antd';
 import { useRouter } from 'next/navigation';
 import { useForm, Controller } from 'react-hook-form';
+import { useTranslations } from 'next-intl';
 import {
   useCreateProductMutation,
   useUpdateProductMutation,
@@ -48,6 +49,7 @@ interface ProductFormProps {
 }
 
 export function ProductForm({ mode, product, isLoading }: ProductFormProps) {
+  const t = useTranslations();
   const router = useRouter();
   const { message } = App.useApp();
   const [autoSlug, setAutoSlug] = useState(mode === 'create');
@@ -195,7 +197,7 @@ export function ProductForm({ mode, product, isLoading }: ProductFormProps) {
           }
         }
 
-        message.success('Product created successfully!');
+        message.success(t('product.messages.createSuccess'));
         router.push(ROUTES.PRODUCT);
       } else {
         // EDIT MODE
@@ -273,10 +275,9 @@ export function ProductForm({ mode, product, isLoading }: ProductFormProps) {
         } catch (mediaError) {
           console.error('Media update error:', mediaError);
           message.error(getErrorMessage(mediaError, 'Failed to update media'));
-          // Continue to success message since product info is updated
         }
 
-        message.success('Product updated successfully!');
+        message.success(t('product.messages.updateSuccess'));
         router.push(ROUTES.PRODUCT);
       }
     } catch (error) {
@@ -301,16 +302,16 @@ export function ProductForm({ mode, product, isLoading }: ProductFormProps) {
   }
 
   return (
-    <Card title={mode === 'create' ? 'Create New Product' : `Edit Product: ${product?.name}`}>
+    <Card title={mode === 'create' ? t('product.create') : `${t('product.edit')}: ${product?.name}`}>
       <Form layout="vertical" onFinish={handleSubmit(onSubmit)}>
         <Divider orientation="left">Basic Information</Divider>
 
         <FormInput
           name="name"
           control={control}
-          label="Product Name"
-          placeholder="Enter product name"
-          rules={{ required: 'Name is required' }}
+          label={t('product.labels.name')}
+          placeholder={t('product.labels.name')}
+          rules={{ required: t('validation.required', { field: 'Name' }) }}
         />
 
         <FormInput
@@ -318,22 +319,22 @@ export function ProductForm({ mode, product, isLoading }: ProductFormProps) {
           control={control}
           label={
             <span>
-              Slug (URL-friendly){' '}
+              {t('product.labels.slug')}{' '}
               <span style={{ fontSize: 12, fontWeight: 400, color: '#666' }}>
-                - For URL, SEO (e.g., laptop-msi-gf63)
+                - {t('product.labels.slugHelp')}
               </span>
             </span>
           }
           placeholder="product-slug"
           rules={{
-            required: 'Slug is required',
-            validate: (v) => isValidSlug(v) || 'Invalid slug',
+            required: t('validation.required', { field: 'Slug' }),
+            validate: (v) => isValidSlug(v) || t('validation.invalid', { field: 'slug' }),
           }}
         />
 
         {mode === 'create' && (
           <Space style={{ marginBottom: 16 }}>
-            <span>Auto-generate slug:</span>
+            <span>{t('product.actions.autoGenerateSlug')}:</span>
             <Switch
               checked={autoSlug}
               onChange={setAutoSlug}
@@ -348,16 +349,16 @@ export function ProductForm({ mode, product, isLoading }: ProductFormProps) {
           control={control} 
           label={
             <span>
-              SKU (Stock Keeping Unit){' '}
+              {t('product.labels.sku')}{' '}
               <span style={{ fontSize: 12, fontWeight: 400, color: '#666' }}>
-                - Inventory code, optional (e.g., MSI-GF63-001)
+                - {t('product.labels.skuHelp')}
               </span>
             </span>
           }
-          placeholder="Product SKU (optional)" 
+          placeholder={t('product.placeholders.sku')} 
         />
 
-        <Form.Item label="Price (VNĐ)" help="Enter product price (e.g., 10000000 or 10,000,000)">
+        <Form.Item label={t('product.labels.price')} help={t('product.labels.priceHelp')}>
           <Controller
             name="price"
             control={control}
@@ -368,19 +369,17 @@ export function ProductForm({ mode, product, isLoading }: ProductFormProps) {
                 precision={0}
                 controls={false}
                 style={{ width: '100%' }}
-                placeholder="Enter price (e.g., 10000000)"
+                placeholder={t('product.placeholders.price')}
                 formatter={(value) => {
                   if (!value) return '';
                   return `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
                 }}
                 parser={(value) => {
                   if (!value) return 0;
-                  // Remove all commas and non-numeric characters except first dot
                   const cleaned = value.replace(/,/g, '').replace(/[^\d.]/g, '');
-                  // Only allow one decimal point
                   const parts = cleaned.split('.');
                   if (parts.length > 1) {
-                    return Number(parts[0]); // Remove decimal part for integer price
+                    return Number(parts[0]);
                   }
                   const parsed = Number(cleaned);
                   return isNaN(parsed) ? 0 : parsed;
@@ -393,22 +392,22 @@ export function ProductForm({ mode, product, isLoading }: ProductFormProps) {
         <FormInput
           name="short_description"
           control={control}
-          label="Short Description"
-          placeholder="Brief description (1-2 sentences)"
+          label={t('product.labels.shortDescription')}
+          placeholder={t('product.placeholders.shortDescription')}
           textarea
         />
 
         <FormInput
           name="description"
           control={control}
-          label="Full Description"
-          placeholder="Detailed description"
+          label={t('product.labels.description')}
+          placeholder={t('product.placeholders.description')}
           textarea
         />
 
-        <Divider orientation="left">Specifications</Divider>
+        <Divider orientation="left">{t('product.labels.specifications')}</Divider>
 
-        <Form.Item label="Technical Specifications">
+        <Form.Item label={t('product.labels.specifications')}>
           <Controller
             name="specifications"
             control={control}
@@ -420,7 +419,7 @@ export function ProductForm({ mode, product, isLoading }: ProductFormProps) {
 
         <Divider orientation="left">Categorization</Divider>
 
-        <Form.Item label="Categories">
+        <Form.Item label={t('product.labels.categories')}>
           <Controller
             name="category_ids"
             control={control}
@@ -430,11 +429,11 @@ export function ProductForm({ mode, product, isLoading }: ProductFormProps) {
           />
         </Form.Item>
 
-        <FormInput name="tags" control={control} label="Tags (comma-separated)" />
+        <FormInput name="tags" control={control} label={t('product.labels.tags')} placeholder={t('product.placeholders.tags')} />
 
-        <Divider orientation="left">Media</Divider>
+        <Divider orientation="left">{t('product.labels.media')}</Divider>
 
-        <Form.Item label="Product Media">
+        <Form.Item label={t('product.labels.media')}>
           <Controller
             name="media"
             control={control}
@@ -449,9 +448,9 @@ export function ProductForm({ mode, product, isLoading }: ProductFormProps) {
           />
         </Form.Item>
 
-        <Divider orientation="left">Status</Divider>
+        <Divider orientation="left">{t('product.labels.status')}</Divider>
 
-        <Form.Item label="Active Status">
+        <Form.Item label={t('common.active')}>
           <Controller
             name="is_active"
             control={control}
@@ -459,14 +458,14 @@ export function ProductForm({ mode, product, isLoading }: ProductFormProps) {
               <Switch
                 checked={field.value}
                 onChange={field.onChange}
-                checkedChildren="Active"
-                unCheckedChildren="Inactive"
+                checkedChildren={t('common.active')}
+                unCheckedChildren={t('common.inactive')}
               />
             )}
           />
         </Form.Item>
 
-        <Form.Item label="Stock Status">
+        <Form.Item label={t('product.labels.stock')}>
           <Controller
             name="in_stock"
             control={control}
@@ -474,15 +473,15 @@ export function ProductForm({ mode, product, isLoading }: ProductFormProps) {
               <Switch
                 checked={field.value}
                 onChange={field.onChange}
-                checkedChildren="In Stock"
-                unCheckedChildren="Out of Stock"
+                checkedChildren={t('common.inStock')}
+                unCheckedChildren={t('common.outOfStock')}
               />
             )}
           />
         </Form.Item>
 
         <FormSubmitButton isLoading={isSubmitting} style={{ marginTop: 24 }}>
-          {mode === 'create' ? 'Create Product' : 'Update Product'}
+          {mode === 'create' ? t('product.actions.create') : t('product.actions.edit')}
         </FormSubmitButton>
       </Form>
     </Card>
