@@ -316,7 +316,14 @@ export function ProductForm({ mode, product, isLoading }: ProductFormProps) {
         <FormInput
           name="slug"
           control={control}
-          label="Slug (URL-friendly)"
+          label={
+            <span>
+              Slug (URL-friendly){' '}
+              <span style={{ fontSize: 12, fontWeight: 400, color: '#666' }}>
+                - For URL, SEO (e.g., laptop-msi-gf63)
+              </span>
+            </span>
+          }
           placeholder="product-slug"
           rules={{
             required: 'Slug is required',
@@ -336,9 +343,21 @@ export function ProductForm({ mode, product, isLoading }: ProductFormProps) {
           </Space>
         )}
 
-        <FormInput name="sku" control={control} label="SKU" placeholder="Product SKU" />
+        <FormInput 
+          name="sku" 
+          control={control} 
+          label={
+            <span>
+              SKU (Stock Keeping Unit){' '}
+              <span style={{ fontSize: 12, fontWeight: 400, color: '#666' }}>
+                - Inventory code, optional (e.g., MSI-GF63-001)
+              </span>
+            </span>
+          }
+          placeholder="Product SKU (optional)" 
+        />
 
-        <Form.Item label="Price (VNĐ)">
+        <Form.Item label="Price (VNĐ)" help="Enter product price (e.g., 10000000 or 10,000,000)">
           <Controller
             name="price"
             control={control}
@@ -346,12 +365,25 @@ export function ProductForm({ mode, product, isLoading }: ProductFormProps) {
               <InputNumber
                 {...field}
                 min={0}
+                precision={0}
+                controls={false}
                 style={{ width: '100%' }}
-                placeholder="Enter price"
-                formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                placeholder="Enter price (e.g., 10000000)"
+                formatter={(value) => {
+                  if (!value) return '';
+                  return `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+                }}
                 parser={(value) => {
-                  const parsed = value!.replace(/,/g, '');
-                  return Number(parsed);
+                  if (!value) return 0;
+                  // Remove all commas and non-numeric characters except first dot
+                  const cleaned = value.replace(/,/g, '').replace(/[^\d.]/g, '');
+                  // Only allow one decimal point
+                  const parts = cleaned.split('.');
+                  if (parts.length > 1) {
+                    return Number(parts[0]); // Remove decimal part for integer price
+                  }
+                  const parsed = Number(cleaned);
+                  return isNaN(parsed) ? 0 : parsed;
                 }}
               />
             )}

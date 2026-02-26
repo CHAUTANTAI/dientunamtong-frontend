@@ -8,12 +8,13 @@
 import { Input, Form } from 'antd';
 import type { FieldPath, UseControllerProps, FieldValues } from 'react-hook-form';
 import { useController } from 'react-hook-form';
+import type { ReactNode } from 'react';
 
 interface FormInputProps<
   TFieldValues extends FieldValues = FieldValues,
   TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
 > extends UseControllerProps<TFieldValues, TName> {
-  label?: string;
+  label?: ReactNode;
   placeholder?: string;
   disabled?: boolean;
   type?: string;

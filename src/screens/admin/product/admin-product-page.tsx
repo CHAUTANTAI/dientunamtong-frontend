@@ -15,18 +15,83 @@ import {
   useGetProductsQuery,
   useDeleteProductPermanentMutation,
 } from '@/store/api/productApi';
+import { useGetCategoriesQuery } from '@/store/api/categoryApi';
 import type { Product } from '@/types/product';
+import type { Category } from '@/types/category';
 import { ROUTES } from '@/constants/routes';
 import { getErrorMessage } from '@/utils/error';
 import { CategoryMultiSelect } from '@/components/common/CategoryMultiSelect';
 import { ProductImage } from '@/components/common/ProductImage';
+import { useSignedImageUrl } from '@/hooks/useSignedImageUrl';
 
 const { Paragraph } = Typography;
+
+/**
+ * Component to display video with signed URL
+ */
+const VideoPreview = ({ 
+  fileUrl, 
+  width, 
+  height, 
+  autoPlay = false 
+}: { 
+  fileUrl: string; 
+  width: number; 
+  height: number;
+  autoPlay?: boolean;
+}) => {
+  const signedUrl = useSignedImageUrl(fileUrl);
+  
+  if (!signedUrl) {
+    return (
+      <div 
+        style={{ 
+          width, 
+          height, 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'center', 
+          background: '#f0f0f0', 
+          borderRadius: 4 
+        }}
+      >
+        Loading...
+      </div>
+    );
+  }
+  
+  return (
+    <video
+      src={signedUrl}
+      controls
+      autoPlay={autoPlay}
+      muted={autoPlay}
+      loop={autoPlay}
+      style={{ width, height, objectFit: 'cover', borderRadius: 4 }}
+    />
+  );
+};
+
+/**
+ * Build category breadcrumb path (Parent > Child > ...)
+ */
+const buildCategoryPath = (category: Category, allCategories: Category[]): string => {
+  const path: string[] = [];
+  let current: Category | undefined = category;
+  
+  while (current) {
+    path.unshift(current.name);
+    current = allCategories.find(c => c.id === current?.parent_id);
+  }
+  
+  return path.join(' > ');
+};
 
 export default function AdminProductPage() {
   const router = useRouter();
   const { message } = App.useApp();
   const { data: productsData = [], isLoading } = useGetProductsQuery();
+  const { data: allCategories = [] } = useGetCategoriesQuery();
   const [deleteProduct, { isLoading: isDeleting }] = useDeleteProductPermanentMutation();
 
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
@@ -359,10 +424,13 @@ export default function AdminProductPage() {
               <Descriptions.Item label="Product Name" span={2}>
                 <strong>{selectedProduct.name}</strong>
               </Descriptions.Item>
-              <Descriptions.Item label="SKU">
+              <Descriptions.Item label="SKU (Product Code)">
                 {selectedProduct.sku || '-'}
               </Descriptions.Item>
-              <Descriptions.Item label="Price">
+              <Descriptions.Item label="Slug (URL)">
+                {selectedProduct.slug}
+              </Descriptions.Item>
+              <Descriptions.Item label="Price" span={2}>
                 {selectedProduct.price
                   ? `${Number(selectedProduct.price).toLocaleString('vi-VN')} đ`
                   : '-'}
@@ -390,7 +458,7 @@ export default function AdminProductPage() {
                 <Space wrap>
                   {selectedProduct.categories.map((cat) => (
                     <Tag key={cat.id} color="blue">
-                      {cat.name}
+                      {buildCategoryPath(cat, allCategories)}
                     </Tag>
                   ))}
                 </Space>
@@ -444,30 +512,43 @@ export default function AdminProductPage() {
               </div>
             )}
 
-            {/* Media */}
-            {selectedProduct.media && selectedProduct.media.length > 0 && (
+            {/* Media - Images */}
+            {selectedProduct.media && selectedProduct.media.filter(m => m.media_type === 'image').length > 0 && (
               <div>
-                <strong style={{ display: 'block', marginBottom: 8 }}>Media:</strong>
+                <strong style={{ display: 'block', marginBottom: 8 }}>Images:</strong>
                 <Space wrap size="middle">
-                  {selectedProduct.media.map((media) => (
-                    <div key={media.id}>
-                      {media.media_type === 'image' ? (
-                        <ProductImage
-                          imageUrl={media.file_url}
-                          alt={media.alt_text || selectedProduct.name}
-                          width={120}
-                          height={120}
-                          style={{ objectFit: 'cover', borderRadius: 4 }}
-                        />
-                      ) : (
-                        <video
-                          src={media.file_url}
-                          controls
-                          style={{ width: 120, height: 120, objectFit: 'cover', borderRadius: 4 }}
-                        />
-                      )}
-                    </div>
-                  ))}
+                  {selectedProduct.media
+                    .filter(m => m.media_type === 'image')
+                    .map((media) => (
+                      <ProductImage
+                        key={media.id}
+                        imageUrl={media.file_url}
+                        alt={media.alt_text || selectedProduct.name}
+                        width={120}
+                        height={120}
+                        style={{ objectFit: 'cover', borderRadius: 4 }}
+                      />
+                    ))}
+                </Space>
+              </div>
+            )}
+
+            {/* Media - Videos */}
+            {selectedProduct.media && selectedProduct.media.filter(m => m.media_type === 'video').length > 0 && (
+              <div>
+                <strong style={{ display: 'block', marginBottom: 8 }}>Video:</strong>
+                <Space wrap size="middle">
+                  {selectedProduct.media
+                    .filter(m => m.media_type === 'video')
+                    .map((media) => (
+                      <VideoPreview
+                        key={media.id}
+                        fileUrl={media.file_url}
+                        width={400}
+                        height={225}
+                        autoPlay={true}
+                      />
+                    ))}
                 </Space>
               </div>
             )}
