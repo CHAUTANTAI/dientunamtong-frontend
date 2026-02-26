@@ -239,10 +239,10 @@
       "uploadError": "Không thể tải lên logo",
       "loadingProfile": "Đang tải hồ sơ...",
       "errorLoadingProfile": "Lỗi khi tải hồ sơ",
-      "logoHelp": "Tải lên logo mới (tối đa 2MB). Định dạng: JPG, PNG, GIF",
+      "logoHelp": "Tải lên logo mới (tối đa 10MB). Định dạng: JPG, PNG, GIF",
       "usernameTooltip": "Không thể thay đổi tên đăng nhập",
       "onlyImageAllowed": "Chỉ được tải lên file ảnh!",
-      "fileTooLarge": "Ảnh phải nhỏ hơn 2MB!"
+      "fileTooLarge": "Ảnh phải nhỏ hơn 10MB!"
     },
     "validation": {
       "companyNameRequired": "Vui lòng nhập tên công ty",

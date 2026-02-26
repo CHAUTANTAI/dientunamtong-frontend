@@ -239,10 +239,10 @@
       "uploadError": "Failed to upload logo",
       "loadingProfile": "Loading profile...",
       "errorLoadingProfile": "Error loading profile",
-      "logoHelp": "Upload a new logo (max 2MB). Supported formats: JPG, PNG, GIF",
+      "logoHelp": "Upload a new logo (max 10MB). Supported formats: JPG, PNG, GIF",
       "usernameTooltip": "Username cannot be changed",
       "onlyImageAllowed": "You can only upload image files!",
-      "fileTooLarge": "Image must be smaller than 2MB!"
+      "fileTooLarge": "Image must be smaller than 10MB!"
     },
     "validation": {
       "companyNameRequired": "Please enter company name",

@@ -95,8 +95,8 @@ const AdminProfilePage = () => {
       message.error(t('profile.messages.onlyImageAllowed'));
       return false;
     }
-    const isLt2M = file.size / 1024 / 1024 < 2;
-    if (!isLt2M) {
+    const isLt10M = file.size / 1024 / 1024 < 10;
+    if (!isLt10M) {
       message.error(t('profile.messages.fileTooLarge'));
       return false;
     }
