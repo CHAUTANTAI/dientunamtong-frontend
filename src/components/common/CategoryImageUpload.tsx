@@ -9,6 +9,7 @@ import { useState } from 'react';
 import { Upload, Button, App, Spin } from 'antd';
 import { UploadOutlined, DeleteOutlined, LoadingOutlined } from '@ant-design/icons';
 import type { UploadRequestOption } from 'rc-upload/lib/interface';
+import { useTranslations } from 'next-intl';
 import { uploadToSupabase } from '@/utils/supabase';
 import { useCreateMediaMutation, useDeleteMediaMutation } from '@/store/api/mediaApi';
 import type { Media, MediaType } from '@/types/media';
@@ -27,6 +28,7 @@ export const CategoryImageUpload = ({
   existingMedia,
   disabled = false,
 }: CategoryImageUploadProps) => {
+  const t = useTranslations();
   const { message } = App.useApp();
 
   const [uploading, setUploading] = useState(false);
@@ -63,11 +65,11 @@ export const CategoryImageUpload = ({
       setCurrentMediaId(mediaData.id);
       onChange?.(mediaData.id);
 
-      message.success('Image uploaded successfully');
+      message.success(t('category.media.uploadSuccess'));
       return true;
     } catch (error) {
       console.error('Upload error:', error);
-      message.error(error instanceof Error ? error.message : 'Failed to upload image');
+      message.error(error instanceof Error ? error.message : t('category.media.uploadError'));
       return false;
     } finally {
       setUploading(false);
@@ -91,10 +93,10 @@ export const CategoryImageUpload = ({
       setCurrentMediaId(null);
       onChange?.(null);
 
-      message.success('Image removed successfully');
+      message.success(t('category.media.removeSuccess'));
     } catch (error) {
       console.error('Remove error:', error);
-      message.error('Failed to remove image');
+      message.error(t('category.media.removeError'));
     } finally {
       setUploading(false);
     }
@@ -120,13 +122,13 @@ export const CategoryImageUpload = ({
   const beforeUpload = (file: File) => {
     const isImage = file.type.startsWith('image/');
     if (!isImage) {
-      message.error('You can only upload image files!');
+      message.error(t('category.media.onlyImageAllowed'));
       return false;
     }
 
-    const isLt5M = file.size / 1024 / 1024 < 5;
-    if (!isLt5M) {
-      message.error('Image must be smaller than 5MB!');
+    const isLt25M = file.size / 1024 / 1024 < 25;
+    if (!isLt25M) {
+      message.error(t('category.media.imageSizeLimit'));
       return false;
     }
 
@@ -158,7 +160,7 @@ export const CategoryImageUpload = ({
                 right: 8,
               }}
             >
-              Remove
+              {t('common.delete')}
             </Button>
           )}
         </div>
@@ -176,14 +178,14 @@ export const CategoryImageUpload = ({
             disabled={disabled || uploading}
             loading={uploading}
           >
-            {uploading ? 'Uploading...' : 'Upload Image'}
+            {uploading ? t('category.media.uploading') : t('category.media.uploadImage')}
           </Button>
         </Upload>
       )}
 
       {uploading && (
         <div style={{ marginTop: 8 }}>
-          <Spin size="small" /> Uploading...
+          <Spin size="small" /> {t('category.media.uploading')}
         </div>
       )}
     </div>

@@ -87,6 +87,16 @@
       "collapseAll": "Collapse All",
       "addChild": "Add child category"
     },
+    "media": {
+      "uploadImage": "Upload Image",
+      "uploading": "Uploading...",
+      "uploadSuccess": "Image uploaded successfully",
+      "uploadError": "Failed to upload image",
+      "removeSuccess": "Image removed successfully",
+      "removeError": "Failed to remove image",
+      "onlyImageAllowed": "You can only upload image files!",
+      "imageSizeLimit": "Image must be smaller than 25MB!"
+    },
     "search": {
       "searchPlaceholder": "Search categories...",
       "statusFilter": "Status Filter"
@@ -190,16 +200,18 @@
       "replaceVideo": "Replace Video",
       "preview": "Preview",
       "imageHint1": "Select multiple images at once (max {max} total)",
-      "imageHint2": "Max file size: 5MB per image",
+      "imageHint2": "Max file size: 25MB per image",
       "videoHint1": "Only 1 video allowed (selecting new video will replace current)",
-      "videoHint2": "Max file size: 100MB",
+      "videoHint2": "Max file size: 500MB, Max duration: 2 minutes",
       "maxImagesError": "Maximum {max} images allowed!",
       "imagesAdded": "✓ Added {count} image(s)",
       "filesExceeded": "✗ {count} file(s) exceeded the limit of {max} images",
       "invalidType": "✗ {count} file(s) are not images",
-      "invalidSize": "✗ {count} file(s) exceed 5MB size limit",
+      "invalidSize": "✗ {count} file(s) exceed 25MB size limit",
       "onlyVideoAllowed": "You can only upload video files!",
-      "videoSizeLimit": "Video size must be less than 100MB!",
+      "videoSizeLimit": "Video size must be less than 500MB!",
+      "videoDurationLimit": "Video duration ({duration}) exceeds 2 minutes limit!",
+      "videoMetadataError": "Failed to read video metadata. Please try another file.",
       "videoReplaced": "Video replaced successfully!"
     },
     "messages": {
@@ -239,10 +251,10 @@
       "uploadError": "Failed to upload logo",
       "loadingProfile": "Loading profile...",
       "errorLoadingProfile": "Error loading profile",
-      "logoHelp": "Upload a new logo (max 10MB). Supported formats: JPG, PNG, GIF",
+      "logoHelp": "Upload a new logo (max 25MB). Supported formats: JPG, PNG, GIF",
       "usernameTooltip": "Username cannot be changed",
       "onlyImageAllowed": "You can only upload image files!",
-      "fileTooLarge": "Image must be smaller than 10MB!"
+      "fileTooLarge": "Image must be smaller than 25MB!"
     },
     "validation": {
       "companyNameRequired": "Please enter company name",

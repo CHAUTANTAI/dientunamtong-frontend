@@ -165,13 +165,13 @@ export const ProductMediaUpload = ({
 
       // Filter valid image files (type and size)
       const validFiles = fileListFromUpload.filter(f => 
-        f.type.startsWith('image/') && f.size <= 5 * 1024 * 1024
+        f.type.startsWith('image/') && f.size <= 25 * 1024 * 1024
       );
 
       // Count invalid files
       const invalidTypeCount = fileListFromUpload.filter(f => !f.type.startsWith('image/')).length;
       const invalidSizeCount = fileListFromUpload.filter(f => 
-        f.type.startsWith('image/') && f.size > 5 * 1024 * 1024
+        f.type.startsWith('image/') && f.size > 25 * 1024 * 1024
       ).length;
 
       // Take only the files that fit within the limit
@@ -233,9 +233,30 @@ export const ProductMediaUpload = ({
   };
 
   /**
+   * Check video duration using HTML5 Video API
+   */
+  const checkVideoDuration = (file: File): Promise<number> => {
+    return new Promise((resolve, reject) => {
+      const video = document.createElement('video');
+      video.preload = 'metadata';
+
+      video.onloadedmetadata = () => {
+        window.URL.revokeObjectURL(video.src);
+        resolve(video.duration);
+      };
+
+      video.onerror = () => {
+        reject(new Error('Failed to load video metadata'));
+      };
+
+      video.src = URL.createObjectURL(file);
+    });
+  };
+
+  /**
    * Handle video selection (single)
    */
-  const handleVideoBeforeUpload = (file: File) => {
+  const handleVideoBeforeUpload = async (file: File) => {
     const isVideo = file.type.startsWith('video/');
 
     if (!isVideo) {
@@ -243,9 +264,29 @@ export const ProductMediaUpload = ({
       return false;
     }
 
-    // Check file size
-    if (file.size > 100 * 1024 * 1024) {
+    // Check file size (500MB)
+    if (file.size > 500 * 1024 * 1024) {
       message.error(t('product.media.videoSizeLimit'));
+      return false;
+    }
+
+    // Check video duration (2 minutes = 120 seconds)
+    try {
+      const duration = await checkVideoDuration(file);
+      const durationInMinutes = Math.floor(duration / 60);
+      const durationInSeconds = Math.floor(duration % 60);
+      
+      if (duration > 120) {
+        message.error(
+          t('product.media.videoDurationLimit', { 
+            duration: `${durationInMinutes}:${durationInSeconds.toString().padStart(2, '0')}` 
+          })
+        );
+        return false;
+      }
+    } catch (error) {
+      console.error('Error checking video duration:', error);
+      message.error(t('product.media.videoMetadataError'));
       return false;
     }
 

@@ -87,6 +87,16 @@
       "collapseAll": "Thu gọn tất cả",
       "addChild": "Thêm danh mục con"
     },
+    "media": {
+      "uploadImage": "Tải ảnh lên",
+      "uploading": "Đang tải lên...",
+      "uploadSuccess": "Tải ảnh thành công",
+      "uploadError": "Không thể tải ảnh lên",
+      "removeSuccess": "Đã xóa ảnh thành công",
+      "removeError": "Không thể xóa ảnh",
+      "onlyImageAllowed": "Chỉ được tải lên file ảnh!",
+      "imageSizeLimit": "Ảnh phải nhỏ hơn 25MB!"
+    },
     "search": {
       "searchPlaceholder": "Tìm kiếm danh mục...",
       "statusFilter": "Lọc trạng thái"
@@ -190,16 +200,18 @@
       "replaceVideo": "Thay video",
       "preview": "Xem trước",
       "imageHint1": "Chọn nhiều ảnh cùng lúc (tối đa {max} ảnh)",
-      "imageHint2": "Dung lượng tối đa: 5MB/ảnh",
+      "imageHint2": "Dung lượng tối đa: 25MB/ảnh",
       "videoHint1": "Chỉ cho phép 1 video (chọn video mới sẽ thay thế video hiện tại)",
-      "videoHint2": "Dung lượng tối đa: 100MB",
+      "videoHint2": "Dung lượng tối đa: 500MB, Thời lượng tối đa: 2 phút",
       "maxImagesError": "Tối đa {max} ảnh!",
       "imagesAdded": "✓ Đã thêm {count} ảnh",
       "filesExceeded": "✗ {count} file vượt quá giới hạn {max} ảnh",
       "invalidType": "✗ {count} file không phải là ảnh",
-      "invalidSize": "✗ {count} file vượt quá 5MB",
+      "invalidSize": "✗ {count} file vượt quá 25MB",
       "onlyVideoAllowed": "Chỉ được tải lên file video!",
-      "videoSizeLimit": "Video phải nhỏ hơn 100MB!",
+      "videoSizeLimit": "Video phải nhỏ hơn 500MB!",
+      "videoDurationLimit": "Thời lượng video ({duration}) vượt quá 2 phút!",
+      "videoMetadataError": "Không thể đọc thông tin video. Vui lòng thử file khác.",
       "videoReplaced": "Đã thay video thành công!"
     },
     "messages": {
@@ -239,10 +251,10 @@
       "uploadError": "Không thể tải lên logo",
       "loadingProfile": "Đang tải hồ sơ...",
       "errorLoadingProfile": "Lỗi khi tải hồ sơ",
-      "logoHelp": "Tải lên logo mới (tối đa 10MB). Định dạng: JPG, PNG, GIF",
+      "logoHelp": "Tải lên logo mới (tối đa 25MB). Định dạng: JPG, PNG, GIF",
       "usernameTooltip": "Không thể thay đổi tên đăng nhập",
       "onlyImageAllowed": "Chỉ được tải lên file ảnh!",
-      "fileTooLarge": "Ảnh phải nhỏ hơn 10MB!"
+      "fileTooLarge": "Ảnh phải nhỏ hơn 25MB!"
     },
     "validation": {
       "companyNameRequired": "Vui lòng nhập tên công ty",
