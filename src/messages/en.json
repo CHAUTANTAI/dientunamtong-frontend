@@ -120,7 +120,8 @@
     "logout": "Logout",
     "username": "Username",
     "password": "Password",
-    "loginButton": "Sign In"
+    "loginButton": "Sign In",
+    "loginDescription": "Enter your credentials to access the admin panel"
   },
   "profile": {
     "title": "Profile",

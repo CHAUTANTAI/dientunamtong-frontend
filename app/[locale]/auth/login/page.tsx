@@ -70,7 +70,7 @@ function LoginForm() {
       <Card className={styles.card}>
         <div className={styles.header}>
           <Title level={2}>{t('auth.login')}</Title>
-          <Text type="secondary">Enter your credentials to access the admin panel</Text>
+          <Text type="secondary">{t('auth.loginDescription')}</Text>
         </div>
 
         <Form layout="vertical" onFinish={handleSubmit(onSubmit)}>
@@ -106,12 +106,6 @@ function LoginForm() {
             {isLoading ? 'Logging in...' : t('auth.loginButton')}
           </FormSubmitButton>
         </Form>
-
-        <div className={styles.hint}>
-          <Text type="secondary" style={{ fontSize: '12px' }}>
-            Demo: username <code>admin</code>, password <code>admin123</code>
-          </Text>
-        </div>
       </Card>
     </div>
   );

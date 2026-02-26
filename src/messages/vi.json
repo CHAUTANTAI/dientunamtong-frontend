@@ -113,7 +113,8 @@
     "logout": "Đăng xuất",
     "username": "Tên đăng nhập",
     "password": "Mật khẩu",
-    "loginButton": "Đăng nhập"
+    "loginButton": "Đăng nhập",
+    "loginDescription": "Nhập thông tin đăng nhập để truy cập trang quản trị"
   },
   "profile": {
     "title": "Hồ sơ",
