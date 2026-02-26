@@ -65,7 +65,7 @@
       "updatedAt": "Updated At"
     },
     "labels": {
-      "name": "Category Name",
+      "name": "Category Settings",
       "slug": "Slug (URL-friendly)",
       "description": "Description",
       "parent": "Parent Category",
