@@ -6,7 +6,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import createIntlMiddleware from 'next-intl/middleware';
-import { locales, defaultLocale } from './src/i18n';
+import { locales, defaultLocale, type Locale } from './src/i18n';
 import { ROUTES } from './src/constants/routes';
 
 const AUTH_TOKEN_KEY = 'auth_token';
@@ -24,14 +24,30 @@ export function proxy(request: NextRequest) {
   // Step 1: Handle i18n routing first
   const intlResponse = intlMiddleware(request);
   
-  // Get locale from pathname or use default
-  const pathnameLocale = locales.find(
-    (locale) => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`
-  );
-  const locale = pathnameLocale || defaultLocale;
+  // Extract locale from pathname or response headers
+  let locale: Locale = defaultLocale;
   
-  // Build paths with locale prefix
-  const localePrefix = locale === defaultLocale ? '' : `/${locale}`;
+  // Check if pathname already has locale prefix
+  const pathnameLocale = locales.find(
+    (loc) => pathname.startsWith(`/${loc}/`) || pathname === `/${loc}`
+  );
+  
+  if (pathnameLocale) {
+    locale = pathnameLocale;
+  } else {
+    // Check if intl middleware added locale via redirect
+    const location = intlResponse.headers.get('location');
+    if (location) {
+      const localeFromRedirect = locales.find((loc) => location.includes(`/${loc}/`) || location.endsWith(`/${loc}`));
+      if (localeFromRedirect) {
+        locale = localeFromRedirect;
+      }
+    }
+  }
+  
+  // IMPORTANT: Always use locale prefix for internal redirects
+  // Even for default locale, because our route structure is /[locale]/...
+  const localePrefix = `/${locale}`;
   const localizedLoginPath = `${localePrefix}${ROUTES.LOGIN}`;
   const localizedDashboardPath = `${localePrefix}${ROUTES.DASHBOARD}`;
   
@@ -48,8 +64,8 @@ export function proxy(request: NextRequest) {
     return pathname.startsWith(localizedRoute);
   });
 
-  // Handle root path "/" or "/vi"
-  if (pathname === '/' || pathname === `/${locale}`) {
+  // Handle root path "/" or "/vi" or "/en"
+  if (pathname === '/' || locales.some(loc => pathname === `/${loc}`)) {
     console.log('[PROXY] Root path detected, redirecting...');
     if (isAuthenticated) {
       return NextResponse.redirect(new URL(localizedDashboardPath, request.url));
