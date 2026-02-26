@@ -135,14 +135,14 @@ export const SpecificationInput = ({
       {rows.map((row, index) => (
         <Space key={row.id} style={{ width: '100%' }} align="start">
           <Input
-            placeholder="Key (e.g., CPU)"
+            placeholder={t('product.specifications.keyPlaceholder')}
             value={row.key}
             onChange={(e) => updateRow(index, 'key', e.target.value)}
             disabled={disabled}
             style={{ width: 250 }}
           />
           <TextArea
-            placeholder="Value (e.g., Intel Core i7 12th Gen)"
+            placeholder={t('product.specifications.valuePlaceholder')}
             value={row.value}
             onChange={(e) => updateRow(index, 'value', e.target.value)}
             disabled={disabled}

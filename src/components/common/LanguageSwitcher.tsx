@@ -1,9 +1,10 @@
 'use client';
 
 import { useLocale } from 'next-intl';
-import { usePathname, useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { Select } from 'antd';
 import { GlobalOutlined } from '@ant-design/icons';
+import { LOCALE_COOKIE } from '@/i18n';
 
 const languages = [
   { value: 'en', label: 'English', flag: '🇺🇸' },
@@ -13,18 +14,13 @@ const languages = [
 export const LanguageSwitcher = () => {
   const locale = useLocale();
   const router = useRouter();
-  const pathname = usePathname();
 
   const handleChange = (newLocale: string) => {
-    // Remove current locale from pathname if it exists
-    const pathnameWithoutLocale = pathname.replace(/^\/(en|vi)/, '') || '/';
+    // Set locale cookie
+    document.cookie = `${LOCALE_COOKIE}=${newLocale}; path=/; max-age=31536000`; // 1 year
     
-    // Navigate to new locale
-    const newPath = newLocale === 'en' 
-      ? pathnameWithoutLocale 
-      : `/${newLocale}${pathnameWithoutLocale}`;
-    
-    router.push(newPath);
+    // Refresh page to apply new locale
+    router.refresh();
   };
 
   return (

@@ -6,15 +6,16 @@
     "filter": "Lọc",
     "clear": "Xóa",
     "clearAll": "Xóa tất cả bộ lọc",
-    "showing": "Hiển thị {count} trong {total} sản phẩm",
+    "showing": "Hiển thị {count} trên {total} sản phẩm",
     "edit": "Sửa",
     "delete": "Xóa",
     "view": "Xem",
-    "create": "Tạo mới",
+    "create": "Tạo",
     "update": "Cập nhật",
     "cancel": "Hủy",
     "close": "Đóng",
     "save": "Lưu",
+    "saveChanges": "Lưu thay đổi",
     "loading": "Đang tải...",
     "yes": "Có",
     "no": "Không",
@@ -22,7 +23,11 @@
     "inactive": "Không hoạt động",
     "inStock": "Còn hàng",
     "outOfStock": "Hết hàng",
-    "actions": "Thao tác"
+    "actions": "Thao tác",
+    "all": "Tất cả",
+    "root": "Gốc",
+    "auto": "Tự động",
+    "manual": "Thủ công"
   },
   "navigation": {
     "home": "Trang chủ",
@@ -33,27 +38,111 @@
     "settings": "Cài đặt",
     "logout": "Đăng xuất"
   },
+  "dashboard": {
+    "welcome": "Chào mừng đến với Trang Quản Trị",
+    "description": "Sử dụng menu bên trái để điều hướng qua các phần khác nhau của hệ thống quản trị."
+  },
+  "category": {
+    "title": "Danh mục",
+    "create": "Tạo danh mục",
+    "createChild": "Tạo danh mục con",
+    "createRoot": "Tạo danh mục",
+    "edit": "Sửa danh mục",
+    "delete": "Xóa danh mục",
+    "addRootCategory": "Thêm danh mục",
+    "addChild": "Thêm danh mục con",
+    "detail": {
+      "title": "Chi tiết danh mục",
+      "id": "ID",
+      "name": "Tên",
+      "slug": "Slug",
+      "description": "Mô tả",
+      "parent": "Danh mục cha",
+      "level": "Cấp độ",
+      "sortOrder": "Thứ tự sắp xếp",
+      "status": "Trạng thái",
+      "createdAt": "Ngày tạo",
+      "updatedAt": "Ngày cập nhật"
+    },
+    "labels": {
+      "name": "Cài Đặt Danh Mục",
+      "slug": "Slug (URL thân thiện)",
+      "description": "Mô tả",
+      "parent": "Danh mục cha",
+      "image": "Hình ảnh danh mục",
+      "sortOrder": "Thứ tự sắp xếp",
+      "active": "Hoạt động"
+    },
+    "placeholders": {
+      "name": "Nhập tên danh mục",
+      "slug": "danh-muc-slug",
+      "description": "Nhập mô tả (không bắt buộc)",
+      "parent": "Chọn danh mục cha (không bắt buộc)",
+      "search": "Tìm kiếm danh mục..."
+    },
+    "actions": {
+      "createCategory": "Tạo danh mục",
+      "updateCategory": "Cập nhật danh mục",
+      "expandAll": "Mở rộng tất cả",
+      "collapseAll": "Thu gọn tất cả",
+      "addChild": "Thêm danh mục con"
+    },
+    "search": {
+      "searchPlaceholder": "Tìm kiếm danh mục...",
+      "statusFilter": "Lọc trạng thái"
+    },
+    "messages": {
+      "createSuccess": "Tạo danh mục thành công",
+      "updateSuccess": "Cập nhật danh mục thành công",
+      "deleteSuccess": "đã xóa thành công",
+      "deleteSuccessWithChildren": "và {count} danh mục con đã xóa thành công",
+      "createError": "Không thể tạo danh mục",
+      "updateError": "Không thể cập nhật danh mục",
+      "deleteError": "Không thể xóa danh mục",
+      "loadingCategory": "Đang tải danh mục...",
+      "notFound": "Không tìm thấy danh mục",
+      "invalidSlug": "Slug không hợp lệ. Chỉ sử dụng chữ thường, số và dấu gạch ngang.",
+      "deleteConfirm": "Bạn có chắc chắn muốn xóa {name}?",
+      "deleteWarning": "⚠️ Hành động này không thể hoàn tác.",
+      "deleteWithChildrenWarning": "Cảnh báo: Danh mục này có {count} danh mục con.",
+      "deleteWithChildrenMessage": "Xóa {name} cũng sẽ xóa vĩnh viễn tất cả danh mục con và dữ liệu liên quan.",
+      "deletePermanently": "Xóa vĩnh viễn"
+    },
+    "validation": {
+      "nameRequired": "Tên là bắt buộc",
+      "nameMaxLength": "Tên không được vượt quá 255 ký tự",
+      "slugRequired": "Slug là bắt buộc",
+      "slugInvalid": "Slug không hợp lệ",
+      "descriptionMaxLength": "Mô tả không được vượt quá 1000 ký tự"
+    }
+  },
   "product": {
     "title": "Sản phẩm",
     "create": "Tạo sản phẩm",
     "edit": "Sửa sản phẩm",
     "delete": "Xóa sản phẩm",
+    "switchOn": "Bật",
+    "switchOff": "Tắt",
     "detail": {
       "title": "Chi tiết sản phẩm"
+    },
+    "sections": {
+      "basicInfo": "Thông tin cơ bản",
+      "categorization": "Phân loại"
     },
     "labels": {
       "name": "Tên sản phẩm",
       "slug": "Slug (URL thân thiện)",
-      "slugHelp": "Dùng cho URL, SEO (vd: laptop-msi-gf63)",
+      "slugHelp": "Dùng cho URL, SEO (vd: yamaha-r15)",
       "sku": "SKU (Mã quản lý kho)",
-      "skuHelp": "Mã quản lý kho, không bắt buộc (vd: MSI-GF63-001)",
+      "skuHelp": "Mã quản lý kho, không bắt buộc (vd: yr15)",
       "price": "Giá (VNĐ)",
       "priceHelp": "Nhập giá bán (VD: 10000000 hoặc 10,000,000)",
       "shortDescription": "Mô tả ngắn",
       "description": "Mô tả chi tiết",
       "specifications": "Thông số kỹ thuật",
       "categories": "Danh mục",
-      "tags": "Thẻ",
+      "tags": "Thẻ từ khóa (Tags)",
       "media": "Media",
       "images": "Hình ảnh",
       "video": "Video",
@@ -61,12 +150,16 @@
       "stock": "Kho"
     },
     "placeholders": {
-      "sku": "Mã SKU sản phẩm (tùy chọn)",
+      "sku": "Mã SKU sản phẩm (không bắt buộc)",
       "price": "Nhập giá",
       "shortDescription": "Mô tả ngắn gọn (1-2 câu)",
       "description": "Mô tả chi tiết",
       "categories": "Chọn danh mục",
-      "tags": "Nhập thẻ (phân cách bởi dấu phẩy)"
+      "tags": "Nhập thẻ (phân cách bằng dấu phẩy)"
+    },
+    "specifications": {
+      "keyPlaceholder": "Tên (VD: Phân khối)",
+      "valuePlaceholder": "Giá trị (VD: 150cc)"
     },
     "actions": {
       "create": "Tạo sản phẩm",
@@ -81,12 +174,33 @@
       "clearAllFilters": "Xóa tất cả bộ lọc"
     },
     "search": {
-      "searchByName": "Tìm theo tên",
+      "searchByName": "Tìm kiếm theo tên",
       "searchPlaceholder": "Nhập tên sản phẩm...",
       "filterByCategory": "Lọc theo danh mục",
       "categoryPlaceholder": "Chọn danh mục...",
-      "showingResults": "Hiển thị {filtered} trong {total} sản phẩm",
+      "showingResults": "Hiển thị {filtered} trên {total} sản phẩm",
       "totalProducts": "Tổng {count} sản phẩm"
+    },
+    "media": {
+      "productImages": "Hình ảnh sản phẩm",
+      "demoVideo": "Video giới thiệu",
+      "existingFile": "File hiện có",
+      "addImages": "Thêm ảnh (Tối đa {max})",
+      "addVideo": "Thêm video",
+      "replaceVideo": "Thay video",
+      "preview": "Xem trước",
+      "imageHint1": "Chọn nhiều ảnh cùng lúc (tối đa {max} ảnh)",
+      "imageHint2": "Dung lượng tối đa: 5MB/ảnh",
+      "videoHint1": "Chỉ cho phép 1 video (chọn video mới sẽ thay thế video hiện tại)",
+      "videoHint2": "Dung lượng tối đa: 100MB",
+      "maxImagesError": "Tối đa {max} ảnh!",
+      "imagesAdded": "✓ Đã thêm {count} ảnh",
+      "filesExceeded": "✗ {count} file vượt quá giới hạn {max} ảnh",
+      "invalidType": "✗ {count} file không phải là ảnh",
+      "invalidSize": "✗ {count} file vượt quá 5MB",
+      "onlyVideoAllowed": "Chỉ được tải lên file video!",
+      "videoSizeLimit": "Video phải nhỏ hơn 100MB!",
+      "videoReplaced": "Đã thay video thành công!"
     },
     "messages": {
       "confirmDelete": "Bạn có chắc chắn muốn xóa {name}?",
@@ -94,19 +208,47 @@
       "deleteSuccess": "đã xóa thành công",
       "deleteFailed": "Không thể xóa sản phẩm",
       "createSuccess": "Tạo sản phẩm thành công!",
-      "updateSuccess": "Cập nhật sản phẩm thành công!"
+      "updateSuccess": "Cập nhật sản phẩm thành công!",
+      "notFound": "Không tìm thấy sản phẩm"
     }
   },
-  "category": {
-    "title": "Danh mục",
-    "create": "Tạo danh mục",
-    "edit": "Sửa danh mục",
-    "delete": "Xóa danh mục",
-    "name": "Tên danh mục",
-    "description": "Mô tả",
-    "parent": "Danh mục cha",
-    "image": "Hình ảnh",
-    "selectParent": "Chọn danh mục cha"
+  "profile": {
+    "title": "Hồ sơ công ty",
+    "labels": {
+      "companyName": "Tên công ty",
+      "phone": "Số điện thoại",
+      "address": "Địa chỉ",
+      "email": "Email",
+      "logo": "Logo công ty",
+      "currentLogo": "Logo hiện tại",
+      "username": "Tên đăng nhập"
+    },
+    "placeholders": {
+      "companyName": "Nhập tên công ty",
+      "phone": "Nhập số điện thoại",
+      "address": "Nhập địa chỉ công ty",
+      "email": "Nhập địa chỉ email"
+    },
+    "actions": {
+      "selectLogo": "Chọn ảnh logo",
+      "saveChanges": "Lưu thay đổi"
+    },
+    "messages": {
+      "updateSuccess": "Cập nhật hồ sơ thành công",
+      "updateError": "Không thể cập nhật hồ sơ",
+      "uploadError": "Không thể tải lên logo",
+      "loadingProfile": "Đang tải hồ sơ...",
+      "errorLoadingProfile": "Lỗi khi tải hồ sơ",
+      "logoHelp": "Tải lên logo mới (tối đa 2MB). Định dạng: JPG, PNG, GIF",
+      "usernameTooltip": "Không thể thay đổi tên đăng nhập",
+      "onlyImageAllowed": "Chỉ được tải lên file ảnh!",
+      "fileTooLarge": "Ảnh phải nhỏ hơn 2MB!"
+    },
+    "validation": {
+      "companyNameRequired": "Vui lòng nhập tên công ty",
+      "phoneInvalid": "Định dạng số điện thoại không hợp lệ",
+      "emailInvalid": "Định dạng email không hợp lệ"
+    }
   },
   "auth": {
     "login": "Đăng nhập",
@@ -115,14 +257,6 @@
     "password": "Mật khẩu",
     "loginButton": "Đăng nhập",
     "loginDescription": "Nhập thông tin đăng nhập để truy cập trang quản trị"
-  },
-  "profile": {
-    "title": "Hồ sơ",
-    "companyName": "Tên công ty",
-    "phone": "Số điện thoại",
-    "address": "Địa chỉ",
-    "email": "Email",
-    "logo": "Logo"
   },
   "validation": {
     "required": "{field} là bắt buộc",
@@ -135,6 +269,6 @@
     "failedToLoad": "Không thể tải dữ liệu",
     "failedToSave": "Không thể lưu",
     "failedToDelete": "Không thể xóa",
-    "networkError": "Lỗi mạng. Vui lòng thử lại."
+    "networkError": "Lỗi kết nối mạng. Vui lòng thử lại."
   }
 }

@@ -298,13 +298,13 @@ export function ProductForm({ mode, product, isLoading }: ProductFormProps) {
   }
 
   if (mode === 'edit' && !product) {
-    return <Card title="Edit Product">Product not found</Card>;
+    return <Card title={t('product.edit')}>{t('product.messages.notFound')}</Card>;
   }
 
   return (
     <Card title={mode === 'create' ? t('product.create') : `${t('product.edit')}: ${product?.name}`}>
       <Form layout="vertical" onFinish={handleSubmit(onSubmit)}>
-        <Divider orientation="left">Basic Information</Divider>
+        <Divider orientation="left">{t('product.sections.basicInfo')}</Divider>
 
         <FormInput
           name="name"
@@ -338,8 +338,8 @@ export function ProductForm({ mode, product, isLoading }: ProductFormProps) {
             <Switch
               checked={autoSlug}
               onChange={setAutoSlug}
-              checkedChildren="On"
-              unCheckedChildren="Off"
+              checkedChildren={t('product.switchOn')}
+              unCheckedChildren={t('product.switchOff')}
             />
           </Space>
         )}
@@ -417,14 +417,18 @@ export function ProductForm({ mode, product, isLoading }: ProductFormProps) {
           />
         </Form.Item>
 
-        <Divider orientation="left">Categorization</Divider>
+        <Divider orientation="left">{t('product.sections.categorization')}</Divider>
 
         <Form.Item label={t('product.labels.categories')}>
           <Controller
             name="category_ids"
             control={control}
             render={({ field }) => (
-              <CategoryMultiSelect value={field.value} onChange={field.onChange} />
+              <CategoryMultiSelect 
+                value={field.value} 
+                onChange={field.onChange}
+                placeholder={t('product.placeholders.categories')}
+              />
             )}
           />
         </Form.Item>

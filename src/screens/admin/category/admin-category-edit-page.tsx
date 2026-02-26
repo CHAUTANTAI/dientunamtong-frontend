@@ -9,6 +9,7 @@ import { useState, useEffect } from 'react';
 import { Card, Form, Input, InputNumber, Switch, Space, Divider, Spin, message } from 'antd';
 import { useRouter } from 'next/navigation';
 import { useForm, Controller, useWatch } from 'react-hook-form';
+import { useTranslations } from 'next-intl';
 import { useGetCategoryQuery, useUpdateCategoryMutation } from '@/store/api/categoryApi';
 import type { UpdateCategoryDto } from '@/types/category';
 import { ROUTES } from '@/constants/routes';
@@ -33,6 +34,7 @@ interface AdminCategoryEditPageProps {
 }
 
 export default function AdminCategoryEditPage({ categoryId }: AdminCategoryEditPageProps) {
+  const t = useTranslations();
   const router = useRouter();
   const { data: category, isLoading: isLoadingCategory } = useGetCategoryQuery(categoryId);
   const [updateCategory, { isLoading: isUpdating }] = useUpdateCategoryMutation();
@@ -82,7 +84,7 @@ export default function AdminCategoryEditPage({ categoryId }: AdminCategoryEditP
     try {
       // Validate slug
       if (!isValidSlug(values.slug)) {
-        message.error('Invalid slug format. Use lowercase letters, numbers, and hyphens only.');
+        message.error(t('category.messages.invalidSlug'));
         return;
       }
 
@@ -98,11 +100,11 @@ export default function AdminCategoryEditPage({ categoryId }: AdminCategoryEditP
 
       await updateCategory({ id: categoryId, body: dto }).unwrap();
 
-      message.success('Category updated successfully');
+      message.success(t('category.messages.updateSuccess'));
       router.push(ROUTES.CATEGORY);
     } catch (error) {
       console.error('Update category error:', error);
-      message.error(getErrorMessage(error, 'Failed to update category'));
+      message.error(getErrorMessage(error, t('category.messages.updateError')));
     }
   };
 
@@ -111,7 +113,7 @@ export default function AdminCategoryEditPage({ categoryId }: AdminCategoryEditP
       <Card>
         <div style={{ textAlign: 'center', padding: '40px 0' }}>
           <Spin size="large" />
-          <p style={{ marginTop: 16 }}>Loading category...</p>
+          <p style={{ marginTop: 16 }}>{t('category.messages.loadingCategory')}</p>
         </div>
       </Card>
     );
@@ -120,32 +122,32 @@ export default function AdminCategoryEditPage({ categoryId }: AdminCategoryEditP
   if (!category) {
     return (
       <Card>
-        <p>Category not found</p>
+        <p>{t('category.messages.notFound')}</p>
       </Card>
     );
   }
 
   return (
-    <Card title={`Edit Category: ${category.name}`}>
+    <Card title={`${t('category.edit')}: ${category.name}`}>
       <Form layout="vertical" onFinish={handleSubmit(onSubmit)}>
         {/* Name */}
         <FormInput
           name="name"
           control={control}
-          label="Category Name"
-          placeholder="Enter category name"
+          label={t('category.labels.name')}
+          placeholder={t('category.placeholders.name')}
           rules={{
-            required: 'Name is required',
+            required: t('category.validation.nameRequired'),
             maxLength: {
               value: 255,
-              message: 'Name must not exceed 255 characters',
+              message: t('category.validation.nameMaxLength'),
             },
           }}
         />
 
         {/* Slug */}
         <Form.Item
-          label="Slug (URL-friendly)"
+          label={t('category.labels.slug')}
           validateStatus={errors.slug ? 'error' : ''}
           help={errors.slug?.message}
           required
@@ -155,18 +157,18 @@ export default function AdminCategoryEditPage({ categoryId }: AdminCategoryEditP
               name="slug"
               control={control}
               rules={{
-                required: 'Slug is required',
-                validate: (value) => isValidSlug(value) || 'Invalid slug format',
+                required: t('category.validation.slugRequired'),
+                validate: (value) => isValidSlug(value) || t('category.validation.slugInvalid'),
               }}
               render={({ field }) => (
-                <Input {...field} placeholder="category-slug" disabled={autoSlug} />
+                <Input {...field} placeholder={t('category.placeholders.slug')} disabled={autoSlug} />
               )}
             />
             <Switch
               checked={autoSlug}
               onChange={setAutoSlug}
-              checkedChildren="Auto"
-              unCheckedChildren="Manual"
+              checkedChildren={t('common.auto')}
+              unCheckedChildren={t('common.manual')}
             />
           </Space>
         </Form.Item>
@@ -175,21 +177,21 @@ export default function AdminCategoryEditPage({ categoryId }: AdminCategoryEditP
         <FormInput
           name="description"
           control={control}
-          label="Description"
-          placeholder="Enter description (optional)"
+          label={t('category.labels.description')}
+          placeholder={t('category.placeholders.description')}
           textarea
           rules={{
             maxLength: {
               value: 1000,
-              message: 'Description must not exceed 1000 characters',
+              message: t('category.validation.descriptionMaxLength'),
             },
           }}
         />
 
-        <Divider>Category Settings</Divider>
+        <Divider>{t('category.labels.name')} Settings</Divider>
 
         {/* Parent Category */}
-        <Form.Item label="Parent Category">
+        <Form.Item label={t('category.labels.parent')}>
           <Controller
             name="parent_id"
             control={control}
@@ -198,14 +200,14 @@ export default function AdminCategoryEditPage({ categoryId }: AdminCategoryEditP
                 value={field.value}
                 onChange={field.onChange}
                 excludeId={categoryId} // Prevent selecting self or descendants
-                placeholder="Select parent category (optional)"
+                placeholder={t('category.placeholders.parent')}
               />
             )}
           />
         </Form.Item>
 
         {/* Category Image */}
-        <Form.Item label="Category Image">
+        <Form.Item label={t('category.labels.image')}>
           <Controller
             name="media_id"
             control={control}
@@ -220,7 +222,7 @@ export default function AdminCategoryEditPage({ categoryId }: AdminCategoryEditP
         </Form.Item>
 
         {/* Sort Order */}
-        <Form.Item label="Sort Order">
+        <Form.Item label={t('category.labels.sortOrder')}>
           <Controller
             name="sort_order"
             control={control}
@@ -231,7 +233,7 @@ export default function AdminCategoryEditPage({ categoryId }: AdminCategoryEditP
         </Form.Item>
 
         {/* Active Status */}
-        <Form.Item label="Active">
+        <Form.Item label={t('category.labels.active')}>
           <Controller
             name="is_active"
             control={control}
@@ -239,8 +241,8 @@ export default function AdminCategoryEditPage({ categoryId }: AdminCategoryEditP
               <Switch
                 checked={field.value}
                 onChange={field.onChange}
-                checkedChildren="Active"
-                unCheckedChildren="Inactive"
+                checkedChildren={t('common.active')}
+                unCheckedChildren={t('common.inactive')}
               />
             )}
           />
@@ -249,7 +251,7 @@ export default function AdminCategoryEditPage({ categoryId }: AdminCategoryEditP
         {/* Submit Button */}
         <Space>
           <FormSubmitButton isLoading={isSubmitting || isUpdating} style={{ marginTop: 16 }}>
-            Update Category
+            {t('category.actions.updateCategory')}
           </FormSubmitButton>
           <button
             type="button"
@@ -263,7 +265,7 @@ export default function AdminCategoryEditPage({ categoryId }: AdminCategoryEditP
               cursor: 'pointer',
             }}
           >
-            Cancel
+            {t('common.cancel')}
           </button>
         </Space>
       </Form>

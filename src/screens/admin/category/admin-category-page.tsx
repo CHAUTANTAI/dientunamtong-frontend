@@ -10,6 +10,7 @@ import { Button, Space, App, Modal, Descriptions, Input, Select, Card, Tag } fro
 import { PlusOutlined, SearchOutlined } from '@ant-design/icons';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { useGetCategoriesQuery, useDeleteCategoryPermanentMutation } from '@/store/api/categoryApi';
 import type { Category } from '@/types/category';
 import { ROUTES } from '@/constants/routes';
@@ -20,6 +21,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { getPermissions } from '@/utils/rbac';
 
 export default function AdminCategoryPage() {
+  const t = useTranslations();
   const router = useRouter();
   const { user } = useAuth();
   const permissions = getPermissions(user?.role || null);
@@ -131,15 +133,15 @@ export default function AdminCategoryPage() {
       console.log('[confirmDelete] Delete success');
       message.success(
         hasCascade
-          ? `Category "${categoryToDelete.name}" and ${childrenCount} subcategories deleted successfully`
-          : `Category "${categoryToDelete.name}" deleted successfully`
+          ? `${t('category.messages.deleteSuccess', { name: categoryToDelete.name })} ${t('category.messages.deleteSuccessWithChildren', { count: childrenCount })}`
+          : `${categoryToDelete.name} ${t('category.messages.deleteSuccess')}`
       );
       setIsDeleteModalOpen(false);
       setCategoryToDelete(null);
       setChildrenCount(0);
     } catch (error) {
       console.error('[confirmDelete] Delete error:', error);
-      message.error(getErrorMessage(error, 'Failed to delete category'));
+      message.error(getErrorMessage(error, t('category.messages.deleteError')));
     }
   };
 
@@ -176,7 +178,7 @@ export default function AdminCategoryPage() {
         >
           <Space wrap>
             <Input
-              placeholder="Search categories..."
+              placeholder={t('category.search.searchPlaceholder')}
               prefix={<SearchOutlined />}
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
@@ -188,15 +190,15 @@ export default function AdminCategoryPage() {
               onChange={setFilterActive}
               style={{ width: 120 }}
               options={[
-                { label: 'All', value: 'all' },
-                { label: 'Active', value: 'active' },
-                { label: 'Inactive', value: 'inactive' },
+                { label: t('common.all'), value: 'all' },
+                { label: t('common.active'), value: 'active' },
+                { label: t('common.inactive'), value: 'inactive' },
               ]}
             />
           </Space>
           <Link href={`${ROUTES.CATEGORY}/create`}>
             <Button type="primary" icon={<PlusOutlined />}>
-              Add Root Category
+              {t('category.addRootCategory')}
             </Button>
           </Link>
         </Space>
@@ -216,7 +218,7 @@ export default function AdminCategoryPage() {
 
       {/* Detail Modal */}
       <Modal
-        title="Category Details"
+        title={t('category.detail.title')}
         open={isDetailOpen}
         onCancel={() => setIsDetailOpen(false)}
         afterClose={() => setSelectedCategory(null)}
@@ -238,34 +240,34 @@ export default function AdminCategoryPage() {
               </div>
             )}
             <Descriptions bordered column={1} size="small">
-              <Descriptions.Item label="ID">{selectedCategory.id}</Descriptions.Item>
-              <Descriptions.Item label="Name">{selectedCategory.name}</Descriptions.Item>
-              <Descriptions.Item label="Slug">
+              <Descriptions.Item label={t('category.detail.id')}>{selectedCategory.id}</Descriptions.Item>
+              <Descriptions.Item label={t('category.detail.name')}>{selectedCategory.name}</Descriptions.Item>
+              <Descriptions.Item label={t('category.detail.slug')}>
                 <code>{selectedCategory.slug}</code>
               </Descriptions.Item>
-              <Descriptions.Item label="Description">
+              <Descriptions.Item label={t('category.detail.description')}>
                 {selectedCategory.description || '-'}
               </Descriptions.Item>
-              <Descriptions.Item label="Parent">
-                {selectedCategory.parent?.name || <Tag color="blue">Root</Tag>}
+              <Descriptions.Item label={t('category.detail.parent')}>
+                {selectedCategory.parent?.name || <Tag color="blue">{t('common.root')}</Tag>}
               </Descriptions.Item>
-              <Descriptions.Item label="Level">
+              <Descriptions.Item label={t('category.detail.level')}>
                 <Tag>{selectedCategory.level}</Tag>
               </Descriptions.Item>
-              <Descriptions.Item label="Sort Order">
+              <Descriptions.Item label={t('category.detail.sortOrder')}>
                 {selectedCategory.sort_order}
               </Descriptions.Item>
-              <Descriptions.Item label="Status">
+              <Descriptions.Item label={t('category.detail.status')}>
                 {selectedCategory.is_active ? (
-                  <Tag color="green">Active</Tag>
+                  <Tag color="green">{t('common.active')}</Tag>
                 ) : (
-                  <Tag color="red">Inactive</Tag>
+                  <Tag color="red">{t('common.inactive')}</Tag>
                 )}
               </Descriptions.Item>
-              <Descriptions.Item label="Created At">
+              <Descriptions.Item label={t('category.detail.createdAt')}>
                 {new Date(selectedCategory.created_at).toLocaleString()}
               </Descriptions.Item>
-              <Descriptions.Item label="Updated At">
+              <Descriptions.Item label={t('category.detail.updatedAt')}>
                 {new Date(selectedCategory.updated_at).toLocaleString()}
               </Descriptions.Item>
             </Descriptions>
@@ -275,36 +277,34 @@ export default function AdminCategoryPage() {
 
       {/* Delete Confirmation Modal */}
       <Modal
-        title={<span style={{ color: '#ff4d4f', fontWeight: 600 }}>⚠️ Delete Category</span>}
+        title={<span style={{ color: '#ff4d4f', fontWeight: 600 }}>⚠️ {t('category.delete')}</span>}
         open={isDeleteModalOpen}
         onOk={confirmDelete}
         onCancel={cancelDelete}
-        okText="Delete Permanently"
-        cancelText="Cancel"
+        okText={t('category.messages.deletePermanently')}
+        cancelText={t('common.cancel')}
         okButtonProps={{ danger: true, loading: isDeleting }}
         cancelButtonProps={{ disabled: isDeleting }}
       >
         {childrenCount > 0 ? (
           <div>
             <p style={{ marginBottom: 12 }}>
-              <strong>Warning:</strong> This category has{' '}
-              <strong style={{ color: '#ff4d4f' }}>{childrenCount} subcategories</strong>.
+              <strong>{t('category.messages.deleteWithChildrenWarning', { count: childrenCount })}</strong>
             </p>
             <p style={{ marginBottom: 12 }}>
-              Deleting <strong>{categoryToDelete?.name}</strong> will also{' '}
-              <strong>permanently remove all subcategories</strong> and their associated data.
+              {t('category.messages.deleteWithChildrenMessage', { name: categoryToDelete?.name || '' })}
             </p>
             <p style={{ marginBottom: 0, color: '#ff4d4f' }}>
-              ⚠️ This action <strong>cannot be undone</strong>. Are you sure you want to continue?
+              {t('category.messages.deleteWarning')}
             </p>
           </div>
         ) : (
           <div>
             <p style={{ marginBottom: 12 }}>
-              Are you sure you want to delete <strong>{categoryToDelete?.name}</strong>?
+              {t('category.messages.deleteConfirm', { name: categoryToDelete?.name || '' })}
             </p>
             <p style={{ marginBottom: 0, color: '#ff4d4f' }}>
-              ⚠️ This action <strong>cannot be undone</strong>.
+              {t('category.messages.deleteWarning')}
             </p>
           </div>
         )}

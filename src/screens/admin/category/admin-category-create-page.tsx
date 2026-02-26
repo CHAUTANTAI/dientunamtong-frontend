@@ -9,6 +9,7 @@ import { useState, useEffect, Suspense } from 'react';
 import { Card, Form, Input, InputNumber, Switch, Space, Divider, message, Spin } from 'antd';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useForm, Controller, useWatch } from 'react-hook-form';
+import { useTranslations } from 'next-intl';
 import { useCreateCategoryMutation } from '@/store/api/categoryApi';
 import type { CreateCategoryDto } from '@/types/category';
 import { ROUTES } from '@/constants/routes';
@@ -29,6 +30,7 @@ interface CreateCategoryFormValues {
 }
 
 function AdminCategoryCreatePageContent() {
+  const t = useTranslations();
   const router = useRouter();
   const searchParams = useSearchParams();
   const parentId = searchParams.get('parent_id');
@@ -72,7 +74,7 @@ function AdminCategoryCreatePageContent() {
     try {
       // Validate slug
       if (!isValidSlug(values.slug)) {
-        message.error('Invalid slug format. Use lowercase letters, numbers, and hyphens only.');
+        message.error(t('category.messages.invalidSlug'));
         return;
       }
 
@@ -88,36 +90,36 @@ function AdminCategoryCreatePageContent() {
 
       await createCategory(dto).unwrap();
 
-      message.success('Category created successfully');
+      message.success(t('category.messages.createSuccess'));
       reset();
       router.push(ROUTES.CATEGORY);
     } catch (error) {
       console.error('Create category error:', error);
-      message.error(getErrorMessage(error, 'Failed to create category'));
+      message.error(getErrorMessage(error, t('category.messages.createError')));
     }
   };
 
   return (
-    <Card title={parentId ? 'Create Child Category' : 'Create Root Category'}>
+    <Card title={parentId ? t('category.createChild') : t('category.createRoot')}>
       <Form layout="vertical" onFinish={handleSubmit(onSubmit)}>
         {/* Name */}
         <FormInput
           name="name"
           control={control}
-          label="Category Name"
-          placeholder="Enter category name"
+          label={t('category.labels.name')}
+          placeholder={t('category.placeholders.name')}
           rules={{
-            required: 'Name is required',
+            required: t('category.validation.nameRequired'),
             maxLength: {
               value: 255,
-              message: 'Name must not exceed 255 characters',
+              message: t('category.validation.nameMaxLength'),
             },
           }}
         />
 
         {/* Slug */}
         <Form.Item
-          label="Slug (URL-friendly)"
+          label={t('category.labels.slug')}
           validateStatus={errors.slug ? 'error' : ''}
           help={errors.slug?.message}
           required
@@ -127,18 +129,18 @@ function AdminCategoryCreatePageContent() {
               name="slug"
               control={control}
               rules={{
-                required: 'Slug is required',
-                validate: (value) => isValidSlug(value) || 'Invalid slug format',
+                required: t('category.validation.slugRequired'),
+                validate: (value) => isValidSlug(value) || t('category.validation.slugInvalid'),
               }}
               render={({ field }) => (
-                <Input {...field} placeholder="category-slug" disabled={autoSlug} />
+                <Input {...field} placeholder={t('category.placeholders.slug')} disabled={autoSlug} />
               )}
             />
             <Switch
               checked={autoSlug}
               onChange={setAutoSlug}
-              checkedChildren="Auto"
-              unCheckedChildren="Manual"
+              checkedChildren={t('common.auto')}
+              unCheckedChildren={t('common.manual')}
             />
           </Space>
         </Form.Item>
@@ -147,21 +149,21 @@ function AdminCategoryCreatePageContent() {
         <FormInput
           name="description"
           control={control}
-          label="Description"
-          placeholder="Enter description (optional)"
+          label={t('category.labels.description')}
+          placeholder={t('category.placeholders.description')}
           textarea
           rules={{
             maxLength: {
               value: 1000,
-              message: 'Description must not exceed 1000 characters',
+              message: t('category.validation.descriptionMaxLength'),
             },
           }}
         />
 
-        <Divider>Category Settings</Divider>
+        <Divider>{t('category.labels.name')}</Divider>
 
         {/* Parent Category */}
-        <Form.Item label="Parent Category">
+        <Form.Item label={t('category.labels.parent')}>
           <Controller
             name="parent_id"
             control={control}
@@ -169,14 +171,14 @@ function AdminCategoryCreatePageContent() {
               <CategorySelect
                 value={field.value}
                 onChange={field.onChange}
-                placeholder="Select parent category (optional)"
+                placeholder={t('category.placeholders.parent')}
               />
             )}
           />
         </Form.Item>
 
         {/* Category Image */}
-        <Form.Item label="Category Image">
+        <Form.Item label={t('category.labels.image')}>
           <Controller
             name="media_id"
             control={control}
@@ -187,7 +189,7 @@ function AdminCategoryCreatePageContent() {
         </Form.Item>
 
         {/* Sort Order */}
-        <Form.Item label="Sort Order">
+        <Form.Item label={t('category.labels.sortOrder')}>
           <Controller
             name="sort_order"
             control={control}
@@ -198,7 +200,7 @@ function AdminCategoryCreatePageContent() {
         </Form.Item>
 
         {/* Active Status */}
-        <Form.Item label="Active">
+        <Form.Item label={t('category.labels.active')}>
           <Controller
             name="is_active"
             control={control}
@@ -206,8 +208,8 @@ function AdminCategoryCreatePageContent() {
               <Switch
                 checked={field.value}
                 onChange={field.onChange}
-                checkedChildren="Active"
-                unCheckedChildren="Inactive"
+                checkedChildren={t('common.active')}
+                unCheckedChildren={t('common.inactive')}
               />
             )}
           />
@@ -215,7 +217,7 @@ function AdminCategoryCreatePageContent() {
 
         {/* Submit Button */}
         <FormSubmitButton isLoading={isSubmitting || isLoading} style={{ marginTop: 16 }}>
-          Create Category
+          {t('category.actions.createCategory')}
         </FormSubmitButton>
       </Form>
     </Card>

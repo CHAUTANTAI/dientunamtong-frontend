@@ -15,6 +15,7 @@
     "cancel": "Cancel",
     "close": "Close",
     "save": "Save",
+    "saveChanges": "Save Changes",
     "loading": "Loading...",
     "yes": "Yes",
     "no": "No",
@@ -22,7 +23,11 @@
     "inactive": "Inactive",
     "inStock": "In Stock",
     "outOfStock": "Out of Stock",
-    "actions": "Actions"
+    "actions": "Actions",
+    "all": "All",
+    "root": "Root",
+    "auto": "Auto",
+    "manual": "Manual"
   },
   "navigation": {
     "home": "Home",
@@ -33,20 +38,97 @@
     "settings": "Settings",
     "logout": "Logout"
   },
-  "nav": {
-    "dashboard": "Dashboard",
-    "category": "Category",
-    "product": "Product",
-    "profile": "Profile",
-    "settings": "Settings"
+  "dashboard": {
+    "welcome": "Welcome to Admin Panel",
+    "description": "Use the sidebar menu to navigate through different sections of the admin system."
+  },
+  "category": {
+    "title": "Categories",
+    "create": "Create Category",
+    "createChild": "Create Child Category",
+    "createRoot": "Create Root Category",
+    "edit": "Edit Category",
+    "delete": "Delete Category",
+    "addRootCategory": "Add Root Category",
+    "addChild": "Add Child",
+    "detail": {
+      "title": "Category Details",
+      "id": "ID",
+      "name": "Name",
+      "slug": "Slug",
+      "description": "Description",
+      "parent": "Parent",
+      "level": "Level",
+      "sortOrder": "Sort Order",
+      "status": "Status",
+      "createdAt": "Created At",
+      "updatedAt": "Updated At"
+    },
+    "labels": {
+      "name": "Category Name",
+      "slug": "Slug (URL-friendly)",
+      "description": "Description",
+      "parent": "Parent Category",
+      "image": "Category Image",
+      "sortOrder": "Sort Order",
+      "active": "Active"
+    },
+    "placeholders": {
+      "name": "Enter category name",
+      "slug": "category-slug",
+      "description": "Enter description (optional)",
+      "parent": "Select parent category (optional)",
+      "search": "Search categories..."
+    },
+    "actions": {
+      "createCategory": "Create Category",
+      "updateCategory": "Update Category",
+      "expandAll": "Expand All",
+      "collapseAll": "Collapse All",
+      "addChild": "Add child category"
+    },
+    "search": {
+      "searchPlaceholder": "Search categories...",
+      "statusFilter": "Status Filter"
+    },
+    "messages": {
+      "createSuccess": "Category created successfully",
+      "updateSuccess": "Category updated successfully",
+      "deleteSuccess": "deleted successfully",
+      "deleteSuccessWithChildren": "and {count} subcategories deleted successfully",
+      "createError": "Failed to create category",
+      "updateError": "Failed to update category",
+      "deleteError": "Failed to delete category",
+      "loadingCategory": "Loading category...",
+      "notFound": "Category not found",
+      "invalidSlug": "Invalid slug format. Use lowercase letters, numbers, and hyphens only.",
+      "deleteConfirm": "Are you sure you want to delete {name}?",
+      "deleteWarning": "⚠️ This action cannot be undone.",
+      "deleteWithChildrenWarning": "Warning: This category has {count} subcategories.",
+      "deleteWithChildrenMessage": "Deleting {name} will also permanently remove all subcategories and their associated data.",
+      "deletePermanently": "Delete Permanently"
+    },
+    "validation": {
+      "nameRequired": "Name is required",
+      "nameMaxLength": "Name must not exceed 255 characters",
+      "slugRequired": "Slug is required",
+      "slugInvalid": "Invalid slug format",
+      "descriptionMaxLength": "Description must not exceed 1000 characters"
+    }
   },
   "product": {
     "title": "Products",
     "create": "Create Product",
     "edit": "Edit Product",
     "delete": "Delete Product",
+    "switchOn": "On",
+    "switchOff": "Off",
     "detail": {
       "title": "Product Details"
+    },
+    "sections": {
+      "basicInfo": "Basic Information",
+      "categorization": "Categorization"
     },
     "labels": {
       "name": "Product Name",
@@ -75,6 +157,10 @@
       "categories": "Select categories",
       "tags": "Enter tags (comma-separated)"
     },
+    "specifications": {
+      "keyPlaceholder": "Key (e.g., CPU)",
+      "valuePlaceholder": "Value (e.g., Intel Core i7 12th Gen)"
+    },
     "actions": {
       "create": "Create Product",
       "edit": "Edit Product",
@@ -95,25 +181,74 @@
       "showingResults": "Showing {filtered} of {total} products",
       "totalProducts": "Total {count} products"
     },
+    "media": {
+      "productImages": "Product Images",
+      "demoVideo": "Demo Video",
+      "existingFile": "Existing file",
+      "addImages": "Add Images (Max {max})",
+      "addVideo": "Add Video",
+      "replaceVideo": "Replace Video",
+      "preview": "Preview",
+      "imageHint1": "Select multiple images at once (max {max} total)",
+      "imageHint2": "Max file size: 5MB per image",
+      "videoHint1": "Only 1 video allowed (selecting new video will replace current)",
+      "videoHint2": "Max file size: 100MB",
+      "maxImagesError": "Maximum {max} images allowed!",
+      "imagesAdded": "✓ Added {count} image(s)",
+      "filesExceeded": "✗ {count} file(s) exceeded the limit of {max} images",
+      "invalidType": "✗ {count} file(s) are not images",
+      "invalidSize": "✗ {count} file(s) exceed 5MB size limit",
+      "onlyVideoAllowed": "You can only upload video files!",
+      "videoSizeLimit": "Video size must be less than 100MB!",
+      "videoReplaced": "Video replaced successfully!"
+    },
     "messages": {
       "confirmDelete": "Are you sure you want to delete {name}?",
       "deleteWarning": "This action cannot be undone. All associated media files will also be deleted.",
       "deleteSuccess": "deleted successfully",
       "deleteFailed": "Failed to delete product",
       "createSuccess": "Product created successfully!",
-      "updateSuccess": "Product updated successfully!"
+      "updateSuccess": "Product updated successfully!",
+      "notFound": "Product not found"
     }
   },
-  "category": {
-    "title": "Categories",
-    "create": "Create Category",
-    "edit": "Edit Category",
-    "delete": "Delete Category",
-    "name": "Category Name",
-    "description": "Description",
-    "parent": "Parent Category",
-    "image": "Image",
-    "selectParent": "Select parent category"
+  "profile": {
+    "title": "Company Profile",
+    "labels": {
+      "companyName": "Company Name",
+      "phone": "Phone",
+      "address": "Address",
+      "email": "Email",
+      "logo": "Company Logo",
+      "currentLogo": "Current Logo",
+      "username": "Username"
+    },
+    "placeholders": {
+      "companyName": "Enter company name",
+      "phone": "Enter phone number",
+      "address": "Enter company address",
+      "email": "Enter email address"
+    },
+    "actions": {
+      "selectLogo": "Select Logo Image",
+      "saveChanges": "Save Changes"
+    },
+    "messages": {
+      "updateSuccess": "Profile updated successfully",
+      "updateError": "Failed to update profile",
+      "uploadError": "Failed to upload logo",
+      "loadingProfile": "Loading profile...",
+      "errorLoadingProfile": "Error loading profile",
+      "logoHelp": "Upload a new logo (max 2MB). Supported formats: JPG, PNG, GIF",
+      "usernameTooltip": "Username cannot be changed",
+      "onlyImageAllowed": "You can only upload image files!",
+      "fileTooLarge": "Image must be smaller than 2MB!"
+    },
+    "validation": {
+      "companyNameRequired": "Please enter company name",
+      "phoneInvalid": "Invalid phone format",
+      "emailInvalid": "Invalid email format"
+    }
   },
   "auth": {
     "login": "Login",
@@ -122,14 +257,6 @@
     "password": "Password",
     "loginButton": "Sign In",
     "loginDescription": "Enter your credentials to access the admin panel"
-  },
-  "profile": {
-    "title": "Profile",
-    "companyName": "Company Name",
-    "phone": "Phone",
-    "address": "Address",
-    "email": "Email",
-    "logo": "Logo"
   },
   "validation": {
     "required": "{field} is required",

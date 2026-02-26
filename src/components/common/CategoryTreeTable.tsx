@@ -16,6 +16,7 @@ import {
   EditOutlined,
   DeleteOutlined,
 } from '@ant-design/icons';
+import { useTranslations } from 'next-intl';
 import type { Category } from '@/types/category';
 import { buildTree, type TreeNode } from '@/utils/tree';
 
@@ -46,6 +47,7 @@ export const CategoryTreeTable = ({
   isDeleting,
   canDelete = true,
 }: CategoryTreeTableProps) => {
+  const t = useTranslations();
   const [expandedKeys, setExpandedKeys] = useState<Set<string>>(new Set());
 
   // Debug log
@@ -122,13 +124,13 @@ export const CategoryTreeTable = ({
       {
         title: (
           <Space>
-            <span>Name</span>
+            <span>{t('category.detail.name')}</span>
             <Space size="small">
               <Button type="link" size="small" onClick={expandAll}>
-                Expand All
+                {t('category.actions.expandAll')}
               </Button>
               <Button type="link" size="small" onClick={collapseAll}>
-                Collapse All
+                {t('category.actions.collapseAll')}
               </Button>
             </Space>
           </Space>
@@ -169,22 +171,22 @@ export const CategoryTreeTable = ({
         },
       },
       {
-        title: 'Status',
+        title: t('category.detail.status'),
         dataIndex: 'is_active',
         key: 'is_active',
         width: 100,
         align: 'center',
         render: (value: boolean) =>
-          value ? <Tag color="green">Active</Tag> : <Tag color="red">Inactive</Tag>,
+          value ? <Tag color="green">{t('common.active')}</Tag> : <Tag color="red">{t('common.inactive')}</Tag>,
       },
       {
-        title: 'Actions',
+        title: t('common.actions'),
         key: 'actions',
         width: 200,
         align: 'center',
         render: (_, record: FlattenedCategory) => (
           <Space size="small">
-            <Tooltip title="Add child category">
+            <Tooltip title={t('category.actions.addChild')}>
               <Button
                 type="default"
                 size="small"
@@ -192,7 +194,7 @@ export const CategoryTreeTable = ({
                 onClick={() => onAddChild(record)}
               />
             </Tooltip>
-            <Tooltip title="View details">
+            <Tooltip title={t('common.view')}>
               <Button
                 type="default"
                 size="small"
@@ -200,7 +202,7 @@ export const CategoryTreeTable = ({
                 onClick={() => onView(record)}
               />
             </Tooltip>
-            <Tooltip title="Edit">
+            <Tooltip title={t('common.edit')}>
               <Button
                 type="default"
                 size="small"
@@ -209,7 +211,7 @@ export const CategoryTreeTable = ({
               />
             </Tooltip>
             {canDelete && (
-              <Tooltip title="Delete">
+              <Tooltip title={t('common.delete')}>
                 <Button
                   danger
                   size="small"
@@ -227,6 +229,7 @@ export const CategoryTreeTable = ({
       },
     ],
     [
+      t,
       expandedKeys,
       canDelete,
       isDeleting,

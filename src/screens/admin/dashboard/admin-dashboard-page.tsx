@@ -6,13 +6,16 @@
 'use client';
 
 import { Card } from 'antd';
+import { useTranslations } from 'next-intl';
 
 export default function DashboardPage() {
+  const t = useTranslations();
+
   return (
     <>
       <Card>
-        <h3>Welcome to Admin Panel</h3>
-        <p>Use the sidebar menu to navigate through different sections of the admin system.</p>
+        <h3>{t('dashboard.welcome')}</h3>
+        <p>{t('dashboard.description')}</p>
       </Card>
     </>
   );

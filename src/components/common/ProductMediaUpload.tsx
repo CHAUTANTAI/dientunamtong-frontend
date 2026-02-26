@@ -14,6 +14,7 @@ import {
   VideoCameraOutlined,
   FileImageOutlined,
 } from '@ant-design/icons';
+import { useTranslations } from 'next-intl';
 import { ProductImage } from './ProductImage';
 import { useSignedImageUrl } from '@/hooks/useSignedImageUrl';
 
@@ -123,6 +124,7 @@ export const ProductMediaUpload = ({
   maxImages = 9,
   maxVideos = 1,
 }: ProductMediaUploadProps) => {
+  const t = useTranslations();
   const { message } = App.useApp();
   const fileList = value;
   const [previewOpen, setPreviewOpen] = useState(false);
@@ -153,7 +155,7 @@ export const ProductMediaUpload = ({
       const availableSlots = maxImages - currentImageCount;
 
       if (availableSlots <= 0) {
-        message.error(`Maximum ${maxImages} images allowed!`);
+        message.error(t('product.media.maxImagesError', { max: maxImages }));
         // Clear after delay
         setTimeout(() => {
           processedBatchRef.current.delete(batchId);
@@ -193,19 +195,19 @@ export const ProductMediaUpload = ({
       const messages: string[] = [];
       
       if (filesToAdd.length > 0) {
-        messages.push(`✓ Added ${filesToAdd.length} image(s)`);
+        messages.push(t('product.media.imagesAdded', { count: filesToAdd.length }));
       }
       
       if (filesExceeded > 0) {
-        messages.push(`✗ ${filesExceeded} file(s) exceeded the limit of ${maxImages} images`);
+        messages.push(t('product.media.filesExceeded', { count: filesExceeded, max: maxImages }));
       }
       
       if (invalidTypeCount > 0) {
-        messages.push(`✗ ${invalidTypeCount} file(s) are not images`);
+        messages.push(t('product.media.invalidType', { count: invalidTypeCount }));
       }
       
       if (invalidSizeCount > 0) {
-        messages.push(`✗ ${invalidSizeCount} file(s) exceed 5MB size limit`);
+        messages.push(t('product.media.invalidSize', { count: invalidSizeCount }));
       }
 
       // Display appropriate message
@@ -237,13 +239,13 @@ export const ProductMediaUpload = ({
     const isVideo = file.type.startsWith('video/');
 
     if (!isVideo) {
-      message.error('You can only upload video files!');
+      message.error(t('product.media.onlyVideoAllowed'));
       return false;
     }
 
     // Check file size
     if (file.size > 100 * 1024 * 1024) {
-      message.error('Video size must be less than 100MB!');
+      message.error(t('product.media.videoSizeLimit'));
       return false;
     }
 
@@ -261,7 +263,7 @@ export const ProductMediaUpload = ({
     onChange?.(updated);
 
     if (videos.length > 0) {
-      message.success('Video replaced successfully!');
+      message.success(t('product.media.videoReplaced'));
     }
 
     return false; // Prevent auto upload
@@ -300,7 +302,7 @@ export const ProductMediaUpload = ({
         {/* Images Section */}
         <div>
           <div style={{ marginBottom: 8, fontWeight: 500 }}>
-            Product Images ({images.length}/{maxImages})
+            {t('product.media.productImages')} ({images.length}/{maxImages})
           </div>
 
           {images.length > 0 && (
@@ -324,7 +326,7 @@ export const ProductMediaUpload = ({
                     <Card.Meta
                       description={
                         <span style={{ fontSize: 11 }}>
-                          {file.file?.name || 'Existing file'}
+                          {file.file?.name || t('product.media.existingFile')}
                         </span>
                       }
                     />
@@ -343,14 +345,14 @@ export const ProductMediaUpload = ({
               multiple
             >
               <Button icon={<PlusOutlined />} block>
-                Add Images (Max {maxImages})
+                {t('product.media.addImages', { max: maxImages })}
               </Button>
             </Upload>
           )}
 
           <div style={{ fontSize: 12, color: '#999', marginTop: 8 }}>
-            • Select multiple images at once (max {maxImages} total)
-            <br />• Max file size: 5MB per image
+            • {t('product.media.imageHint1', { max: maxImages })}
+            <br />• {t('product.media.imageHint2')}
           </div>
         </div>
 
@@ -359,7 +361,7 @@ export const ProductMediaUpload = ({
         {/* Video Section */}
         <div>
           <div style={{ marginBottom: 8, fontWeight: 500 }}>
-            Demo Video ({videos.length}/{maxVideos})
+            {t('product.media.demoVideo')} ({videos.length}/{maxVideos})
           </div>
 
           {videos.length > 0 && (
@@ -383,9 +385,9 @@ export const ProductMediaUpload = ({
                     <Card.Meta
                       description={
                         <Space direction="vertical" size={0}>
-                          <Tag color="green">VIDEO</Tag>
+                          <Tag color="green">{t('product.labels.video')}</Tag>
                           <span style={{ fontSize: 11 }}>
-                            {file.file?.name || 'Existing file'}
+                            {file.file?.name || t('product.media.existingFile')}
                           </span>
                         </Space>
                       }
@@ -403,13 +405,13 @@ export const ProductMediaUpload = ({
             disabled={disabled}
           >
             <Button icon={<VideoCameraOutlined />} block>
-              {videos.length > 0 ? 'Replace Video' : 'Add Video'}
+              {videos.length > 0 ? t('product.media.replaceVideo') : t('product.media.addVideo')}
             </Button>
           </Upload>
 
           <div style={{ fontSize: 12, color: '#999', marginTop: 8 }}>
-            • Only 1 video allowed (selecting new video will replace current)
-            <br />• Max file size: 100MB
+            • {t('product.media.videoHint1')}
+            <br />• {t('product.media.videoHint2')}
           </div>
         </div>
       </Space>
@@ -439,6 +441,7 @@ const PreviewModal = ({
   type: 'image' | 'video';
   onClose: () => void;
 }) => {
+  const t = useTranslations();
   // If URL is a relative path (from backend), convert to signed URL
   // If URL is a data URL (from FileReader), use as is
   const isDataUrl = url.startsWith('data:');
@@ -446,17 +449,17 @@ const PreviewModal = ({
   const displayUrl = isDataUrl ? url : signedUrl;
 
   return (
-    <Modal open={open} title="Preview" footer={null} onCancel={onClose} width={800}>
+    <Modal open={open} title={t('product.media.preview')} footer={null} onCancel={onClose} width={800}>
       {type === 'image' ? (
         displayUrl ? (
-          <ProductImage imageUrl={displayUrl} alt="Preview" width="100%" />
+          <ProductImage imageUrl={displayUrl} alt={t('product.media.preview')} width="100%" />
         ) : (
-          <div>Loading...</div>
+          <div>{t('common.loading')}</div>
         )
       ) : displayUrl ? (
         <video src={displayUrl} controls style={{ width: '100%', maxHeight: '80vh' }} />
       ) : (
-        <div>Loading...</div>
+        <div>{t('common.loading')}</div>
       )}
     </Modal>
   );
