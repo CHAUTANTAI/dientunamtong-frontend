@@ -27,13 +27,16 @@
     "all": "Tất cả",
     "root": "Gốc",
     "auto": "Tự động",
-    "manual": "Thủ công"
+    "manual": "Thủ công",
+    "noTitle": "Không có tiêu đề",
+    "noLink": "Không có liên kết"
   },
   "navigation": {
     "home": "Trang chủ",
     "dashboard": "Bảng điều khiển",
     "categories": "Danh mục",
     "products": "Sản phẩm",
+    "banners": "Banner",
     "profile": "Hồ sơ",
     "settings": "Cài đặt",
     "logout": "Đăng xuất"
@@ -269,6 +272,58 @@
     "password": "Mật khẩu",
     "loginButton": "Đăng nhập",
     "loginDescription": "Nhập thông tin đăng nhập để truy cập trang quản trị"
+  },
+  "banner": {
+    "list": "Quản lý Banner",
+    "create": "Tạo Banner",
+    "edit": "Sửa Banner",
+    "addBanner": "Thêm Banner",
+    "noBanners": "Chưa có banner nào",
+    "maxBannersReached": "Đã đạt tối đa {max} banner ({current}/{max}). Tăng giới hạn hoặc xóa banner hiện có để thêm mới.",
+    "deleteConfirm": "Xóa Banner",
+    "deleteDescription": "Bạn có chắc muốn xóa banner này? Hành động này không thể hoàn tác.",
+    "table": {
+      "image": "Hình ảnh",
+      "title": "Tiêu đề",
+      "link": "Liên kết",
+      "order": "Thứ tự",
+      "status": "Trạng thái",
+      "actions": "Thao tác"
+    },
+    "form": {
+      "image": "Hình ảnh Banner",
+      "uploadImage": "Tải lên hình ảnh",
+      "title": "Tiêu đề",
+      "titlePlaceholder": "Nhập tiêu đề banner (tùy chọn)",
+      "linkUrl": "Đường dẫn",
+      "linkUrlPlaceholder": "https://example.com (không bắt buộc)",
+      "linkUrlInvalid": "Vui lòng nhập URL hợp lệ",
+      "sortOrder": "Thứ tự hiển thị",
+      "sortOrderPlaceholder": "Chọn thứ tự hiển thị",
+      "sortOrderRequired": "Vui lòng chọn thứ tự hiển thị",
+      "sortOrderOption": "Vị trí {value}",
+      "status": "Trạng thái"
+    },
+    "messages": {
+      "createSuccess": "Tạo banner thành công",
+      "createFailed": "Tạo banner thất bại",
+      "updateSuccess": "Cập nhật banner thành công",
+      "updateFailed": "Cập nhật banner thất bại",
+      "deleteSuccess": "Xóa banner thành công",
+      "deleteFailed": "Xóa banner thất bại",
+      "reorderSuccess": "Cập nhật thứ tự banner thành công",
+      "reorderFailed": "Cập nhật thứ tự banner thất bại",
+      "imageRequired": "Vui lòng tải lên hình ảnh banner",
+      "onlyImageAllowed": "Chỉ cho phép tải lên file hình ảnh",
+      "imageSizeLimit": "Kích thước hình ảnh không được vượt quá 25MB",
+      "maxBannersUpdateSuccess": "Cập nhật giới hạn banner thành công",
+      "maxBannersUpdateFailed": "Cập nhật giới hạn banner thất bại"
+    },
+    "maxBannersLabel": "Giới hạn số Banner",
+    "saveMaxBanners": "Lưu giới hạn",
+    "saveSortOrder": "Lưu thứ tự",
+    "changesCount": "thay đổi",
+    "maxBannersValidationError": "Không thể đặt giới hạn là {max}. Hiện có {current} banner. Vui lòng xóa banner trước."
   },
   "validation": {
     "required": "{field} là bắt buộc",

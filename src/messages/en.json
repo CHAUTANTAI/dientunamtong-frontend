@@ -27,13 +27,16 @@
     "all": "All",
     "root": "Root",
     "auto": "Auto",
-    "manual": "Manual"
+    "manual": "Manual",
+    "noTitle": "No Title",
+    "noLink": "No Link"
   },
   "navigation": {
     "home": "Home",
     "dashboard": "Dashboard",
     "categories": "Categories",
     "products": "Products",
+    "banners": "Banners",
     "profile": "Profile",
     "settings": "Settings",
     "logout": "Logout"
@@ -269,6 +272,58 @@
     "password": "Password",
     "loginButton": "Sign In",
     "loginDescription": "Enter your credentials to access the admin panel"
+  },
+  "banner": {
+    "list": "Banner Management",
+    "create": "Create Banner",
+    "edit": "Edit Banner",
+    "addBanner": "Add Banner",
+    "noBanners": "No banners yet",
+    "maxBannersReached": "Maximum {max} banners reached ({current}/{max}). Increase the limit or delete existing banners to add more.",
+    "deleteConfirm": "Delete Banner",
+    "deleteDescription": "Are you sure you want to delete this banner? This action cannot be undone.",
+    "table": {
+      "image": "Image",
+      "title": "Title",
+      "link": "Link URL",
+      "order": "Order",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "form": {
+      "image": "Banner Image",
+      "uploadImage": "Upload Image",
+      "title": "Title",
+      "titlePlaceholder": "Enter banner title (optional)",
+      "linkUrl": "Link URL",
+      "linkUrlPlaceholder": "https://example.com (optional)",
+      "linkUrlInvalid": "Please enter a valid URL",
+      "sortOrder": "Display Order",
+      "sortOrderPlaceholder": "Select display order",
+      "sortOrderRequired": "Please select a display order",
+      "sortOrderOption": "Position {value}",
+      "status": "Status"
+    },
+    "messages": {
+      "createSuccess": "Banner created successfully",
+      "createFailed": "Failed to create banner",
+      "updateSuccess": "Banner updated successfully",
+      "updateFailed": "Failed to update banner",
+      "deleteSuccess": "Banner deleted successfully",
+      "deleteFailed": "Failed to delete banner",
+      "reorderSuccess": "Banner order updated",
+      "reorderFailed": "Failed to reorder banners",
+      "imageRequired": "Please upload a banner image",
+      "onlyImageAllowed": "Only image files are allowed",
+      "imageSizeLimit": "Image size must not exceed 25MB",
+      "maxBannersUpdateSuccess": "Max banners setting updated successfully",
+      "maxBannersUpdateFailed": "Failed to update max banners setting"
+    },
+    "maxBannersLabel": "Max Banners Limit",
+    "saveMaxBanners": "Save Limit",
+    "saveSortOrder": "Save Order",
+    "changesCount": "changes",
+    "maxBannersValidationError": "Cannot set max banners to {max}. Current banner count is {current}. Please delete banners first."
   },
   "validation": {
     "required": "{field} is required",

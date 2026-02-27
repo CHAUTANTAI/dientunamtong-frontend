@@ -19,7 +19,7 @@ export const profileApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ['Profile'],
+  tagTypes: ['Profile', 'MaxBanners'],
   endpoints: (builder) => ({
     getProfile: builder.query<Profile, void>({
       query: () => API_PROFILE,
@@ -35,7 +35,26 @@ export const profileApi = createApi({
       transformResponse: (response: ApiResponse<Profile>) => response.data,
       invalidatesTags: ['Profile'],
     }),
+    getMaxBanners: builder.query<{ max_banners: number }, void>({
+      query: () => `${API_PROFILE}/max-banners`,
+      transformResponse: (response: ApiResponse<{ max_banners: number }>) => response.data,
+      providesTags: ['MaxBanners'],
+    }),
+    updateMaxBanners: builder.mutation<{ max_banners: number; current_count: number }, { max_banners: number }>({
+      query: (body) => ({
+        url: `${API_PROFILE}/max-banners`,
+        method: 'PUT',
+        body,
+      }),
+      transformResponse: (response: ApiResponse<{ max_banners: number; current_count: number }>) => response.data,
+      invalidatesTags: ['MaxBanners'],
+    }),
   }),
 });
 
-export const { useGetProfileQuery, useUpdateProfileMutation } = profileApi;
+export const { 
+  useGetProfileQuery, 
+  useUpdateProfileMutation,
+  useGetMaxBannersQuery,
+  useUpdateMaxBannersMutation 
+} = profileApi;

@@ -9,6 +9,7 @@ import {
   AppstoreOutlined,
   ShoppingOutlined,
   UserOutlined,
+  PictureOutlined,
 } from '@ant-design/icons';
 import { ROUTES } from './routes';
 import { UserRole } from '@/types/auth';
@@ -46,6 +47,14 @@ export const ADMIN_MENU_ITEMS: AdminMenuItem[] = [
     labelKey: 'navigation.products',
     href: ROUTES.PRODUCT,
     icon: <ShoppingOutlined />,
+    minRole: UserRole.MANAGER,
+  },
+  {
+    key: 'banner',
+    label: 'Banners',
+    labelKey: 'navigation.banners',
+    href: ROUTES.BANNER,
+    icon: <PictureOutlined />,
     minRole: UserRole.MANAGER,
   },
   {

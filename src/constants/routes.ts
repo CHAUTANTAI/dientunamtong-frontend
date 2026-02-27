@@ -11,6 +11,7 @@ export const ROUTES = {
   DASHBOARD: '/admin/dashboard',
   CATEGORY: '/admin/category',
   PRODUCT: '/admin/product',
+  BANNER: '/admin/banner',
   PROFILE: '/admin/profile',
 
   ADMIN_ROOT: '/',
@@ -59,6 +60,18 @@ export const ADMIN_ROUTES: AdminRoute[] = [
     label: 'Create Product',
     labelKey: 'product.create',
     parent: '/admin/product',
+  },
+  {
+    path: '/admin/banner',
+    label: 'Banner',
+    labelKey: 'navigation.banners',
+    parent: '/admin',
+  },
+  {
+    path: '/admin/banner/create',
+    label: 'Create Banner',
+    labelKey: 'banner.create',
+    parent: '/admin/banner',
   },
   {
     path: '/admin/profile',
