@@ -84,18 +84,62 @@ export const AdminBannerFormPage = () => {
     }
   };
 
-  const beforeUpload = (file: File) => {
+  const beforeUpload = async (file: File) => {
     const isImage = file.type.startsWith('image/');
     if (!isImage) {
       message.error(t('banner.messages.onlyImageAllowed'));
-      return false;
+      return Upload.LIST_IGNORE;
     }
     const isLt25M = file.size / 1024 / 1024 < 25;
     if (!isLt25M) {
       message.error(t('banner.messages.imageSizeLimit'));
-      return false;
+      return Upload.LIST_IGNORE;
     }
-    return false; // Prevent auto upload
+
+    // Validate image dimensions - REQUIRED
+    return new Promise<boolean | typeof Upload.LIST_IGNORE>((resolve) => {
+      const img = new window.Image();
+      const reader = new FileReader();
+
+      reader.onload = (e) => {
+        img.src = e.target?.result as string;
+      };
+
+      img.onload = () => {
+        const width = img.width;
+        const height = img.height;
+        const ratio = width / height;
+
+        // REQUIRED: Minimum dimensions
+        if (width < 1200) {
+          message.error(t('banner.messages.imageWidthTooSmall', { width }));
+          resolve(Upload.LIST_IGNORE);
+          return;
+        }
+
+        if (height < 300) {
+          message.error(t('banner.messages.imageHeightTooSmall', { height }));
+          resolve(Upload.LIST_IGNORE);
+          return;
+        }
+
+        // WARNING only: Aspect ratio recommendation (still allow upload)
+        if (ratio < 2 || ratio > 4) {
+          message.warning(
+            t('banner.messages.imageRatioWarning', { ratio: ratio.toFixed(2) })
+          );
+        }
+
+        resolve(false); // Prevent auto upload but allow file selection
+      };
+
+      img.onerror = () => {
+        message.error('Failed to load image');
+        resolve(Upload.LIST_IGNORE);
+      };
+
+      reader.readAsDataURL(file);
+    });
   };
 
   const handleSubmit = async (values: {
@@ -107,13 +151,17 @@ export const AdminBannerFormPage = () => {
     try {
       setUploading(true);
       let mediaId = banner?.media_id;
+      console.log('🎯 [1] Initial mediaId:', mediaId);
+      console.log('🎯 [2] imageFile:', imageFile);
 
       // Upload new image if provided
       if (imageFile?.originFileObj) {
+        console.log('🎯 [3] Uploading new image...');
         const file = imageFile.originFileObj as File;
 
         // Upload to Supabase
         const { path } = await uploadToSupabase(file, 'banner-images');
+        console.log('🎯 [4] Uploaded to Storage:', path);
 
         // Create media record
         const mediaRecord = await createMedia({
@@ -122,8 +170,10 @@ export const AdminBannerFormPage = () => {
           file_size: file.size,
           media_type: MediaType.IMAGE,
         }).unwrap();
+        console.log('🎯 [5] Created media record:', mediaRecord);
 
         mediaId = mediaRecord.id;
+        console.log('🎯 [6] New mediaId:', mediaId);
       }
 
       if (!mediaId) {
@@ -138,6 +188,9 @@ export const AdminBannerFormPage = () => {
         sort_order: values.sort_order ?? 0,
         is_active: values.is_active ?? true,
       };
+
+      console.log('🎯 [7] Submitting DTO:', dto);
+      console.log('🎯 [8] isEditMode:', isEditMode);
 
       if (isEditMode) {
         await updateBanner({ id: bannerId!, dto }).unwrap();
@@ -203,6 +256,18 @@ export const AdminBannerFormPage = () => {
               </div>
             )}
           </Upload>
+          <div style={{ marginTop: 8, fontSize: 12, color: '#666' }}>
+            <div style={{ fontWeight: 500, marginBottom: 4 }}>
+              📏 {t('banner.form.imageRequirements')}
+            </div>
+            <ul style={{ margin: 0, paddingLeft: 20 }}>
+              <li><strong>{t('banner.form.recommendedSize')}</strong></li>
+              <li>{t('banner.form.minimumSize')}</li>
+              <li>{t('banner.form.aspectRatio')}</li>
+              <li>{t('banner.form.maxFileSize')}</li>
+              <li>{t('banner.form.supportedFormats')}</li>
+            </ul>
+          </div>
           {!isEditMode && !imageFile && (
             <div style={{ color: '#ff4d4f', marginTop: 8 }}>
               {t('banner.messages.imageRequired')}

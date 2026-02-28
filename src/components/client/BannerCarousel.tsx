@@ -66,20 +66,7 @@ export default function BannerCarousel() {
   }
 
   if (!banners || banners.length === 0) {
-    return (
-      <div
-        style={{
-          width: '100%',
-          height: '400px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          backgroundColor: '#f0f0f0',
-        }}
-      >
-        <Empty description="No banners available" />
-      </div>
-    );
+    return null;
   }
 
   // Filter active banners and sort by sort_order
@@ -88,20 +75,7 @@ export default function BannerCarousel() {
     .sort((a, b) => a.sort_order - b.sort_order);
 
   if (activeBanners.length === 0) {
-    return (
-      <div
-        style={{
-          width: '100%',
-          height: '400px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          backgroundColor: '#f0f0f0',
-        }}
-      >
-        <Empty description="No active banners" />
-      </div>
-    );
+    return null;
   }
 
   return (

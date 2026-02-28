@@ -148,11 +148,13 @@
     "labels": {
       "name": "Product Name",
       "slug": "Slug (URL-friendly)",
-      "slugHelp": "For URL, SEO (e.g., laptop-msi-gf63)",
+      "slugHelp": "For URL, SEO (e.g., den-pha-led-winner-x)",
       "sku": "SKU (Stock Keeping Unit)",
-      "skuHelp": "Inventory code, optional (e.g., MSI-GF63-001)",
+      "skuHelp": "Inventory code, optional (e.g., LED-WIN-001)",
       "price": "Price (VNĐ)",
       "priceHelp": "Enter product price (e.g., 10000000 or 10,000,000)",
+      "contactForPrice": "Contact for price",
+      "contactForPriceLabel": "Leave price empty (show 'Contact for price')",
       "shortDescription": "Short Description",
       "description": "Full Description",
       "specifications": "Technical Specifications",
@@ -162,7 +164,13 @@
       "images": "Images",
       "video": "Video",
       "status": "Status",
-      "stock": "Stock"
+      "stock": "Stock",
+      "featuredImage": "Featured Image (Required)",
+      "featuredImageHint": "This image will be shown as the main product image",
+      "additionalImages": "Additional Images",
+      "additionalImagesHint": "Drag and drop to reorder images",
+      "maxFileSize": "Max file size: 25MB",
+      "maxFileSizePerImage": "Max file size: 25MB per image"
     },
     "placeholders": {
       "sku": "Product SKU (optional)",
@@ -170,7 +178,7 @@
       "shortDescription": "Brief description (1-2 sentences)",
       "description": "Detailed description",
       "categories": "Select categories",
-      "tags": "Enter tags (comma-separated)"
+      "tags": "led, headlight, winner-x (comma-separated)"
     },
     "specifications": {
       "keyPlaceholder": "Key (e.g., CPU)",
@@ -226,7 +234,8 @@
       "deleteFailed": "Failed to delete product",
       "createSuccess": "Product created successfully!",
       "updateSuccess": "Product updated successfully!",
-      "notFound": "Product not found"
+      "notFound": "Product not found",
+      "featuredImageRequired": "Please select a featured image"
     }
   },
   "profile": {
@@ -304,7 +313,13 @@
       "sortOrderPlaceholder": "Select display order",
       "sortOrderRequired": "Please select a display order",
       "sortOrderOption": "Position {value}",
-      "status": "Status"
+      "status": "Status",
+      "imageRequirements": "Image Requirements:",
+      "recommendedSize": "Recommended: 1200x400 pixels (3:1 ratio)",
+      "minimumSize": "Minimum: 1200px wide, 300px tall",
+      "aspectRatio": "Aspect ratio: Between 2:1 and 4:1 for best display",
+      "maxFileSize": "Max file size: 25MB",
+      "supportedFormats": "Format: JPG, PNG, GIF, WebP"
     },
     "messages": {
       "createSuccess": "Banner created successfully",
@@ -318,6 +333,9 @@
       "imageRequired": "Please upload a banner image",
       "onlyImageAllowed": "Only image files are allowed",
       "imageSizeLimit": "Image size must not exceed 25MB",
+      "imageWidthTooSmall": "Banner width must be at least 1200px (current: {width}px)",
+      "imageHeightTooSmall": "Banner height must be at least 300px (current: {height}px)",
+      "imageRatioWarning": "Banner aspect ratio is {ratio}:1. Recommended: 3:1 (1200x400) for best display. Your image may be cropped.",
       "maxBannersUpdateSuccess": "Max banners setting updated successfully",
       "maxBannersUpdateFailed": "Failed to update max banners setting"
     },

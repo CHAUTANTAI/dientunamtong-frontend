@@ -10,11 +10,17 @@ export interface PublicCategory {
   name: string;
   slug: string;
   description?: string;
-  image_url?: string;
+  media_id?: string;
   is_active: boolean;
   level: number;
+  view_count: number;
   created_at: string;
   updated_at: string;
+  media?: {
+    id: string;
+    file_url: string;
+    alt_text?: string;
+  };
 }
 
 export const publicCategoryApi = createApi({

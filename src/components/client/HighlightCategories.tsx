@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { useGetPublicCategoriesQuery } from '@/store/services/publicCategoryApi';
 import { useSignedImageUrl } from '@/hooks/useSignedImageUrl';
+import { useViewTracker } from '@/hooks/useViewTracker';
 import { ROUTES } from '@/constants/routes';
 
 const { Title, Text } = Typography;
@@ -20,42 +21,62 @@ interface CategoryCardProps {
 
 const CategoryCard = ({ id, name, imageUrl, description }: CategoryCardProps) => {
   const signedUrl = useSignedImageUrl(imageUrl || '');
+  const { trackView } = useViewTracker();
+
+  const handleClick = () => {
+    trackView(id, 'category');
+  };
 
   return (
-    <Link href={`${ROUTES.CATEGORIES}/${id}`} style={{ textDecoration: 'none' }}>
+    <Link href={`${ROUTES.CATEGORIES}/${id}`} style={{ textDecoration: 'none' }} onClick={handleClick}>
       <Card
         hoverable
-        cover={
-          signedUrl ? (
-            <div style={{ position: 'relative', width: '100%', height: 200 }}>
+        style={{ height: '100%' }}
+      >
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          {signedUrl ? (
+            <div style={{ 
+              position: 'relative', 
+              width: '100%', 
+              height: 150,
+              borderRadius: 8,
+              overflow: 'hidden',
+              backgroundColor: '#f5f5f5',
+            }}>
               <Image
                 src={signedUrl}
                 alt={name}
                 fill
-                style={{ objectFit: 'cover' }}
+                style={{ objectFit: 'contain' }}
               />
             </div>
           ) : (
             <div
               style={{
                 width: '100%',
-                height: 200,
+                height: 150,
                 backgroundColor: '#f0f0f0',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
+                borderRadius: 8,
               }}
             >
               <Text type="secondary">No Image</Text>
             </div>
-          )
-        }
-        style={{ height: '100%' }}
-      >
-        <Card.Meta
-          title={name}
-          description={description ? (description.length > 60 ? `${description.substring(0, 60)}...` : description) : ''}
-        />
+          )}
+          
+          <div>
+            <Title level={5} style={{ margin: 0, marginBottom: 4 }}>
+              {name}
+            </Title>
+            {description && (
+              <Text type="secondary" style={{ fontSize: 13 }}>
+                {description.length > 60 ? `${description.substring(0, 60)}...` : description}
+              </Text>
+            )}
+          </div>
+        </div>
       </Card>
     </Link>
   );
@@ -84,9 +105,9 @@ export default function HighlightCategories() {
     );
   }
 
-  // Filter active categories and take first 6
+  // Filter active root categories (level = 0) and take first 6
   const activeCategories = categories
-    .filter((cat) => cat.is_active)
+    .filter((cat) => cat.is_active && cat.level === 0)
     .slice(0, 6);
 
   if (activeCategories.length === 0) {
@@ -118,7 +139,7 @@ export default function HighlightCategories() {
             <CategoryCard
               id={category.id}
               name={category.name}
-              imageUrl={category.image_url}
+              imageUrl={category.media?.file_url}
               description={category.description}
             />
           </Col>

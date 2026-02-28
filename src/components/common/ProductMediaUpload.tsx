@@ -496,7 +496,7 @@ export const ProductMediaUpload = ({
         <div>
           <div style={{ marginBottom: 8, fontWeight: 500, display: 'flex', alignItems: 'center', gap: 8 }}>
             <StarFilled style={{ color: '#faad14' }} />
-            Featured Image (Required)
+            {t('product.labels.featuredImage')}
           </div>
 
           {featuredImage ? (
@@ -538,8 +538,8 @@ export const ProductMediaUpload = ({
           )}
 
           <div style={{ fontSize: 12, color: '#999', marginTop: 8 }}>
-            • This image will be shown as the main product image
-            <br />• Max file size: 25MB
+            • {t('product.labels.featuredImageHint')}
+            <br />• {t('product.labels.maxFileSize')}
           </div>
         </div>
 
@@ -548,7 +548,7 @@ export const ProductMediaUpload = ({
         {/* Additional Images Section with Drag & Drop */}
         <div>
           <div style={{ marginBottom: 8, fontWeight: 500 }}>
-            Additional Images ({otherImages.length}/{maxImages - 1})
+            {t('product.labels.additionalImages')} ({otherImages.length}/{maxImages - 1})
           </div>
 
           {otherImages.length > 0 && (
@@ -591,8 +591,8 @@ export const ProductMediaUpload = ({
           )}
 
           <div style={{ fontSize: 12, color: '#999', marginTop: 8 }}>
-            • Drag and drop to reorder images
-            <br />• Max file size: 25MB per image
+            • {t('product.labels.additionalImagesHint')}
+            <br />• {t('product.labels.maxFileSizePerImage')}
           </div>
         </div>
 

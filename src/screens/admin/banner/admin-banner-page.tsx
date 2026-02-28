@@ -37,10 +37,8 @@ export const AdminBannerPage = () => {
 
   // Sync localBanners with fetched banners
   useEffect(() => {
-    if (banners.length > 0) {
-      setLocalBanners(banners);
-      setPendingSortOrders(new Map()); // Clear pending changes when data refreshes
-    }
+    setLocalBanners(banners);
+    setPendingSortOrders(new Map()); // Clear pending changes when data refreshes
   }, [banners]);
 
   // Sync maxBannersValue with fetched data

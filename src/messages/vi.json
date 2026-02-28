@@ -148,11 +148,13 @@
     "labels": {
       "name": "Tên sản phẩm",
       "slug": "Slug (URL thân thiện)",
-      "slugHelp": "Dùng cho URL, SEO (vd: yamaha-r15)",
+      "slugHelp": "Dùng cho URL, SEO (vd: den-pha-led-winner-x)",
       "sku": "SKU (Mã quản lý kho)",
-      "skuHelp": "Mã quản lý kho, không bắt buộc (vd: yr15)",
+      "skuHelp": "Mã quản lý kho, không bắt buộc (vd: LED-WIN-001)",
       "price": "Giá (VNĐ)",
       "priceHelp": "Nhập giá bán (VD: 10000000 hoặc 10,000,000)",
+      "contactForPrice": "Giá cả liên hệ",
+      "contactForPriceLabel": "Để trống giá (hiện 'Giá cả liên hệ')",
       "shortDescription": "Mô tả ngắn",
       "description": "Mô tả chi tiết",
       "specifications": "Thông số kỹ thuật",
@@ -162,7 +164,13 @@
       "images": "Hình ảnh",
       "video": "Video",
       "status": "Trạng thái",
-      "stock": "Kho"
+      "stock": "Kho",
+      "featuredImage": "Hình ảnh đại diện (Bắt buộc)",
+      "featuredImageHint": "Hình ảnh này sẽ được hiển thị làm ảnh chính của sản phẩm",
+      "additionalImages": "Hình ảnh bổ sung",
+      "additionalImagesHint": "Kéo thả để sắp xếp lại thứ tự hình ảnh",
+      "maxFileSize": "Kích thước tối đa: 25MB",
+      "maxFileSizePerImage": "Kích thước tối đa: 25MB mỗi ảnh"
     },
     "placeholders": {
       "sku": "Mã SKU sản phẩm (không bắt buộc)",
@@ -170,7 +178,7 @@
       "shortDescription": "Mô tả ngắn gọn (1-2 câu)",
       "description": "Mô tả chi tiết",
       "categories": "Chọn danh mục",
-      "tags": "Nhập thẻ (phân cách bằng dấu phẩy)"
+      "tags": "đèn pha, led, winner-x (phân cách bằng dấu phẩy)"
     },
     "specifications": {
       "keyPlaceholder": "Tên (VD: Phân khối)",
@@ -226,7 +234,8 @@
       "deleteFailed": "Không thể xóa sản phẩm",
       "createSuccess": "Tạo sản phẩm thành công!",
       "updateSuccess": "Cập nhật sản phẩm thành công!",
-      "notFound": "Không tìm thấy sản phẩm"
+      "notFound": "Không tìm thấy sản phẩm",
+      "featuredImageRequired": "Vui lòng chọn ảnh đại diện (Featured Image)"
     }
   },
   "profile": {
@@ -304,7 +313,13 @@
       "sortOrderPlaceholder": "Chọn thứ tự hiển thị",
       "sortOrderRequired": "Vui lòng chọn thứ tự hiển thị",
       "sortOrderOption": "Vị trí {value}",
-      "status": "Trạng thái"
+      "status": "Trạng thái",
+      "imageRequirements": "Yêu cầu hình ảnh:",
+      "recommendedSize": "Khuyến nghị: 1200x400 pixels (tỷ lệ 3:1)",
+      "minimumSize": "Tối thiểu: Rộng 1200px, cao 300px",
+      "aspectRatio": "Tỷ lệ khung hình: Từ 2:1 đến 4:1 để hiển thị tốt nhất",
+      "maxFileSize": "Dung lượng tối đa: 25MB",
+      "supportedFormats": "Định dạng: JPG, PNG, GIF, WebP"
     },
     "messages": {
       "createSuccess": "Tạo banner thành công",
@@ -318,6 +333,9 @@
       "imageRequired": "Vui lòng tải lên hình ảnh banner",
       "onlyImageAllowed": "Chỉ cho phép tải lên file hình ảnh",
       "imageSizeLimit": "Kích thước hình ảnh không được vượt quá 25MB",
+      "imageWidthTooSmall": "Độ rộng banner phải tối thiểu 1200px (hiện tại: {width}px)",
+      "imageHeightTooSmall": "Chiều cao banner phải tối thiểu 300px (hiện tại: {height}px)",
+      "imageRatioWarning": "Tỷ lệ banner là {ratio}:1. Khuyến nghị: 3:1 (1200x400) để hiển thị tốt nhất. Hình ảnh của bạn có thể bị cắt.",
       "maxBannersUpdateSuccess": "Cập nhật giới hạn banner thành công",
       "maxBannersUpdateFailed": "Cập nhật giới hạn banner thất bại"
     },

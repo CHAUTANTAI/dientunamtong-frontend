@@ -47,6 +47,8 @@ export const API_BANNER_REORDER = '/admin/banner/reorder';
 export const API_PUBLIC_BANNERS = '/public/banner';
 export const API_PUBLIC_CATEGORIES = '/public/category';
 export const API_PUBLIC_CATEGORY_DETAIL = (id: string) => `/public/category/${id}`;
+export const API_PUBLIC_CATEGORY_VIEW = (id: string) => `/public/category/${id}/view`;
 export const API_PUBLIC_PRODUCTS = '/public/product';
 export const API_PUBLIC_PRODUCT_DETAIL = (id: string) => `/public/product/${id}`;
+export const API_PUBLIC_PRODUCT_VIEW = (id: string) => `/public/product/${id}/view`;
 export const API_PUBLIC_PROFILE = '/public/profile';

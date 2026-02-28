@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { useGetPublicProductsQuery } from '@/store/services/publicProductApi';
 import { useSignedImageUrl } from '@/hooks/useSignedImageUrl';
+import { useViewTracker } from '@/hooks/useViewTracker';
 import { ROUTES } from '@/constants/routes';
 
 const { Title, Text } = Typography;
@@ -14,13 +15,15 @@ const { Title, Text } = Typography;
 interface ProductCardProps {
   id: string;
   name: string;
-  price: number;
+  price: number | null;
   imageUrl?: string;
   inStock: boolean;
 }
 
 const ProductCard = ({ id, name, price, imageUrl, inStock }: ProductCardProps) => {
+  const t = useTranslations('product.labels');
   const signedUrl = useSignedImageUrl(imageUrl || '');
+  const { trackView } = useViewTracker();
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('vi-VN', {
@@ -29,18 +32,31 @@ const ProductCard = ({ id, name, price, imageUrl, inStock }: ProductCardProps) =
     }).format(price);
   };
 
+  const handleClick = () => {
+    trackView(id, 'product');
+  };
+
   return (
-    <Link href={`${ROUTES.PRODUCTS}/${id}`} style={{ textDecoration: 'none' }}>
+    <Link href={`${ROUTES.PRODUCTS}/${id}`} style={{ textDecoration: 'none' }} onClick={handleClick}>
       <Card
         hoverable
-        cover={
-          signedUrl ? (
-            <div style={{ position: 'relative', width: '100%', height: 200 }}>
+        style={{ height: '100%' }}
+      >
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          {signedUrl ? (
+            <div style={{ 
+              position: 'relative', 
+              width: '100%', 
+              height: 150,
+              borderRadius: 8,
+              overflow: 'hidden',
+              backgroundColor: '#f5f5f5',
+            }}>
               <Image
                 src={signedUrl}
                 alt={name}
                 fill
-                style={{ objectFit: 'cover' }}
+                style={{ objectFit: 'contain' }}
               />
               {!inStock && (
                 <div
@@ -58,29 +74,27 @@ const ProductCard = ({ id, name, price, imageUrl, inStock }: ProductCardProps) =
             <div
               style={{
                 width: '100%',
-                height: 200,
+                height: 150,
                 backgroundColor: '#f0f0f0',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
+                borderRadius: 8,
               }}
             >
               <Text type="secondary">No Image</Text>
             </div>
-          )
-        }
-        style={{ height: '100%' }}
-      >
-        <Card.Meta
-          title={name}
-          description={
-            <div>
-              <Text strong style={{ fontSize: 16, color: '#ff4d4f' }}>
-                {formatPrice(price)}
-              </Text>
-            </div>
-          }
-        />
+          )}
+          
+          <div>
+            <Title level={5} style={{ margin: 0, marginBottom: 4 }}>
+              {name}
+            </Title>
+            <Text strong style={{ fontSize: 16, color: '#ff4d4f' }}>
+              {price ? formatPrice(price) : t('contactForPrice')}
+            </Text>
+          </div>
+        </div>
       </Card>
     </Link>
   );

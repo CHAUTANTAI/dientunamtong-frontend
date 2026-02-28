@@ -32,6 +32,7 @@ interface ProductFormValues {
   slug: string;
   sku?: string;
   price?: number;
+  contactForPrice?: boolean;
   short_description?: string;
   description?: string;
   specifications?: Record<string, string>;
@@ -76,6 +77,7 @@ export function ProductForm({ mode, product, isLoading }: ProductFormProps) {
       slug: '',
       sku: '',
       price: undefined,
+      contactForPrice: true,
       short_description: '',
       description: '',
       specifications: {},
@@ -88,6 +90,7 @@ export function ProductForm({ mode, product, isLoading }: ProductFormProps) {
   });
 
   const nameValue = watch('name');
+  const contactForPriceValue = watch('contactForPrice');
 
   // Load existing data for edit mode
   useEffect(() => {
@@ -108,6 +111,7 @@ export function ProductForm({ mode, product, isLoading }: ProductFormProps) {
         slug: product.slug,
         sku: product.sku || '',
         price: product.price ? Number(product.price) : undefined,
+        contactForPrice: !product.price,
         short_description: product.short_description || '',
         description: product.description || '',
         specifications: product.specifications || {},
@@ -137,6 +141,13 @@ export function ProductForm({ mode, product, isLoading }: ProductFormProps) {
         return;
       }
 
+      // Validate featured image (required)
+      const hasFeaturedImage = values.media.some(m => m.sort_order === 0);
+      if (!hasFeaturedImage) {
+        message.error(t('product.messages.featuredImageRequired'));
+        return;
+      }
+
       const tags = values.tags
         ? values.tags.split(',').map((t) => t.trim()).filter(Boolean)
         : [];
@@ -147,7 +158,7 @@ export function ProductForm({ mode, product, isLoading }: ProductFormProps) {
           name: values.name,
           slug: values.slug,
           sku: values.sku || undefined,
-          price: values.price || null,
+          price: values.contactForPrice ? null : (values.price || null),
           short_description: values.short_description || null,
           description: values.description || null,
           specifications: values.specifications || {},
@@ -205,7 +216,7 @@ export function ProductForm({ mode, product, isLoading }: ProductFormProps) {
           name: values.name,
           slug: values.slug,
           sku: values.sku || undefined,
-          price: values.price || null,
+          price: values.contactForPrice ? null : (values.price || null),
           short_description: values.short_description || null,
           description: values.description || null,
           specifications: values.specifications || {},
@@ -359,34 +370,56 @@ export function ProductForm({ mode, product, isLoading }: ProductFormProps) {
         />
 
         <Form.Item label={t('product.labels.price')} help={t('product.labels.priceHelp')}>
-          <Controller
-            name="price"
-            control={control}
-            render={({ field }) => (
-              <InputNumber
-                {...field}
-                min={0}
-                precision={0}
-                controls={false}
-                style={{ width: '100%' }}
-                placeholder={t('product.placeholders.price')}
-                formatter={(value) => {
-                  if (!value) return '';
-                  return `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-                }}
-                parser={(value) => {
-                  if (!value) return 0;
-                  const cleaned = value.replace(/,/g, '').replace(/[^\d.]/g, '');
-                  const parts = cleaned.split('.');
-                  if (parts.length > 1) {
-                    return Number(parts[0]);
-                  }
-                  const parsed = Number(cleaned);
-                  return isNaN(parsed) ? 0 : parsed;
-                }}
-              />
-            )}
-          />
+          <Space direction="vertical" style={{ width: '100%' }}>
+            <Controller
+              name="contactForPrice"
+              control={control}
+              render={({ field }) => (
+                <Space>
+                  <Switch
+                    {...field}
+                    checked={field.value}
+                    onChange={(checked) => {
+                      field.onChange(checked);
+                      if (checked) {
+                        setValue('price', undefined);
+                      }
+                    }}
+                  />
+                  <span>{t('product.labels.contactForPriceLabel')}</span>
+                </Space>
+              )}
+            />
+            <Controller
+              name="price"
+              control={control}
+              render={({ field }) => (
+                <InputNumber
+                  {...field}
+                  disabled={contactForPriceValue}
+                  min={0}
+                  precision={0}
+                  controls={false}
+                  style={{ width: '100%' }}
+                  placeholder={contactForPriceValue ? t('product.labels.contactForPrice') : t('product.placeholders.price')}
+                  formatter={(value) => {
+                    if (!value) return '';
+                    return `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+                  }}
+                  parser={(value) => {
+                    if (!value) return 0;
+                    const cleaned = value.replace(/,/g, '').replace(/[^\d.]/g, '');
+                    const parts = cleaned.split('.');
+                    if (parts.length > 1) {
+                      return Number(parts[0]);
+                    }
+                    const parsed = Number(cleaned);
+                    return isNaN(parsed) ? 0 : parsed;
+                  }}
+                />
+              )}
+            />
+          </Space>
         </Form.Item>
 
         <FormInput
