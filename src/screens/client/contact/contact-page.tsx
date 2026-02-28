@@ -61,6 +61,7 @@ export default function ContactPage() {
     handleSubmit,
     reset,
     setValue,
+    watch,
     formState: { errors },
   } = useForm<ContactFormValues>({
     defaultValues: {
@@ -70,6 +71,9 @@ export default function ContactPage() {
       message: '',
     },
   });
+
+  const emailValue = watch('email');
+  const phoneValue = watch('phone');
 
   // Debug logs
   useEffect(() => {
@@ -151,16 +155,21 @@ export default function ContactPage() {
                 label={t('client.contact.email')}
                 validateStatus={errors.email ? 'error' : ''}
                 help={errors.email?.message}
-                required
               >
                 <Controller
                   name="email"
                   control={control}
                   rules={{
-                    required: t('client.contact.emailRequired'),
-                    pattern: {
-                      value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                      message: t('client.contact.invalidEmail'),
+                    validate: (value) => {
+                      // If no phone, email is required
+                      if (!phoneValue && !value) {
+                        return t('client.contact.emailOrPhoneRequired');
+                      }
+                      // If email is provided, validate format
+                      if (value && !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(value)) {
+                        return t('client.contact.invalidEmail');
+                      }
+                      return true;
                     },
                   }}
                   render={({ field }) => <Input {...field} size="large" placeholder={t('client.contact.enterEmail')} />}
@@ -172,12 +181,19 @@ export default function ContactPage() {
                 label={t('client.contact.phone')}
                 validateStatus={errors.phone ? 'error' : ''}
                 help={errors.phone?.message}
-                required
               >
                 <Controller
                   name="phone"
                   control={control}
-                  rules={{ required: t('client.contact.phoneRequired') }}
+                  rules={{
+                    validate: (value) => {
+                      // If no email, phone is required
+                      if (!emailValue && !value) {
+                        return t('client.contact.emailOrPhoneRequired');
+                      }
+                      return true;
+                    },
+                  }}
                   render={({ field }) => (
                     <Input {...field} size="large" placeholder={t('client.contact.enterPhone')} />
                   )}

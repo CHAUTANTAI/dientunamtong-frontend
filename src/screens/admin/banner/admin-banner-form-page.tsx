@@ -53,7 +53,8 @@ export const AdminBannerFormPage = () => {
       form.setFieldValue('sort_order', sortOrderData.default);
       hasSetDefaultSortOrder.current = true;
     }
-  }, [sortOrderData, isEditMode, form]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sortOrderData, isEditMode]);
 
   useEffect(() => {
     if (isEditMode && banner) {
@@ -64,7 +65,8 @@ export const AdminBannerFormPage = () => {
         is_active: banner.is_active,
       });
     }
-  }, [banner, isEditMode, form]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [banner, isEditMode]);
 
   const handleImageChange: UploadProps['onChange'] = ({ fileList }) => {
     if (fileList.length > 0) {

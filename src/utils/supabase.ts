@@ -109,6 +109,28 @@ export interface SupabaseUploadResult {
 }
 
 /**
+ * Sanitize filename to remove invalid characters
+ * @param filename - Original filename
+ * @returns Sanitized filename safe for storage
+ */
+const sanitizeFilename = (filename: string): string => {
+  // Replace spaces with underscores
+  let sanitized = filename.replace(/\s+/g, '_');
+  
+  // Remove or replace special characters that might cause issues
+  // Keep: letters, numbers, dots, hyphens, underscores
+  sanitized = sanitized.replace(/[^\w\-._]/g, '');
+  
+  // Remove consecutive underscores
+  sanitized = sanitized.replace(/_+/g, '_');
+  
+  // Remove leading/trailing underscores
+  sanitized = sanitized.replace(/^_+|_+$/g, '');
+  
+  return sanitized;
+};
+
+/**
  * Upload file to Supabase Storage
  * @param file - File to upload
  * @param folder - Folder name (e.g., 'product', 'category', 'profile')
@@ -132,9 +154,10 @@ export const uploadToSupabase = async (
     throw new Error('Folder is required');
   }
 
-  // Generate file name if not provided
-  const fileName = options?.fileName || `${Date.now()}_${file.name}`;
-  const filePath = `${folder}/${fileName}`;
+  // Generate file name if not provided, and sanitize it
+  const originalFileName = options?.fileName || `${Date.now()}_${file.name}`;
+  const sanitizedFileName = sanitizeFilename(originalFileName);
+  const filePath = `${folder}/${sanitizedFileName}`;
 
   // Upload to Supabase Storage
   const { data, error } = await supabase.storage.from('content').upload(filePath, file, {

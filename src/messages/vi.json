@@ -16,6 +16,7 @@
     "close": "Đóng",
     "save": "Lưu",
     "saveChanges": "Lưu thay đổi",
+    "back": "Quay lại",
     "loading": "Đang tải...",
     "yes": "Có",
     "no": "Không",
@@ -29,7 +30,27 @@
     "auto": "Tự động",
     "manual": "Thủ công",
     "noTitle": "Không có tiêu đề",
-    "noLink": "Không có liên kết"
+    "noLink": "Không có liên kết",
+    "results": "kết quả",
+    "sortNewest": "Mới nhất",
+    "sortPopular": "Phổ biến nhất",
+    "sortPriceAsc": "Giá: Thấp đến Cao",
+    "sortPriceDesc": "Giá: Cao đến Thấp",
+    "sortName": "Tên: A-Z",
+    "open": "Mở cửa",
+    "closed": "Đóng cửa",
+    "from": "Từ",
+    "to": "Đến",
+    "everyday": "Hàng ngày",
+    "days": {
+      "monday": "Thứ Hai",
+      "tuesday": "Thứ Ba",
+      "wednesday": "Thứ Tư",
+      "thursday": "Thứ Năm",
+      "friday": "Thứ Sáu",
+      "saturday": "Thứ Bảy",
+      "sunday": "Chủ Nhật"
+    }
   },
   "navigation": {
     "home": "Trang chủ",
@@ -51,6 +72,7 @@
     "title": "Danh mục",
     "create": "Tạo danh mục",
     "createChild": "Tạo danh mục con",
+    "editTitle": "Sửa danh mục",
     "createRoot": "Tạo danh mục",
     "edit": "Sửa danh mục",
     "delete": "Xóa danh mục",
@@ -135,6 +157,7 @@
     "title": "Sản phẩm",
     "create": "Tạo sản phẩm",
     "edit": "Sửa sản phẩm",
+    "editTitle": "Sửa sản phẩm",
     "delete": "Xóa sản phẩm",
     "switchOn": "Bật",
     "switchOff": "Tắt",
@@ -228,6 +251,7 @@
       "videoReplaced": "Đã thay video thành công!"
     },
     "messages": {
+      "loading": "Đang tải...",
       "confirmDelete": "Bạn có chắc chắn muốn xóa {name}?",
       "deleteWarning": "Hành động này không thể hoàn tác. Tất cả media liên quan cũng sẽ bị xóa.",
       "deleteSuccess": "đã xóa thành công",
@@ -297,6 +321,7 @@
     "list": "Quản lý Banner",
     "create": "Tạo Banner",
     "edit": "Sửa Banner",
+    "editTitle": "Sửa Banner",
     "addBanner": "Thêm Banner",
     "noBanners": "Chưa có banner nào",
     "maxBannersReached": "Đã đạt tối đa {max} banner ({current}/{max}). Tăng giới hạn hoặc xóa banner hiện có để thêm mới.",
@@ -393,6 +418,7 @@
       "openInGoogleMaps": "Mở trong Google Maps",
       "interestedInProduct": "Quan tâm đến sản phẩm",
       "nameRequired": "Vui lòng nhập tên",
+      "emailOrPhoneRequired": "Vui lòng cung cấp email hoặc số điện thoại",
       "emailRequired": "Vui lòng nhập email",
       "invalidEmail": "Email không hợp lệ",
       "phoneRequired": "Vui lòng nhập số điện thoại",
@@ -416,44 +442,53 @@
       "address": "Địa chỉ"
     }
   },
-  "common": {
-    "all": "Tất cả",
-    "search": "Tìm kiếm",
-    "results": "kết quả",
-    "sortNewest": "Mới nhất",
-    "sortPopular": "Phổ biến nhất",
-    "sortPriceAsc": "Giá: Thấp đến Cao",
-    "sortPriceDesc": "Giá: Cao đến Thấp",
-    "sortName": "Tên: A-Z",
-    "active": "Hoạt động",
-    "inactive": "Không hoạt động",
-    "noTitle": "Không có tiêu đề",
-    "noLink": "Không có liên kết",
-    "view": "Xem",
-    "edit": "Sửa",
-    "delete": "Xóa",
-    "auto": "Tự động",
-    "manual": "Thủ công",
-    "cancel": "Hủy",
-    "actions": "Thao tác",
-    "close": "Đóng",
-    "inStock": "Còn hàng",
-    "outOfStock": "Hết hàng",
-    "create": "Tạo mới",
-    "update": "Cập nhật",
-    "open": "Mở cửa",
-    "closed": "Đóng cửa",
-    "from": "Từ",
-    "to": "Đến",
-    "everyday": "Hàng ngày",
-    "days": {
-      "monday": "Thứ Hai",
-      "tuesday": "Thứ Ba",
-      "wednesday": "Thứ Tư",
-      "thursday": "Thứ Năm",
-      "friday": "Thứ Sáu",
-      "saturday": "Thứ Bảy",
-      "sunday": "Chủ Nhật"
+  "adminContact": {
+    "title": "Quản lý Liên hệ",
+    "viewContactDetails": "Xem chi tiết liên hệ",
+    "list": {
+      "title": "Tất cả Liên hệ",
+      "noContacts": "Không tìm thấy liên hệ nào"
+    },
+    "table": {
+      "name": "Họ tên",
+      "email": "Email",
+      "phone": "Điện thoại",
+      "product": "Sản phẩm",
+      "status": "Trạng thái",
+      "createdAt": "Ngày tạo",
+      "actions": "Thao tác"
+    },
+    "status": {
+      "new": "Mới",
+      "processing": "Đang xử lý",
+      "completed": "Hoàn thành",
+      "cancelled": "Đã hủy",
+      "filterAll": "Tất cả trạng thái",
+      "filterNew": "Mới",
+      "filterProcessing": "Đang xử lý",
+      "filterCompleted": "Hoàn thành",
+      "filterCancelled": "Đã hủy"
+    },
+    "details": {
+      "title": "Chi tiết Liên hệ",
+      "name": "Họ tên",
+      "email": "Email",
+      "phone": "Điện thoại",
+      "address": "Địa chỉ",
+      "message": "Tin nhắn",
+      "product": "Sản phẩm liên quan",
+      "status": "Trạng thái",
+      "createdAt": "Ngày tạo",
+      "updatedAt": "Cập nhật lần cuối",
+      "updateStatus": "Cập nhật trạng thái",
+      "deleteContact": "Xóa liên hệ"
+    },
+    "actions": {
+      "updateSuccess": "Cập nhật trạng thái liên hệ thành công",
+      "updateFailed": "Cập nhật trạng thái liên hệ thất bại",
+      "deleteSuccess": "Xóa liên hệ thành công",
+      "deleteFailed": "Xóa liên hệ thất bại",
+      "confirmDelete": "Bạn có chắc chắn muốn xóa liên hệ này?"
     }
   }
 }

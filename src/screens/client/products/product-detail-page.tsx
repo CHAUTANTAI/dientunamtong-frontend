@@ -201,11 +201,7 @@ export default function ProductDetailPage({ productId }: ProductDetailPageProps)
                   }}
                 >
                   {sortedMedia[currentMediaIndex]?.media_type === 'video' ? (
-                    <video
-                      src={sortedMedia[currentMediaIndex]?.file_url}
-                      controls
-                      style={{ width: '100%', height: '100%', objectFit: 'contain' }}
-                    />
+                    <MediaVideo fileUrl={sortedMedia[currentMediaIndex]?.file_url || ''} />
                   ) : (
                     <MediaImage
                       fileUrl={sortedMedia[currentMediaIndex]?.file_url || ''}
@@ -276,21 +272,23 @@ export default function ProductDetailPage({ productId }: ProductDetailPageProps)
         <Col xs={24} md={12}>
           <Card>
             <Space direction="vertical" size="large" style={{ width: '100%' }}>
-              {/* Product Name */}
+              {/* Product Name and Status */}
               <div>
                 <Title level={2} style={{ marginBottom: 8 }}>
                   {product.name}
                 </Title>
                 {product.sku && <Text type="secondary">SKU: {product.sku}</Text>}
+                
+                {/* Status Tags - moved here, closer to name */}
+                <div style={{ marginTop: 8 }}>
+                  <Space>
+                    {product.is_active && (
+                      <Tag color="green">{t('common.active')}</Tag>
+                    )}
+                    {!product.in_stock && <Tag color="red">{t('common.outOfStock')}</Tag>}
+                  </Space>
+                </div>
               </div>
-
-              {/* Status Tags */}
-              <Space>
-                {product.is_active && (
-                  <Tag color="green">{t('common.active')}</Tag>
-                )}
-                {!product.in_stock && <Tag color="red">{t('common.outOfStock')}</Tag>}
-              </Space>
 
               {/* Price */}
               <div>
@@ -320,18 +318,6 @@ export default function ProductDetailPage({ productId }: ProductDetailPageProps)
                           {cat.name}
                         </Link>
                       </Tag>
-                    ))}
-                  </Space>
-                </div>
-              )}
-
-              {/* Tags */}
-              {product.tags && product.tags.length > 0 && (
-                <div>
-                  <Title level={5}>{t('product.labels.tags')}</Title>
-                  <Space wrap>
-                    {product.tags.map((tag) => (
-                      <Tag key={tag}>{tag}</Tag>
                     ))}
                   </Space>
                 </div>
@@ -417,4 +403,34 @@ function MediaImage({ fileUrl, alt }: { fileUrl: string; alt: string }) {
   }
 
   return <Image src={signedUrl} alt={alt} fill style={{ objectFit: 'contain' }} />;
+}
+
+// Helper component to handle signed URL for videos
+function MediaVideo({ fileUrl }: { fileUrl: string }) {
+  const signedUrl = useSignedImageUrl(fileUrl);
+
+  if (!signedUrl) {
+    return (
+      <div
+        style={{
+          width: '100%',
+          height: '100%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: '#f0f0f0',
+        }}
+      >
+        <Spin />
+      </div>
+    );
+  }
+
+  return (
+    <video
+      src={signedUrl}
+      controls
+      style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+    />
+  );
 }

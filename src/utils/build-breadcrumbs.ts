@@ -10,6 +10,34 @@ export const buildBreadcrumbs = (pathname: string) => {
   
   // If no exact match, try to match dynamic routes
   if (!current) {
+    // Handle contact detail route: /admin/contact/[id]
+    if (pathname.startsWith('/admin/contact/') && pathname.split('/').length === 4) {
+      return [
+        {
+          title: 'Contact',
+          href: '/admin/contact',
+        },
+        {
+          title: 'Contact Details',
+          href: pathname,
+        },
+      ];
+    }
+
+    // Handle banner detail route: /admin/banner/[id]
+    if (pathname.startsWith('/admin/banner/') && pathname.split('/').length === 4) {
+      return [
+        {
+          title: 'Banner',
+          href: '/admin/banner',
+        },
+        {
+          title: 'Edit Banner',
+          href: pathname,
+        },
+      ];
+    }
+
     // Handle dynamic edit routes: /admin/category/[id]/edit or /admin/product/[id]/edit
     const editMatch = pathname.match(/^\/admin\/(category|product)\/[^/]+\/edit$/);
     if (editMatch) {

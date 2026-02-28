@@ -51,7 +51,6 @@ export default function ClientHeader() {
       style={{
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'center',
         backgroundColor: '#fff',
         borderBottom: '1px solid #f0f0f0',
         padding: '0 16px',
@@ -66,7 +65,6 @@ export default function ClientHeader() {
       <div
         style={{
           width: '100%',
-          maxWidth: 1200,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',

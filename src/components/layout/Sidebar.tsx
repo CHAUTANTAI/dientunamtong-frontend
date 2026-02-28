@@ -5,13 +5,14 @@
 
 'use client';
 
-import { Layout, Menu, Typography, Button, Image, Drawer } from 'antd';
+import { Layout, Menu, Typography, Button, Image, Drawer, Badge } from 'antd';
 import { LeftOutlined, RightOutlined, CloseOutlined } from '@ant-design/icons';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { ADMIN_MENU_ITEMS } from '@/constants/menu';
 import { useGetProfileQuery } from '@/store/api/profileApi';
+import { useGetUnreadCountQuery } from '@/store/api/contactApi';
 import { useSignedImageUrl } from '@/hooks/useSignedImageUrl';
 import { useAuth } from '@/hooks/useAuth';
 import { hasMinimumRole, hasAnyRole } from '@/utils/rbac';
@@ -42,6 +43,9 @@ export const Sidebar = ({
   const { data: profile } = useGetProfileQuery();
   const signedLogoUrl = useSignedImageUrl(profile?.logo || '');
 
+  // Fetch unread contact count
+  const { data: unreadCount = 0 } = useGetUnreadCountQuery();
+
   // Filter menu items based on user role
   const visibleMenuItems = ADMIN_MENU_ITEMS.filter((item) => {
     if (!user) return false;
@@ -61,11 +65,29 @@ export const Sidebar = ({
   });
 
   // Convert menu items to format compatible with Ant Design Menu
-  const menuItems: MenuProps['items'] = visibleMenuItems.map((item) => ({
-    key: item.key,
-    label: item.href ? <Link href={item.href as string}>{t(item.labelKey)}</Link> : t(item.labelKey),
-    icon: item.icon,
-  }));
+  const menuItems: MenuProps['items'] = visibleMenuItems.map((item) => {
+    const label = item.href ? <Link href={item.href as string}>{t(item.labelKey)}</Link> : t(item.labelKey);
+    
+    // Add badge for contact menu item if there are unread contacts
+    if (item.key === 'contact' && unreadCount > 0) {
+      return {
+        key: item.key,
+        label: (
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+            {label}
+            <Badge count={unreadCount} style={{ marginLeft: 8 }} />
+          </div>
+        ),
+        icon: item.icon,
+      };
+    }
+    
+    return {
+      key: item.key,
+      label,
+      icon: item.icon,
+    };
+  });
 
   // Determine selected menu key based on current pathname
   const selectedKey =

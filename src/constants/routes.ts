@@ -19,6 +19,7 @@ export const ROUTES = {
   CATEGORY: '/admin/category',
   PRODUCT: '/admin/product',
   BANNER: '/admin/banner',
+  CONTACT_ADMIN: '/admin/contact',
   PROFILE: '/admin/profile',
 
   ADMIN_ROOT: '/admin',
@@ -75,6 +76,12 @@ export const ADMIN_ROUTES: AdminRoute[] = [
     label: 'Create Banner',
     labelKey: 'banner.create',
     parent: '/admin/banner',
+  },
+  {
+    path: '/admin/contact',
+    label: 'Contact',
+    labelKey: 'navigation.contact',
+    parent: '/admin',
   },
   {
     path: '/admin/profile',

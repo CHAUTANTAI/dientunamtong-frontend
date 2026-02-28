@@ -16,6 +16,7 @@
     "close": "Close",
     "save": "Save",
     "saveChanges": "Save Changes",
+    "back": "Back",
     "loading": "Loading...",
     "yes": "Yes",
     "no": "No",
@@ -29,7 +30,27 @@
     "auto": "Auto",
     "manual": "Manual",
     "noTitle": "No Title",
-    "noLink": "No Link"
+    "noLink": "No Link",
+    "results": "results",
+    "sortNewest": "Newest",
+    "sortPopular": "Most Popular",
+    "sortPriceAsc": "Price: Low to High",
+    "sortPriceDesc": "Price: High to Low",
+    "sortName": "Name: A-Z",
+    "open": "Open",
+    "closed": "Closed",
+    "from": "From",
+    "to": "To",
+    "everyday": "Everyday",
+    "days": {
+      "monday": "Monday",
+      "tuesday": "Tuesday",
+      "wednesday": "Wednesday",
+      "thursday": "Thursday",
+      "friday": "Friday",
+      "saturday": "Saturday",
+      "sunday": "Sunday"
+    }
   },
   "navigation": {
     "home": "Home",
@@ -51,6 +72,7 @@
     "title": "Categories",
     "create": "Create Category",
     "createChild": "Create Child Category",
+    "editTitle": "Edit Category",
     "createRoot": "Create Root Category",
     "edit": "Edit Category",
     "delete": "Delete Category",
@@ -135,6 +157,7 @@
     "title": "Products",
     "create": "Create Product",
     "edit": "Edit Product",
+    "editTitle": "Edit Product",
     "delete": "Delete Product",
     "switchOn": "On",
     "switchOff": "Off",
@@ -228,6 +251,7 @@
       "videoReplaced": "Video replaced successfully!"
     },
     "messages": {
+      "loading": "Loading...",
       "confirmDelete": "Are you sure you want to delete {name}?",
       "deleteWarning": "This action cannot be undone. All associated media files will also be deleted.",
       "deleteSuccess": "deleted successfully",
@@ -297,6 +321,7 @@
     "list": "Banner Management",
     "create": "Create Banner",
     "edit": "Edit Banner",
+    "editTitle": "Edit Banner",
     "addBanner": "Add Banner",
     "noBanners": "No banners yet",
     "maxBannersReached": "Maximum {max} banners reached ({current}/{max}). Increase the limit or delete existing banners to add more.",
@@ -394,6 +419,7 @@
       "businessHours": "Business Hours",
       "interestedInProduct": "Interested in product",
       "nameRequired": "Name is required",
+      "emailOrPhoneRequired": "Please provide either email or phone number",
       "emailRequired": "Email is required",
       "invalidEmail": "Invalid email address",
       "phoneRequired": "Phone number is required",
@@ -417,44 +443,53 @@
       "address": "Address"
     }
   },
-  "common": {
-    "all": "All",
-    "search": "Search",
-    "results": "results",
-    "sortNewest": "Newest",
-    "sortPopular": "Most Popular",
-    "sortPriceAsc": "Price: Low to High",
-    "sortPriceDesc": "Price: High to Low",
-    "sortName": "Name: A-Z",
-    "active": "Active",
-    "inactive": "Inactive",
-    "noTitle": "No Title",
-    "noLink": "No Link",
-    "view": "View",
-    "edit": "Edit",
-    "delete": "Delete",
-    "auto": "Auto",
-    "manual": "Manual",
-    "cancel": "Cancel",
-    "actions": "Actions",
-    "close": "Close",
-    "inStock": "In Stock",
-    "outOfStock": "Out of Stock",
-    "create": "Create",
-    "update": "Update",
-    "open": "Open",
-    "closed": "Closed",
-    "from": "From",
-    "to": "To",
-    "everyday": "Everyday",
-    "days": {
-      "monday": "Monday",
-      "tuesday": "Tuesday",
-      "wednesday": "Wednesday",
-      "thursday": "Thursday",
-      "friday": "Friday",
-      "saturday": "Saturday",
-      "sunday": "Sunday"
+  "adminContact": {
+    "title": "Contact Management",
+    "viewContactDetails": "View Contact Details",
+    "list": {
+      "title": "All Contacts",
+      "noContacts": "No contacts found"
+    },
+    "table": {
+      "name": "Name",
+      "email": "Email",
+      "phone": "Phone",
+      "product": "Product",
+      "status": "Status",
+      "createdAt": "Date",
+      "actions": "Actions"
+    },
+    "status": {
+      "new": "New",
+      "processing": "Processing",
+      "completed": "Completed",
+      "cancelled": "Cancelled",
+      "filterAll": "All Status",
+      "filterNew": "New",
+      "filterProcessing": "Processing",
+      "filterCompleted": "Completed",
+      "filterCancelled": "Cancelled"
+    },
+    "details": {
+      "title": "Contact Details",
+      "name": "Name",
+      "email": "Email",
+      "phone": "Phone",
+      "address": "Address",
+      "message": "Message",
+      "product": "Related Product",
+      "status": "Status",
+      "createdAt": "Created",
+      "updatedAt": "Last Updated",
+      "updateStatus": "Update Status",
+      "deleteContact": "Delete Contact"
+    },
+    "actions": {
+      "updateSuccess": "Contact status updated successfully",
+      "updateFailed": "Failed to update contact status",
+      "deleteSuccess": "Contact deleted successfully",
+      "deleteFailed": "Failed to delete contact",
+      "confirmDelete": "Are you sure you want to delete this contact?"
     }
   }
 }
