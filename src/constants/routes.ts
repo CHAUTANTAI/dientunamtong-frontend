@@ -6,6 +6,13 @@
 export const ROUTES = {
   // Public routes
   LOGIN: '/auth/login',
+  
+  // Client routes
+  HOME: '/',
+  CATEGORIES: '/categories',
+  PRODUCTS: '/products',
+  CONTACT: '/contact',
+  ABOUT: '/about',
 
   // Admin routes
   DASHBOARD: '/admin/dashboard',
@@ -14,11 +21,7 @@ export const ROUTES = {
   BANNER: '/admin/banner',
   PROFILE: '/admin/profile',
 
-  ADMIN_ROOT: '/',
-
-  // Can be extended with more admin routes
-  // USERS: '/users',
-  // SETTINGS: '/settings',
+  ADMIN_ROOT: '/admin',
 } as const;
 
 export type Route = (typeof ROUTES)[keyof typeof ROUTES];

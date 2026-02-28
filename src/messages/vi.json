@@ -38,6 +38,8 @@
     "products": "Sản phẩm",
     "banners": "Banner",
     "profile": "Hồ sơ",
+    "contact": "Liên hệ",
+    "about": "Giới thiệu",
     "settings": "Cài đặt",
     "logout": "Đăng xuất"
   },
@@ -337,5 +339,21 @@
     "failedToSave": "Không thể lưu",
     "failedToDelete": "Không thể xóa",
     "networkError": "Lỗi kết nối mạng. Vui lòng thử lại."
+  },
+  "client": {
+    "home": {
+      "title": "Trang chủ",
+      "highlightCategories": "Danh mục nổi bật",
+      "highlightProducts": "Sản phẩm nổi bật",
+      "seeAll": "Xem tất cả"
+    },
+    "contact": {
+      "title": "Liên hệ",
+      "getInTouch": "Liên hệ với chúng tôi",
+      "interestedProduct": "Quan tâm đến sản phẩm"
+    },
+    "about": {
+      "title": "Giới thiệu"
+    }
   }
 }

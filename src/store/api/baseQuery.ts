@@ -16,6 +16,13 @@ export const createCustomBaseQuery = () =>
   });
 
 /**
+ * Base query without authentication for public endpoints
+ */
+export const baseQueryWithoutAuth = fetchBaseQuery({
+  baseUrl: API_BASE_URL,
+});
+
+/**
  * Alternative: Create a middleware-like wrapper for base query
  * Can be used if you need to process all responses uniformly
  */
@@ -60,3 +67,4 @@ export const createBaseQueryWithInterceptor = () => {
     return result;
   };
 };
+

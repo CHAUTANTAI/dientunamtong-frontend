@@ -18,31 +18,36 @@ export function proxy(request: NextRequest) {
   console.log('[PROXY] Request:', { pathname, isAuthenticated });
 
   // Public routes that don't require authentication
-  const publicRoutes = [ROUTES.LOGIN];
+  const publicRoutes = [
+    ROUTES.LOGIN,
+    ROUTES.HOME,
+    ROUTES.CATEGORIES,
+    ROUTES.PRODUCTS,
+    ROUTES.CONTACT,
+    ROUTES.ABOUT,
+  ];
 
-  // Check if route is public
-  const isPublicRoute = publicRoutes.some((route) => pathname.startsWith(route));
+  // Check if route is public or if it's an admin route
+  const isPublicRoute = publicRoutes.some((route) => 
+    pathname === route || pathname.startsWith(`${route}/`)
+  );
+  const isAdminRoute = pathname.startsWith('/admin');
 
-  // Handle root path "/"
+  // Handle root path "/" - already home page, let it through
   if (pathname === ROOT_PATH) {
-    console.log('[PROXY] Root path detected, redirecting...');
-    if (isAuthenticated) {
-      return NextResponse.redirect(new URL(ROUTES.DASHBOARD, request.url));
-    } else {
-      return NextResponse.redirect(new URL(ROUTES.LOGIN, request.url));
-    }
+    return NextResponse.next();
   }
 
   // Redirect authenticated users away from login page
-  if (isAuthenticated && isPublicRoute && pathname.startsWith(ROUTES.LOGIN)) {
+  if (isAuthenticated && pathname.startsWith(ROUTES.LOGIN)) {
     const callbackUrl = request.nextUrl.searchParams.get('callbackUrl');
     const redirectUrl = callbackUrl || ROUTES.DASHBOARD;
     console.log('[PROXY] Redirecting from login to:', redirectUrl);
     return NextResponse.redirect(new URL(redirectUrl, request.url));
   }
 
-  // Redirect unauthenticated users to login with callback URL
-  if (!isAuthenticated && !isPublicRoute) {
+  // Redirect unauthenticated users to login only for admin routes
+  if (!isAuthenticated && isAdminRoute) {
     const loginUrl = new URL(ROUTES.LOGIN, request.url);
     loginUrl.searchParams.set('callbackUrl', pathname);
     console.log('[PROXY] Not authenticated, redirecting to login with callback:', pathname);
@@ -58,3 +63,4 @@ export const config = {
     '/((?!api|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt).*)',
   ],
 };
+

@@ -35,3 +35,18 @@ export const API_CATEGORY_ROOTS = '/admin/category/roots';
 export const API_CATEGORY_CHILDREN = (id: string) => `/admin/category/${id}/children`;
 export const API_CATEGORY_BREADCRUMB = (id: string) => `/admin/category/${id}/breadcrumb`;
 export const API_CATEGORY_SEARCH = '/admin/category/search';
+
+// Banner endpoints
+export const API_BANNER = '/admin/banner';
+export const API_BANNER_DETAIL = (id: string) => `/admin/banner/${id}`;
+export const API_BANNER_MAX = '/admin/banner/max';
+export const API_BANNER_AVAILABLE_SORT_ORDERS = '/admin/banner/available-sort-orders';
+export const API_BANNER_REORDER = '/admin/banner/reorder';
+
+// Public endpoints (no auth required)
+export const API_PUBLIC_BANNERS = '/public/banner';
+export const API_PUBLIC_CATEGORIES = '/public/category';
+export const API_PUBLIC_CATEGORY_DETAIL = (id: string) => `/public/category/${id}`;
+export const API_PUBLIC_PRODUCTS = '/public/product';
+export const API_PUBLIC_PRODUCT_DETAIL = (id: string) => `/public/product/${id}`;
+export const API_PUBLIC_PROFILE = '/public/profile';

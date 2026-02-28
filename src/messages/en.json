@@ -38,6 +38,8 @@
     "products": "Products",
     "banners": "Banners",
     "profile": "Profile",
+    "contact": "Contact",
+    "about": "About",
     "settings": "Settings",
     "logout": "Logout"
   },
@@ -337,5 +339,21 @@
     "failedToSave": "Failed to save",
     "failedToDelete": "Failed to delete",
     "networkError": "Network error. Please try again."
+  },
+  "client": {
+    "home": {
+      "title": "Home",
+      "highlightCategories": "Highlight Categories",
+      "highlightProducts": "Highlight Products",
+      "seeAll": "See All"
+    },
+    "contact": {
+      "title": "Contact Us",
+      "getInTouch": "Get in Touch",
+      "interestedProduct": "Interested in Product"
+    },
+    "about": {
+      "title": "About Us"
+    }
   }
 }
