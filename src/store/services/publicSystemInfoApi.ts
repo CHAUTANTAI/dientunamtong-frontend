@@ -8,8 +8,8 @@ export interface SystemInfo {
   email?: string;
   address?: string;
   about_us?: string;
-  map_latitude?: number;
-  map_longitude?: number;
+  google_maps_embed?: string;
+  business_hours?: string;
 }
 
 export const publicSystemInfoApi = createApi({

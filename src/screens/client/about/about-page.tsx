@@ -1,5 +1,6 @@
 'use client';
 
+import dynamic from 'next/dynamic';
 import {
   Row,
   Col,
@@ -17,10 +18,8 @@ import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { useGetSystemInfoQuery } from '@/store/services/publicSystemInfoApi';
 import { useSignedImageUrl } from '@/hooks/useSignedImageUrl';
-import dynamic from 'next/dynamic';
 
-// Dynamic import to avoid SSR issues with Leaflet
-const MapDisplay = dynamic(() => import('@/components/map/MapDisplay'), {
+const MapEmbed = dynamic(() => import('@/components/map/MapEmbed'), {
   ssr: false,
   loading: () => <div style={{ height: 300, background: '#f0f0f0' }}>Loading map...</div>,
 });
@@ -129,14 +128,12 @@ export default function AboutPage() {
       </Card>
 
       {/* Map */}
-      {systemInfo?.map_latitude && systemInfo?.map_longitude && (
-        <Card title={<Title level={3} style={{ margin: 0 }}>{t('client.contact.findUs')}</Title>} style={{ marginTop: 24 }}>
-          <MapDisplay
-            latitude={systemInfo.map_latitude}
-            longitude={systemInfo.map_longitude}
-            companyName={systemInfo.company_name}
-            address={systemInfo.address}
-          />
+      {systemInfo?.google_maps_embed && (
+        <Card 
+          title={<Title level={3} style={{ margin: 0 }}>{t('client.contact.findUs')}</Title>} 
+          style={{ marginTop: 24 }}
+        >
+          <MapEmbed embedCode={systemInfo.google_maps_embed} height={400} />
         </Card>
       )}
     </div>

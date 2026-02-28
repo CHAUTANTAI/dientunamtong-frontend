@@ -249,14 +249,17 @@
       "currentLogo": "Logo hiện tại",
       "username": "Tên đăng nhập",
       "aboutUs": "Giới thiệu",
-      "mapLocation": "Vị trí bản đồ"
+      "googleMapsEmbed": "Mã nhúng Google Maps",
+      "businessHours": "Giờ làm việc"
     },
     "placeholders": {
       "companyName": "Nhập tên công ty",
       "phone": "Nhập số điện thoại",
       "address": "Nhập địa chỉ công ty",
       "email": "Nhập địa chỉ email",
-      "aboutUs": "Nhập nội dung giới thiệu công ty cho trang Giới thiệu..."
+      "aboutUs": "Nhập nội dung giới thiệu công ty cho trang Giới thiệu...",
+      "googleMapsEmbed": "Dán mã nhúng Google Maps (iframe) vào đây...",
+      "businessHours": "Ví dụ: Thứ 2-6: 8:00 - 17:00, Thứ 7: 9:00 - 12:00"
     },
     "actions": {
       "selectLogo": "Chọn ảnh logo",
@@ -271,7 +274,8 @@
       "logoHelp": "Tải lên logo mới (tối đa 25MB). Định dạng: JPG, PNG, GIF",
       "usernameTooltip": "Không thể thay đổi tên đăng nhập",
       "aboutUsTooltip": "Nội dung này sẽ hiển thị trên trang Giới thiệu",
-      "mapLocationTooltip": "Nhấp vào bản đồ để chọn vị trí công ty. Vị trí này sẽ được hiển thị trên trang Liên hệ và Giới thiệu.",
+      "googleMapsEmbedTooltip": "Dán mã nhúng Google Maps (iframe) để hiển thị vị trí doanh nghiệp của bạn với đầy đủ thông tin. Vào Google Maps > Doanh nghiệp của bạn > Chia sẻ > Nhúng bản đồ > Sao chép HTML.",
+      "businessHoursTooltip": "Nhập giờ làm việc của doanh nghiệp. Thông tin này sẽ hiển thị trên trang Liên hệ.",
       "onlyImageAllowed": "Chỉ được tải lên file ảnh!",
       "fileTooLarge": "Ảnh phải nhỏ hơn 25MB!"
     },
@@ -435,6 +439,20 @@
     "inStock": "Còn hàng",
     "outOfStock": "Hết hàng",
     "create": "Tạo mới",
-    "update": "Cập nhật"
+    "update": "Cập nhật",
+    "open": "Mở cửa",
+    "closed": "Đóng cửa",
+    "from": "Từ",
+    "to": "Đến",
+    "everyday": "Hàng ngày",
+    "days": {
+      "monday": "Thứ Hai",
+      "tuesday": "Thứ Ba",
+      "wednesday": "Thứ Tư",
+      "thursday": "Thứ Năm",
+      "friday": "Thứ Sáu",
+      "saturday": "Thứ Bảy",
+      "sunday": "Chủ Nhật"
+    }
   }
 }

@@ -1,5 +1,6 @@
 'use client';
 
+import dynamic from 'next/dynamic';
 import { useState } from 'react';
 import {
   Row,
@@ -18,16 +19,14 @@ import {
   PhoneOutlined,
   MailOutlined,
   EnvironmentOutlined,
-  ClockCircleOutlined,
   SendOutlined,
 } from '@ant-design/icons';
 import { useTranslations } from 'next-intl';
 import { useGetSystemInfoQuery } from '@/store/services/publicSystemInfoApi';
 import { Controller, useForm } from 'react-hook-form';
-import dynamic from 'next/dynamic';
+import { BusinessHoursDisplay } from '@/components/business-hours/BusinessHoursDisplay';
 
-// Dynamic import to avoid SSR issues with Leaflet
-const MapDisplay = dynamic(() => import('@/components/map/MapDisplay'), {
+const MapEmbed = dynamic(() => import('@/components/map/MapEmbed'), {
   ssr: false,
   loading: () => <div style={{ height: 300, background: '#f0f0f0' }}>Loading map...</div>,
 });
@@ -250,46 +249,16 @@ export default function ContactPage() {
               <Divider />
 
               {/* Business Hours */}
-              <Space align="start">
-                <ClockCircleOutlined style={{ fontSize: 20, color: '#1890ff' }} />
-                <div>
-                  <Text strong>{t('client.contact.businessHours')}</Text>
-                  <br />
-                  <Text>{t('client.contact.mondayFriday')}</Text>
-                  <br />
-                  <Text>{t('client.contact.saturday')}</Text>
-                  <br />
-                  <Text>{t('client.contact.sunday')}</Text>
-                </div>
-              </Space>
+              <BusinessHoursDisplay data={systemInfo?.business_hours} />
             </Space>
           </Card>
 
-          {/* Map or Additional Info Card */}
-          <Card style={{ marginTop: 16 }} title={t('client.contact.findUs')}>
-            {systemInfo?.map_latitude && systemInfo?.map_longitude ? (
-              <MapDisplay
-                latitude={systemInfo.map_latitude}
-                longitude={systemInfo.map_longitude}
-                companyName={systemInfo.company_name}
-                address={systemInfo.address}
-              />
-            ) : (
-              <div
-                style={{
-                  width: '100%',
-                  height: 300,
-                  backgroundColor: '#f0f0f0',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  borderRadius: 8,
-                }}
-              >
-                <Text type="secondary">{t('client.contact.mapComingSoon')}</Text>
-              </div>
-            )}
-          </Card>
+          {/* Map Card */}
+          {systemInfo?.google_maps_embed && (
+            <Card style={{ marginTop: 16 }} title={t('client.contact.findUs')}>
+              <MapEmbed embedCode={systemInfo.google_maps_embed} height={400} />
+            </Card>
+          )}
         </Col>
       </Row>
     </div>

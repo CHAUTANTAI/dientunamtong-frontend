@@ -249,14 +249,17 @@
       "currentLogo": "Current Logo",
       "username": "Username",
       "aboutUs": "About Us",
-      "mapLocation": "Map Location"
+      "googleMapsEmbed": "Google Maps Embed Code",
+      "businessHours": "Business Hours"
     },
     "placeholders": {
       "companyName": "Enter company name",
       "phone": "Enter phone number",
       "address": "Enter company address",
       "email": "Enter email address",
-      "aboutUs": "Enter company description for About Us page..."
+      "aboutUs": "Enter company description for About Us page...",
+      "googleMapsEmbed": "Paste Google Maps embed code (iframe) here...",
+      "businessHours": "E.g., Mon-Fri: 8:00 AM - 5:00 PM, Sat: 9:00 AM - 12:00 PM"
     },
     "actions": {
       "selectLogo": "Select Logo Image",
@@ -271,7 +274,8 @@
       "logoHelp": "Upload a new logo (max 25MB). Supported formats: JPG, PNG, GIF",
       "usernameTooltip": "Username cannot be changed",
       "aboutUsTooltip": "This content will be displayed on the About Us page",
-      "mapLocationTooltip": "Click on the map to select your company location. This will be displayed on Contact and About pages.",
+      "googleMapsEmbedTooltip": "Paste Google Maps embed code (iframe) to display your business location with full information. Go to Google Maps > Your Business > Share > Embed a map > Copy HTML.",
+      "businessHoursTooltip": "Enter your business operating hours. This will be displayed on the Contact page.",
       "onlyImageAllowed": "You can only upload image files!",
       "fileTooLarge": "Image must be smaller than 25MB!"
     },
@@ -387,6 +391,7 @@
       "findUs": "Find Us",
       "mapComingSoon": "Map integration coming soon",
       "openInGoogleMaps": "Open in Google Maps",
+      "businessHours": "Business Hours",
       "nameRequired": "Name is required",
       "emailRequired": "Email is required",
       "invalidEmail": "Invalid email address",
@@ -435,6 +440,20 @@
     "inStock": "In Stock",
     "outOfStock": "Out of Stock",
     "create": "Create",
-    "update": "Update"
+    "update": "Update",
+    "open": "Open",
+    "closed": "Closed",
+    "from": "From",
+    "to": "To",
+    "everyday": "Everyday",
+    "days": {
+      "monday": "Monday",
+      "tuesday": "Tuesday",
+      "wednesday": "Wednesday",
+      "thursday": "Thursday",
+      "friday": "Friday",
+      "saturday": "Saturday",
+      "sunday": "Sunday"
+    }
   }
 }

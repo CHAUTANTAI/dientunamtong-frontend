@@ -14,8 +14,8 @@ export interface Profile {
   is_active?: boolean;
   logo?: string | null;
   about_us?: string | null;
-  map_latitude?: number | null;
-  map_longitude?: number | null;
+  google_maps_embed?: string | null;
+  business_hours?: string | null;
   created_at?: string;
   updated_at?: string;
 }

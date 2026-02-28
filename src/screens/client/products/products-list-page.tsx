@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
-import { Row, Col, Card, Typography, Spin, Empty, Select, Input, Pagination, Space, Tag, Slider } from 'antd';
+import { useState, useMemo } from 'react';
+import { Row, Col, Card, Typography, Spin, Empty, TreeSelect, Input, Pagination, Space, Tag, Slider } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
+import type { DataNode } from 'antd/es/tree';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
@@ -93,7 +94,7 @@ const ProductCard = ({ id, name, price, imageUrl, inStock }: ProductCardProps) =
 export default function ProductsListPage() {
   const t = useTranslations();
   const { data, isLoading } = useGetPublicProductsQuery();
-  const { data: categoriesData } = useGetPublicCategoriesQuery();
+  const { data: categoriesData, isLoading: isCategoriesLoading } = useGetPublicCategoriesQuery();
 
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
@@ -101,6 +102,26 @@ export default function ProductsListPage() {
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 100000000]);
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 12;
+
+  // Build tree data for category filter
+  const categoryTreeData = useMemo(() => {
+    if (!categoriesData || categoriesData.length === 0) return [];
+
+    // Helper to build tree structure
+    const buildTree = (parentId: string | null = null): DataNode[] => {
+      return categoriesData
+        .filter((cat) => cat.parent_id === parentId)
+        .sort((a, b) => a.name.localeCompare(b.name))
+        .map((cat) => ({
+          title: cat.name,
+          value: cat.id,
+          key: cat.id,
+          children: buildTree(cat.id),
+        }));
+    };
+
+    return buildTree();
+  }, [categoriesData]);
 
   if (isLoading) {
     return (
@@ -186,30 +207,37 @@ export default function ProductsListPage() {
 
             {/* Category Filter */}
             <Col xs={24} sm={12} md={8}>
-              <Select
+              <TreeSelect
                 style={{ width: '100%' }}
                 placeholder={t('product.labels.categories')}
-                value={selectedCategory}
-                onChange={setSelectedCategory}
-              >
-                <Select.Option value="all">{t('common.all')}</Select.Option>
-                {categoriesData?.map((cat) => (
-                  <Select.Option key={cat.id} value={cat.id}>
-                    {cat.name}
-                  </Select.Option>
-                ))}
-              </Select>
+                value={selectedCategory === 'all' ? undefined : selectedCategory}
+                onChange={(value) => setSelectedCategory(value || 'all')}
+                treeData={[
+                  { title: t('common.all'), value: 'all', key: 'all' },
+                  ...categoryTreeData,
+                ]}
+                loading={isCategoriesLoading}
+                showSearch
+                treeDefaultExpandAll
+                treeNodeFilterProp="title"
+                allowClear
+              />
             </Col>
 
             {/* Sort */}
             <Col xs={24} sm={12} md={8}>
-              <Select style={{ width: '100%' }} value={sortBy} onChange={setSortBy}>
-                <Select.Option value="newest">{t('common.sortNewest')}</Select.Option>
-                <Select.Option value="popular">{t('common.sortPopular')}</Select.Option>
-                <Select.Option value="price-asc">{t('common.sortPriceAsc')}</Select.Option>
-                <Select.Option value="price-desc">{t('common.sortPriceDesc')}</Select.Option>
-                <Select.Option value="name">{t('common.sortName')}</Select.Option>
-              </Select>
+              <TreeSelect
+                style={{ width: '100%' }}
+                value={sortBy}
+                onChange={setSortBy}
+                treeData={[
+                  { title: t('common.sortNewest'), value: 'newest', key: 'newest' },
+                  { title: t('common.sortPopular'), value: 'popular', key: 'popular' },
+                  { title: t('common.sortPriceAsc'), value: 'price-asc', key: 'price-asc' },
+                  { title: t('common.sortPriceDesc'), value: 'price-desc', key: 'price-desc' },
+                  { title: t('common.sortName'), value: 'name', key: 'name' },
+                ]}
+              />
             </Col>
           </Row>
 

@@ -8,13 +8,7 @@ import { useGetProfileQuery, useUpdateProfileMutation } from '@/store/api/profil
 import { getErrorMessage } from '@/utils/api-interceptor';
 import { uploadToSupabase, deleteFromSupabase } from '@/utils/supabase';
 import { useSignedImageUrl } from '@/hooks/useSignedImageUrl';
-import dynamic from 'next/dynamic';
-
-// Dynamic import to avoid SSR issues with Leaflet
-const MapPicker = dynamic(() => import('@/components/map/MapPicker'), {
-  ssr: false,
-  loading: () => <div style={{ height: 400, background: '#f0f0f0' }}>Loading map...</div>,
-});
+import { BusinessHoursEditor } from '@/components/business-hours/BusinessHoursEditor';
 
 const AdminProfilePage = () => {
   const t = useTranslations();
@@ -24,7 +18,6 @@ const AdminProfilePage = () => {
   const { data, isLoading, isError } = useGetProfileQuery();
   const [fileList, setFileList] = useState<UploadFile[]>([]);
   const [isUploading, setIsUploading] = useState(false);
-  const [mapCoords, setMapCoords] = useState<{ lat: number; lng: number } | null>(null);
 
   const signedLogoUrl = useSignedImageUrl(data?.logo || '');
 
@@ -39,11 +32,9 @@ const AdminProfilePage = () => {
         email: data.email || '',
         logo: data.logo || '',
         username: data.username,
+        google_maps_embed: data.google_maps_embed || '',
+        business_hours: data.business_hours || '',
       });
-      
-      if (data.map_latitude && data.map_longitude) {
-        setMapCoords({ lat: data.map_latitude, lng: data.map_longitude });
-      }
     }
   }, [data, form]);
 
@@ -89,12 +80,10 @@ const AdminProfilePage = () => {
         }
       }
 
-      // Step 2: Update profile with map coordinates
+      // Step 2: Update profile
       const finalData = {
         ...updateData,
         logo: logoUrl,
-        map_latitude: mapCoords?.lat || null,
-        map_longitude: mapCoords?.lng || null,
       };
       
       await updateProfile(finalData).unwrap();
@@ -228,14 +217,23 @@ const AdminProfilePage = () => {
           <Divider />
 
           <Form.Item 
-            label={t('profile.labels.mapLocation')}
-            tooltip={t('profile.messages.mapLocationTooltip')}
+            name="google_maps_embed"
+            label={t('profile.labels.googleMapsEmbed')}
+            tooltip={t('profile.messages.googleMapsEmbedTooltip')}
           >
-            <MapPicker
-              latitude={mapCoords?.lat}
-              longitude={mapCoords?.lng}
-              onChange={(lat, lng) => setMapCoords({ lat, lng })}
+            <Input.TextArea 
+              placeholder={t('profile.placeholders.googleMapsEmbed')} 
+              rows={4} 
+              size="large"
             />
+          </Form.Item>
+
+          <Form.Item 
+            name="business_hours"
+            label={t('profile.labels.businessHours')}
+            tooltip={t('profile.messages.businessHoursTooltip')}
+          >
+            <BusinessHoursEditor />
           </Form.Item>
 
           <Form.Item>
