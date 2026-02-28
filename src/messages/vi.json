@@ -274,7 +274,10 @@
       "username": "Tên đăng nhập",
       "aboutUs": "Giới thiệu",
       "googleMapsEmbed": "Mã nhúng Google Maps",
-      "businessHours": "Giờ làm việc"
+      "businessHours": "Giờ làm việc",
+      "socialMedia": "Mạng xã hội",
+      "facebookUrl": "URL trang Facebook",
+      "tiktokUrl": "URL trang TikTok"
     },
     "placeholders": {
       "companyName": "Nhập tên công ty",
@@ -283,7 +286,9 @@
       "email": "Nhập địa chỉ email",
       "aboutUs": "Nhập nội dung giới thiệu công ty cho trang Giới thiệu...",
       "googleMapsEmbed": "Dán mã nhúng Google Maps (iframe) vào đây...",
-      "businessHours": "Ví dụ: Thứ 2-6: 8:00 - 17:00, Thứ 7: 9:00 - 12:00"
+      "businessHours": "Ví dụ: Thứ 2-6: 8:00 - 17:00, Thứ 7: 9:00 - 12:00",
+      "facebookUrl": "www.facebook.com/trangcuaban",
+      "tiktokUrl": "www.tiktok.com/@tendangnhap"
     },
     "actions": {
       "selectLogo": "Chọn ảnh logo",
@@ -300,13 +305,16 @@
       "aboutUsTooltip": "Nội dung này sẽ hiển thị trên trang Giới thiệu",
       "googleMapsEmbedTooltip": "Dán mã nhúng Google Maps (iframe) để hiển thị vị trí doanh nghiệp của bạn với đầy đủ thông tin. Vào Google Maps > Doanh nghiệp của bạn > Chia sẻ > Nhúng bản đồ > Sao chép HTML.",
       "businessHoursTooltip": "Nhập giờ làm việc của doanh nghiệp. Thông tin này sẽ hiển thị trên trang Liên hệ.",
+      "facebookUrlTooltip": "Nhập đường dẫn trang Facebook (ví dụ: https://www.facebook.com/trangcuaban). Sẽ hiển thị ở nút liên hệ nổi.",
+      "tiktokUrlTooltip": "Nhập đường dẫn trang TikTok (ví dụ: https://www.tiktok.com/@tendangnhap). Sẽ hiển thị ở nút liên hệ nổi.",
       "onlyImageAllowed": "Chỉ được tải lên file ảnh!",
       "fileTooLarge": "Ảnh phải nhỏ hơn 25MB!"
     },
     "validation": {
       "companyNameRequired": "Vui lòng nhập tên công ty",
       "phoneInvalid": "Định dạng số điện thoại không hợp lệ",
-      "emailInvalid": "Định dạng email không hợp lệ"
+      "emailInvalid": "Định dạng email không hợp lệ",
+      "urlInvalid": "Vui lòng nhập URL hợp lệ (ví dụ: https://example.com)"
     }
   },
   "auth": {
@@ -440,6 +448,14 @@
       "phone": "Điện thoại",
       "email": "Email",
       "address": "Địa chỉ"
+    },
+    "floatingContact": {
+      "phone": "Gọi điện thoại",
+      "email": "Gửi Email",
+      "facebook": "Facebook",
+      "tiktok": "TikTok",
+      "zalo": "Chat qua Zalo",
+      "comingSoon": "Sắp ra mắt"
     }
   },
   "adminContact": {

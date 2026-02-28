@@ -5,6 +5,7 @@ import { Layout } from 'antd';
 import ClientHeader from './ClientHeader';
 import ClientFooter from './ClientFooter';
 import DynamicFavicon from '@/components/common/DynamicFavicon';
+import FloatingContactButton from '@/components/client/FloatingContactButton';
 import { useGetSystemInfoQuery } from '@/store/services/publicSystemInfoApi';
 import { useSignedImageUrl } from '@/hooks/useSignedImageUrl';
 
@@ -40,6 +41,7 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
         {children}
       </Content>
       <ClientFooter />
+      <FloatingContactButton />
 
       <style jsx global>{`
         @media (max-width: 768px) {

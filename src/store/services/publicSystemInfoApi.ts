@@ -10,6 +10,8 @@ export interface SystemInfo {
   about_us?: string;
   google_maps_embed?: string;
   business_hours?: string;
+  facebook_url?: string;
+  tiktok_url?: string;
 }
 
 export const publicSystemInfoApi = createApi({

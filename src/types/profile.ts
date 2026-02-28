@@ -16,6 +16,8 @@ export interface Profile {
   about_us?: string | null;
   google_maps_embed?: string | null;
   business_hours?: string | null;
+  facebook_url?: string | null;
+  tiktok_url?: string | null;
   created_at?: string;
   updated_at?: string;
 }

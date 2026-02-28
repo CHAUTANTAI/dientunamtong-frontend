@@ -34,6 +34,8 @@ const AdminProfilePage = () => {
         username: data.username,
         google_maps_embed: data.google_maps_embed || '',
         business_hours: data.business_hours || '',
+        facebook_url: data.facebook_url || '',
+        tiktok_url: data.tiktok_url || '',
       });
     }
   }, [data, form]);
@@ -234,6 +236,50 @@ const AdminProfilePage = () => {
             tooltip={t('profile.messages.businessHoursTooltip')}
           >
             <BusinessHoursEditor />
+          </Form.Item>
+
+          <Divider orientation="left">{t('profile.labels.socialMedia')}</Divider>
+
+          <Form.Item 
+            name="facebook_url"
+            label={t('profile.labels.facebookUrl')}
+            tooltip={t('profile.messages.facebookUrlTooltip')}
+            rules={[
+              { 
+                type: 'url', 
+                message: t('profile.validation.urlInvalid') 
+              },
+              {
+                pattern: /^https?:\/\/.+/,
+                message: t('profile.validation.urlInvalid')
+              }
+            ]}
+          >
+            <Input 
+              placeholder={t('profile.placeholders.facebookUrl')} 
+              size="large"
+            />
+          </Form.Item>
+
+          <Form.Item 
+            name="tiktok_url"
+            label={t('profile.labels.tiktokUrl')}
+            tooltip={t('profile.messages.tiktokUrlTooltip')}
+            rules={[
+              { 
+                type: 'url', 
+                message: t('profile.validation.urlInvalid') 
+              },
+              {
+                pattern: /^https?:\/\/.+/,
+                message: t('profile.validation.urlInvalid')
+              }
+            ]}
+          >
+            <Input 
+              placeholder={t('profile.placeholders.tiktokUrl')} 
+              size="large"
+            />
           </Form.Item>
 
           <Form.Item>

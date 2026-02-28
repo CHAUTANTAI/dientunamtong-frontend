@@ -274,7 +274,10 @@
       "username": "Username",
       "aboutUs": "About Us",
       "googleMapsEmbed": "Google Maps Embed Code",
-      "businessHours": "Business Hours"
+      "businessHours": "Business Hours",
+      "socialMedia": "Social Media",
+      "facebookUrl": "Facebook Page URL",
+      "tiktokUrl": "TikTok Profile URL"
     },
     "placeholders": {
       "companyName": "Enter company name",
@@ -283,7 +286,9 @@
       "email": "Enter email address",
       "aboutUs": "Enter company description for About Us page...",
       "googleMapsEmbed": "Paste Google Maps embed code (iframe) here...",
-      "businessHours": "E.g., Mon-Fri: 8:00 AM - 5:00 PM, Sat: 9:00 AM - 12:00 PM"
+      "businessHours": "E.g., Mon-Fri: 8:00 AM - 5:00 PM, Sat: 9:00 AM - 12:00 PM",
+      "facebookUrl": "www.facebook.com/yourpage",
+      "tiktokUrl": "www.tiktok.com/@yourusername"
     },
     "actions": {
       "selectLogo": "Select Logo Image",
@@ -300,13 +305,16 @@
       "aboutUsTooltip": "This content will be displayed on the About Us page",
       "googleMapsEmbedTooltip": "Paste Google Maps embed code (iframe) to display your business location with full information. Go to Google Maps > Your Business > Share > Embed a map > Copy HTML.",
       "businessHoursTooltip": "Enter your business operating hours. This will be displayed on the Contact page.",
+      "facebookUrlTooltip": "Enter your Facebook page URL (e.g., https://www.facebook.com/yourpage). This will be displayed in the floating contact button.",
+      "tiktokUrlTooltip": "Enter your TikTok profile URL (e.g., https://www.tiktok.com/@yourusername). This will be displayed in the floating contact button.",
       "onlyImageAllowed": "You can only upload image files!",
       "fileTooLarge": "Image must be smaller than 25MB!"
     },
     "validation": {
       "companyNameRequired": "Please enter company name",
       "phoneInvalid": "Invalid phone format",
-      "emailInvalid": "Invalid email format"
+      "emailInvalid": "Invalid email format",
+      "urlInvalid": "Please enter a valid URL (e.g., https://example.com)"
     }
   },
   "auth": {
@@ -441,6 +449,14 @@
       "phone": "Phone",
       "email": "Email",
       "address": "Address"
+    },
+    "floatingContact": {
+      "phone": "Call Phone",
+      "email": "Send Email",
+      "facebook": "Facebook",
+      "tiktok": "TikTok",
+      "zalo": "Chat on Zalo",
+      "comingSoon": "Coming Soon"
     }
   },
   "adminContact": {
