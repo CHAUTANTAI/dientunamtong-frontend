@@ -25,6 +25,20 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
         {children}
       </Content>
       <ClientFooter />
+
+      <style jsx global>{`
+        @media (max-width: 768px) {
+          .ant-layout-content {
+            padding: 16px 12px !important;
+          }
+        }
+        
+        @media (max-width: 480px) {
+          .ant-layout-content {
+            padding: 12px 8px !important;
+          }
+        }
+      `}</style>
     </Layout>
   );
 }

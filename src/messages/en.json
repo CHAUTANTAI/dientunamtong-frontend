@@ -373,5 +373,15 @@
     "about": {
       "title": "About Us"
     }
+  },
+  "common": {
+    "all": "All",
+    "search": "Search",
+    "results": "results",
+    "sortNewest": "Newest",
+    "sortPopular": "Most Popular",
+    "sortPriceAsc": "Price: Low to High",
+    "sortPriceDesc": "Price: High to Low",
+    "sortName": "Name: A-Z"
   }
 }

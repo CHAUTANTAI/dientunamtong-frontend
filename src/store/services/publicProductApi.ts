@@ -10,13 +10,14 @@ export interface PublicProduct {
   name: string;
   slug: string;
   sku?: string;
-  price: number;
+  price: number | null;
   short_description?: string;
   description?: string;
   specifications?: Record<string, string>;
   tags?: string[];
   is_active: boolean;
   in_stock: boolean;
+  view_count: number;
   created_at: string;
   updated_at: string;
   media?: Array<{
@@ -48,7 +49,7 @@ export const publicProductApi = createApi({
       transformResponse: (response: { data: PublicProductsResponse }) => response.data,
       providesTags: ['PublicProducts'],
     }),
-    getPublicProduct: builder.query<PublicProduct, string>({
+    getPublicProductById: builder.query<PublicProduct, string>({
       query: (id) => API_PUBLIC_PRODUCT_DETAIL(id),
       transformResponse: (response: { data: PublicProduct }) => response.data,
       providesTags: (_result, _error, id) => [{ type: 'PublicProducts', id }],
@@ -56,5 +57,5 @@ export const publicProductApi = createApi({
   }),
 });
 
-export const { useGetPublicProductsQuery, useGetPublicProductQuery } =
+export const { useGetPublicProductsQuery, useGetPublicProductByIdQuery } =
   publicProductApi;

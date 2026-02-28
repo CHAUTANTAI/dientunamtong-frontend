@@ -1,6 +1,6 @@
 'use client';
 
-import { Carousel, Spin, Empty } from 'antd';
+import { Carousel, Spin } from 'antd';
 import Image from 'next/image';
 import { useGetPublicBannersQuery } from '@/store/services/publicBannerApi';
 import { useSignedImageUrl } from '@/hooks/useSignedImageUrl';
@@ -13,14 +13,17 @@ const BannerImage = ({ url, alt }: { url: string; alt?: string }) => {
       <div
         style={{
           width: '100%',
-          height: '400px',
+          paddingTop: '33.33%', // 3:1 aspect ratio
+          position: 'relative',
           backgroundColor: '#f0f0f0',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
         }}
       >
-        <Spin />
+        <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>
+          <Spin />
+        </div>
       </div>
     );
   }
@@ -29,7 +32,7 @@ const BannerImage = ({ url, alt }: { url: string; alt?: string }) => {
     <div
       style={{
         width: '100%',
-        height: '400px',
+        paddingTop: '33.33%', // 3:1 aspect ratio (maintains ratio on all screens)
         position: 'relative',
         backgroundColor: '#f0f0f0',
       }}
@@ -40,6 +43,7 @@ const BannerImage = ({ url, alt }: { url: string; alt?: string }) => {
         fill
         style={{ objectFit: 'cover' }}
         priority
+        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 100vw, 1200px"
       />
     </div>
   );
@@ -53,14 +57,17 @@ export default function BannerCarousel() {
       <div
         style={{
           width: '100%',
-          height: '400px',
+          paddingTop: '33.33%',
+          position: 'relative',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           backgroundColor: '#f0f0f0',
         }}
       >
-        <Spin size="large" />
+        <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>
+          <Spin size="large" />
+        </div>
       </div>
     );
   }
@@ -79,29 +86,54 @@ export default function BannerCarousel() {
   }
 
   return (
-    <Carousel autoplay autoplaySpeed={5000} style={{ marginBottom: 48 }}>
-      {activeBanners.map((banner) => (
-        <div key={banner.id}>
-          {banner.link_url ? (
-            <a
-              href={banner.link_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{ display: 'block' }}
-            >
+    <div style={{ marginBottom: 32, marginLeft: -16, marginRight: -16, marginTop: -24 }}>
+      <Carousel autoplay autoplaySpeed={5000} dots={{ className: 'banner-dots' }}>
+        {activeBanners.map((banner) => (
+          <div key={banner.id}>
+            {banner.link_url ? (
+              <a
+                href={banner.link_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ display: 'block' }}
+              >
+                <BannerImage
+                  url={banner.media?.file_url || ''}
+                  alt={banner.media?.alt_text || banner.title || 'Banner'}
+                />
+              </a>
+            ) : (
               <BannerImage
                 url={banner.media?.file_url || ''}
                 alt={banner.media?.alt_text || banner.title || 'Banner'}
               />
-            </a>
-          ) : (
-            <BannerImage
-              url={banner.media?.file_url || ''}
-              alt={banner.media?.alt_text || banner.title || 'Banner'}
-            />
-          )}
-        </div>
-      ))}
-    </Carousel>
+            )}
+          </div>
+        ))}
+      </Carousel>
+
+      <style jsx global>{`
+        .banner-dots li button {
+          background: rgba(255, 255, 255, 0.5) !important;
+          height: 8px;
+        }
+        .banner-dots li.slick-active button {
+          background: #fff !important;
+        }
+        
+        @media (max-width: 768px) {
+          .banner-dots {
+            bottom: 8px !important;
+          }
+          .banner-dots li {
+            margin: 0 4px !important;
+          }
+          .banner-dots li button {
+            width: 8px !important;
+            height: 8px !important;
+          }
+        }
+      `}</style>
+    </div>
   );
 }

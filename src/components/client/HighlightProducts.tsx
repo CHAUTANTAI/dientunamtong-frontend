@@ -41,13 +41,14 @@ const ProductCard = ({ id, name, price, imageUrl, inStock }: ProductCardProps) =
       <Card
         hoverable
         style={{ height: '100%' }}
+        bodyStyle={{ padding: '16px' }}
       >
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           {signedUrl ? (
             <div style={{ 
               position: 'relative', 
               width: '100%', 
-              height: 150,
+              paddingTop: '75%', // 4:3 aspect ratio
               borderRadius: 8,
               overflow: 'hidden',
               backgroundColor: '#f5f5f5',
@@ -57,6 +58,7 @@ const ProductCard = ({ id, name, price, imageUrl, inStock }: ProductCardProps) =
                 alt={name}
                 fill
                 style={{ objectFit: 'contain' }}
+                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
               />
               {!inStock && (
                 <div
@@ -74,7 +76,8 @@ const ProductCard = ({ id, name, price, imageUrl, inStock }: ProductCardProps) =
             <div
               style={{
                 width: '100%',
-                height: 150,
+                paddingTop: '75%',
+                position: 'relative',
                 backgroundColor: '#f0f0f0',
                 display: 'flex',
                 alignItems: 'center',
@@ -82,12 +85,26 @@ const ProductCard = ({ id, name, price, imageUrl, inStock }: ProductCardProps) =
                 borderRadius: 8,
               }}
             >
-              <Text type="secondary">No Image</Text>
+              <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>
+                <Text type="secondary">No Image</Text>
+              </div>
             </div>
           )}
           
           <div>
-            <Title level={5} style={{ margin: 0, marginBottom: 4 }}>
+            <Title 
+              level={5} 
+              style={{ 
+                margin: 0, 
+                marginBottom: 4, 
+                fontSize: 16,
+                display: '-webkit-box',
+                WebkitLineClamp: 2,
+                WebkitBoxOrient: 'vertical',
+                overflow: 'hidden',
+                minHeight: 44,
+              }}
+            >
               {name}
             </Title>
             <Text strong style={{ fontSize: 16, color: '#ff4d4f' }}>
@@ -133,29 +150,32 @@ export default function HighlightProducts() {
   }
 
   return (
-    <div style={{ marginBottom: 48 }}>
+    <div style={{ marginBottom: 40 }}>
       <div
         style={{
           display: 'flex',
+          flexDirection: 'row',
           justifyContent: 'space-between',
           alignItems: 'center',
-          marginBottom: 24,
+          marginBottom: 20,
+          gap: 8,
+          flexWrap: 'wrap',
         }}
       >
-        <Title level={2} style={{ margin: 0 }}>
+        <Title level={2} style={{ margin: 0, fontSize: 24 }}>
           {t('highlightProducts')}
         </Title>
         <Link href={ROUTES.PRODUCTS}>
-          <Button type="link" icon={<RightOutlined />} iconPosition="end">
+          <Button type="link" icon={<RightOutlined />} iconPosition="end" style={{ padding: 0 }}>
             {t('seeAll')}
           </Button>
         </Link>
       </div>
-      <Row gutter={[16, 16]}>
+      <Row gutter={[12, 12]}>
         {activeProducts.map((product) => {
           const firstImage = product.media?.find((m) => m.media_type === 'image');
           return (
-            <Col key={product.id} xs={24} sm={12} md={8}>
+            <Col key={product.id} xs={12} sm={12} md={8} lg={8}>
               <ProductCard
                 id={product.id}
                 name={product.name}

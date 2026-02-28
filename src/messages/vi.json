@@ -373,5 +373,15 @@
     "about": {
       "title": "Giới thiệu"
     }
+  },
+  "common": {
+    "all": "Tất cả",
+    "search": "Tìm kiếm",
+    "results": "kết quả",
+    "sortNewest": "Mới nhất",
+    "sortPopular": "Phổ biến nhất",
+    "sortPriceAsc": "Giá: Thấp đến Cao",
+    "sortPriceDesc": "Giá: Cao đến Thấp",
+    "sortName": "Tên: A-Z"
   }
 }

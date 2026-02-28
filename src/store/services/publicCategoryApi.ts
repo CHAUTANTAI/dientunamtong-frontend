@@ -11,9 +11,12 @@ export interface PublicCategory {
   slug: string;
   description?: string;
   media_id?: string;
+  parent_id?: string;
   is_active: boolean;
   level: number;
   view_count: number;
+  product_count?: number;
+  image?: string; // Derived from media.file_url
   created_at: string;
   updated_at: string;
   media?: {
@@ -30,16 +33,28 @@ export const publicCategoryApi = createApi({
   endpoints: (builder) => ({
     getPublicCategories: builder.query<PublicCategory[], void>({
       query: () => API_PUBLIC_CATEGORIES,
-      transformResponse: (response: { data: PublicCategory[] }) => response.data,
+      transformResponse: (response: { data: PublicCategory[] }) => {
+        // Map media.file_url to image field for easier access
+        return response.data.map(cat => ({
+          ...cat,
+          image: cat.media?.file_url,
+        }));
+      },
       providesTags: ['PublicCategories'],
     }),
-    getPublicCategory: builder.query<PublicCategory, string>({
+    getPublicCategoryById: builder.query<PublicCategory, string>({
       query: (id) => API_PUBLIC_CATEGORY_DETAIL(id),
-      transformResponse: (response: { data: PublicCategory }) => response.data,
+      transformResponse: (response: { data: PublicCategory }) => {
+        const cat = response.data;
+        return {
+          ...cat,
+          image: cat.media?.file_url,
+        };
+      },
       providesTags: (_result, _error, id) => [{ type: 'PublicCategories', id }],
     }),
   }),
 });
 
-export const { useGetPublicCategoriesQuery, useGetPublicCategoryQuery } =
+export const { useGetPublicCategoriesQuery, useGetPublicCategoryByIdQuery } =
   publicCategoryApi;

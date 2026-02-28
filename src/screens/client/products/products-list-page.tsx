@@ -1,0 +1,284 @@
+'use client';
+
+import { useState } from 'react';
+import { Row, Col, Card, Typography, Spin, Empty, Select, Input, Pagination, Space, Tag, Slider } from 'antd';
+import { SearchOutlined } from '@ant-design/icons';
+import Image from 'next/image';
+import Link from 'next/link';
+import { useTranslations } from 'next-intl';
+import { useGetPublicProductsQuery } from '@/store/services/publicProductApi';
+import { useGetPublicCategoriesQuery } from '@/store/services/publicCategoryApi';
+import { useSignedImageUrl } from '@/hooks/useSignedImageUrl';
+import { useViewTracker } from '@/hooks/useViewTracker';
+import { ROUTES } from '@/constants/routes';
+
+const { Title, Text } = Typography;
+
+interface ProductCardProps {
+  id: string;
+  name: string;
+  price: number | null;
+  imageUrl?: string;
+  inStock: boolean;
+}
+
+const ProductCard = ({ id, name, price, imageUrl, inStock }: ProductCardProps) => {
+  const t = useTranslations('product.labels');
+  const signedUrl = useSignedImageUrl(imageUrl || '');
+  const { trackView } = useViewTracker();
+
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat('vi-VN', {
+      style: 'currency',
+      currency: 'VND',
+    }).format(price);
+  };
+
+  const handleClick = () => {
+    trackView(id, 'product');
+  };
+
+  return (
+    <Link href={`${ROUTES.PRODUCTS}/${id}`} style={{ textDecoration: 'none' }} onClick={handleClick}>
+      <Card hoverable style={{ height: '100%' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          {signedUrl ? (
+            <div
+              style={{
+                position: 'relative',
+                width: '100%',
+                height: 200,
+                borderRadius: 8,
+                overflow: 'hidden',
+                backgroundColor: '#f5f5f5',
+              }}
+            >
+              <Image src={signedUrl} alt={name} fill style={{ objectFit: 'contain' }} />
+              {!inStock && (
+                <div style={{ position: 'absolute', top: 8, right: 8 }}>
+                  <Tag color="red">Out of Stock</Tag>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div
+              style={{
+                width: '100%',
+                height: 200,
+                backgroundColor: '#f0f0f0',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: 8,
+              }}
+            >
+              <Text type="secondary">No Image</Text>
+            </div>
+          )}
+
+          <div>
+            <Title level={5} style={{ margin: 0, marginBottom: 4 }}>
+              {name}
+            </Title>
+            <Text strong style={{ fontSize: 16, color: '#ff4d4f' }}>
+              {price ? formatPrice(price) : t('contactForPrice')}
+            </Text>
+          </div>
+        </div>
+      </Card>
+    </Link>
+  );
+};
+
+export default function ProductsListPage() {
+  const t = useTranslations();
+  const { data, isLoading } = useGetPublicProductsQuery();
+  const { data: categoriesData } = useGetPublicCategoriesQuery();
+
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [sortBy, setSortBy] = useState<string>('newest');
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 100000000]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 12;
+
+  if (isLoading) {
+    return (
+      <div style={{ textAlign: 'center', padding: '48px 0' }}>
+        <Spin size="large" />
+      </div>
+    );
+  }
+
+  if (!data || !data.products || data.products.length === 0) {
+    return (
+      <div>
+        <Title level={2}>{t('navigation.products')}</Title>
+        <Empty description="No products available" />
+      </div>
+    );
+  }
+
+  // Filter products
+  let filteredProducts = data.products.filter((product) => product.is_active);
+
+  // Search filter
+  if (searchTerm) {
+    filteredProducts = filteredProducts.filter((product) =>
+      product.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }
+
+  // Category filter
+  if (selectedCategory !== 'all') {
+    filteredProducts = filteredProducts.filter((product) =>
+      product.categories?.some((cat) => cat.id === selectedCategory)
+    );
+  }
+
+  // Price range filter
+  filteredProducts = filteredProducts.filter((product) => {
+    if (!product.price) return true; // Include "contact for price" products
+    return product.price >= priceRange[0] && product.price <= priceRange[1];
+  });
+
+  // Sort products
+  filteredProducts = [...filteredProducts].sort((a, b) => {
+    switch (sortBy) {
+      case 'price-asc':
+        return (a.price || 0) - (b.price || 0);
+      case 'price-desc':
+        return (b.price || 0) - (a.price || 0);
+      case 'name':
+        return a.name.localeCompare(b.name);
+      case 'popular':
+        return b.view_count - a.view_count;
+      case 'newest':
+      default:
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    }
+  });
+
+  // Pagination
+  const startIndex = (currentPage - 1) * pageSize;
+  const paginatedProducts = filteredProducts.slice(startIndex, startIndex + pageSize);
+
+  return (
+    <div>
+      <Title level={2} style={{ marginBottom: 24 }}>
+        {t('navigation.products')}
+      </Title>
+
+      {/* Filters */}
+      <Card style={{ marginBottom: 24 }}>
+        <Space direction="vertical" style={{ width: '100%' }} size="middle">
+          <Row gutter={[16, 16]}>
+            {/* Search */}
+            <Col xs={24} sm={12} md={8}>
+              <Input
+                placeholder={t('common.search')}
+                prefix={<SearchOutlined />}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                allowClear
+              />
+            </Col>
+
+            {/* Category Filter */}
+            <Col xs={24} sm={12} md={8}>
+              <Select
+                style={{ width: '100%' }}
+                placeholder={t('product.labels.categories')}
+                value={selectedCategory}
+                onChange={setSelectedCategory}
+              >
+                <Select.Option value="all">{t('common.all')}</Select.Option>
+                {categoriesData?.map((cat) => (
+                  <Select.Option key={cat.id} value={cat.id}>
+                    {cat.name}
+                  </Select.Option>
+                ))}
+              </Select>
+            </Col>
+
+            {/* Sort */}
+            <Col xs={24} sm={12} md={8}>
+              <Select style={{ width: '100%' }} value={sortBy} onChange={setSortBy}>
+                <Select.Option value="newest">{t('common.sortNewest')}</Select.Option>
+                <Select.Option value="popular">{t('common.sortPopular')}</Select.Option>
+                <Select.Option value="price-asc">{t('common.sortPriceAsc')}</Select.Option>
+                <Select.Option value="price-desc">{t('common.sortPriceDesc')}</Select.Option>
+                <Select.Option value="name">{t('common.sortName')}</Select.Option>
+              </Select>
+            </Col>
+          </Row>
+
+          {/* Price Range */}
+          <div>
+            <Text strong>Price Range:</Text>
+            <Slider
+              range
+              min={0}
+              max={100000000}
+              step={1000000}
+              value={priceRange}
+              onChange={(value) => setPriceRange(value as [number, number])}
+              tooltip={{
+                formatter: (value) =>
+                  value
+                    ? new Intl.NumberFormat('vi-VN', {
+                        style: 'currency',
+                        currency: 'VND',
+                      }).format(value)
+                    : '',
+              }}
+            />
+          </div>
+
+          {/* Results count */}
+          <Text type="secondary">
+            {filteredProducts.length} {t('common.results')}
+          </Text>
+        </Space>
+      </Card>
+
+      {/* Products Grid */}
+      {paginatedProducts.length > 0 ? (
+        <>
+          <Row gutter={[16, 16]}>
+            {paginatedProducts.map((product) => {
+              const firstImage = product.media?.find((m) => m.media_type === 'image');
+              return (
+                <Col key={product.id} xs={24} sm={12} md={8} lg={6}>
+                  <ProductCard
+                    id={product.id}
+                    name={product.name}
+                    price={product.price}
+                    imageUrl={firstImage?.file_url}
+                    inStock={product.in_stock}
+                  />
+                </Col>
+              );
+            })}
+          </Row>
+
+          {/* Pagination */}
+          {filteredProducts.length > pageSize && (
+            <div style={{ marginTop: 32, textAlign: 'center' }}>
+              <Pagination
+                current={currentPage}
+                pageSize={pageSize}
+                total={filteredProducts.length}
+                onChange={setCurrentPage}
+                showSizeChanger={false}
+                showTotal={(total, range) => `${range[0]}-${range[1]} of ${total} items`}
+              />
+            </div>
+          )}
+        </>
+      ) : (
+        <Empty description="No products found" />
+      )}
+    </div>
+  );
+}
