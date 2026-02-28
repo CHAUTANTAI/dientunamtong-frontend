@@ -41,7 +41,7 @@ const ProductCard = ({ id, name, price, imageUrl, inStock }: ProductCardProps) =
       <Card
         hoverable
         style={{ height: '100%' }}
-        bodyStyle={{ padding: '16px' }}
+        styles={{ body: { padding: '16px' } }}
       >
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           {signedUrl ? (

@@ -287,9 +287,9 @@ export default function ProductDetailPage({ productId }: ProductDetailPageProps)
               {/* Status Tags */}
               <Space>
                 {product.is_active && (
-                  <Tag color="green">{t('product.labels.active')}</Tag>
+                  <Tag color="green">{t('common.active')}</Tag>
                 )}
-                {!product.in_stock && <Tag color="red">Out of Stock</Tag>}
+                {!product.in_stock && <Tag color="red">{t('common.outOfStock')}</Tag>}
               </Space>
 
               {/* Price */}
@@ -344,9 +344,11 @@ export default function ProductDetailPage({ productId }: ProductDetailPageProps)
                 <Button type="primary" size="large" icon={<ShoppingCartOutlined />} disabled={!product.in_stock}>
                   Add to Cart (Coming Soon)
                 </Button>
-                <Button size="large" icon={<PhoneOutlined />}>
-                  <Link href={ROUTES.CONTACT}>{t('client.contact.title')}</Link>
-                </Button>
+                <Link href={`${ROUTES.CONTACT}?productId=${product.id}`}>
+                  <Button size="large" icon={<PhoneOutlined />}>
+                    {t('client.contact.title')}
+                  </Button>
+                </Link>
               </Space>
             </Space>
           </Card>

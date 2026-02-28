@@ -1,7 +1,8 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import {
   Row,
   Col,
@@ -10,10 +11,10 @@ import {
   Form,
   Input,
   Button,
-  message,
   Space,
   Divider,
   Spin,
+  App,
 } from 'antd';
 import {
   PhoneOutlined,
@@ -23,6 +24,8 @@ import {
 } from '@ant-design/icons';
 import { useTranslations } from 'next-intl';
 import { useGetSystemInfoQuery } from '@/store/services/publicSystemInfoApi';
+import { useGetPublicProductByIdQuery } from '@/store/services/publicProductApi';
+import { useSubmitContactMutation } from '@/store/services/contactApi';
 import { Controller, useForm } from 'react-hook-form';
 import { BusinessHoursDisplay } from '@/components/business-hours/BusinessHoursDisplay';
 
@@ -38,41 +41,74 @@ interface ContactFormValues {
   name: string;
   email: string;
   phone: string;
-  product?: string;
   message: string;
 }
 
 export default function ContactPage() {
   const t = useTranslations();
+  const { message: messageApi } = App.useApp();
+  const searchParams = useSearchParams();
+  const productId = searchParams.get('productId');
+  
   const { data: systemInfo, isLoading: systemInfoLoading } = useGetSystemInfoQuery();
-  const [submitting, setSubmitting] = useState(false);
+  const { data: productData, isLoading: productLoading } = useGetPublicProductByIdQuery(productId || '', {
+    skip: !productId,
+  });
+  const [submitContact, { isLoading: submitting }] = useSubmitContactMutation();
 
   const {
     control,
     handleSubmit,
     reset,
+    setValue,
     formState: { errors },
   } = useForm<ContactFormValues>({
     defaultValues: {
       name: '',
       email: '',
       phone: '',
-      product: '',
       message: '',
     },
   });
 
+  // Debug logs
+  useEffect(() => {
+    console.log('🔍 Contact Page Debug:', {
+      productId,
+      hasProductData: !!productData,
+      productName: productData?.name,
+      isLoadingProduct: productLoading,
+    });
+  }, [productId, productData, productLoading]);
+
+  // Set product name in message when coming from product page
+  useEffect(() => {
+    if (productData) {
+      const productName = productData.name;
+      setValue('message', `${t('client.contact.interestedInProduct')}: ${productName}\n\n`);
+      console.log('✅ Set message with product:', productName);
+    }
+  }, [productData, setValue, t]);
+
   const onSubmit = async (values: ContactFormValues) => {
-    setSubmitting(true);
     try {
-      console.log('Contact form submitted:', values);
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      message.success(t('client.contact.messageSentSuccess'));
+      const payload = {
+        name: values.name,
+        email: values.email,
+        phone: values.phone,
+        message: values.message,
+        product_id: productId || undefined,
+      };
+      
+      console.log('📤 Submitting contact form:', payload);
+      
+      await submitContact(payload).unwrap();
+      
+      messageApi.success(t('client.contact.messageSentSuccess'));
       reset();
-    } catch {
-      message.error(t('client.contact.messageSentFailed'));
-    } finally {
-      setSubmitting(false);
+    } catch (error) {
+      console.error('❌ Contact form error:', error);
+      messageApi.error(t('client.contact.messageSentFailed'));
     }
   };
 
@@ -148,16 +184,17 @@ export default function ContactPage() {
                 />
               </Form.Item>
 
-              {/* Product (Optional) */}
-              <Form.Item label={t('client.contact.interestedProduct')}>
-                <Controller
-                  name="product"
-                  control={control}
-                  render={({ field }) => (
-                    <Input {...field} size="large" placeholder={t('client.contact.enterProduct')} />
-                  )}
-                />
-              </Form.Item>
+              {/* Product Info - Only show when coming from product page */}
+              {productData && (
+                <Form.Item label={t('client.contact.interestedProduct')}>
+                  <Input 
+                    value={productData.name} 
+                    disabled 
+                    size="large"
+                    style={{ backgroundColor: '#f5f5f5' }}
+                  />
+                </Form.Item>
+              )}
 
               {/* Message */}
               <Form.Item
