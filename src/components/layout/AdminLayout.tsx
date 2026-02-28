@@ -11,7 +11,10 @@ import { Sidebar } from './Sidebar';
 import { Header } from './Header';
 import { Breadcrumbs } from './Breadcrumbs';
 import { Footer } from './Footer';
+import DynamicFavicon from '@/components/common/DynamicFavicon';
 import { usePageTitle } from '@/hooks/usePageTitle';
+import { useGetProfileQuery } from '@/store/api/profileApi';
+import { useSignedImageUrl } from '@/hooks/useSignedImageUrl';
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -19,6 +22,9 @@ interface AdminLayoutProps {
 
 export const AdminLayout = ({ children }: AdminLayoutProps) => {
   const pageTitle = usePageTitle();
+  const { data: profile } = useGetProfileQuery();
+  const faviconUrl = useSignedImageUrl(profile?.logo || '');
+  
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
@@ -48,6 +54,7 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
+      <DynamicFavicon logoUrl={faviconUrl} />
       {/* Sidebar */}
       <Sidebar
         collapsed={sidebarCollapsed}

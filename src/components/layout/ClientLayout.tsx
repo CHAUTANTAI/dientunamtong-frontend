@@ -4,7 +4,9 @@ import { useEffect } from 'react';
 import { Layout } from 'antd';
 import ClientHeader from './ClientHeader';
 import ClientFooter from './ClientFooter';
+import DynamicFavicon from '@/components/common/DynamicFavicon';
 import { useGetSystemInfoQuery } from '@/store/services/publicSystemInfoApi';
+import { useSignedImageUrl } from '@/hooks/useSignedImageUrl';
 
 const { Content } = Layout;
 
@@ -14,6 +16,7 @@ interface ClientLayoutProps {
 
 export default function ClientLayout({ children }: ClientLayoutProps) {
   const { data: systemInfo } = useGetSystemInfoQuery();
+  const faviconUrl = useSignedImageUrl(systemInfo?.company_logo || '');
 
   // Dynamically update document title based on system info
   useEffect(() => {
@@ -24,6 +27,7 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
+      <DynamicFavicon logoUrl={faviconUrl} />
       <ClientHeader />
       <Content
         style={{
