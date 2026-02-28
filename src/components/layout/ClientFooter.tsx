@@ -3,14 +3,14 @@
 import { Layout, Row, Col, Space, Typography } from 'antd';
 import { PhoneOutlined, MailOutlined, EnvironmentOutlined } from '@ant-design/icons';
 import { useTranslations } from 'next-intl';
-import { useGetProfileQuery } from '@/store/api/profileApi';
+import { useGetSystemInfoQuery } from '@/store/services/publicSystemInfoApi';
 
 const { Footer } = Layout;
 const { Text, Link } = Typography;
 
 export default function ClientFooter() {
   const t = useTranslations();
-  const { data: profile } = useGetProfileQuery();
+  const { data: systemInfo } = useGetSystemInfoQuery();
 
   return (
     <Footer
@@ -31,12 +31,12 @@ export default function ClientFooter() {
           <Col xs={24} sm={12} md={8}>
             <Space direction="vertical" size="middle">
               <Text strong style={{ color: '#fff', fontSize: '16px' }}>
-                {profile?.company_name || 'Company Name'}
+                {systemInfo?.company_name || 'Company Name'}
               </Text>
-              {profile?.address && (
+              {systemInfo?.address && (
                 <Space>
                   <EnvironmentOutlined style={{ color: '#1890ff' }} />
-                  <Text style={{ color: '#fff' }}>{profile.address}</Text>
+                  <Text style={{ color: '#fff' }}>{systemInfo.address}</Text>
                 </Space>
               )}
             </Space>
@@ -47,19 +47,19 @@ export default function ClientFooter() {
               <Text strong style={{ color: '#fff', fontSize: '16px' }}>
                 {t('navigation.contact')}
               </Text>
-              {profile?.phone && (
+              {systemInfo?.phone && (
                 <Space>
                   <PhoneOutlined style={{ color: '#1890ff' }} />
-                  <Link href={`tel:${profile.phone}`} style={{ color: '#fff' }}>
-                    {profile.phone}
+                  <Link href={`tel:${systemInfo.phone}`} style={{ color: '#fff' }}>
+                    {systemInfo.phone}
                   </Link>
                 </Space>
               )}
-              {profile?.email && (
+              {systemInfo?.email && (
                 <Space>
                   <MailOutlined style={{ color: '#1890ff' }} />
-                  <Link href={`mailto:${profile.email}`} style={{ color: '#fff' }}>
-                    {profile.email}
+                  <Link href={`mailto:${systemInfo.email}`} style={{ color: '#fff' }}>
+                    {systemInfo.email}
                   </Link>
                 </Space>
               )}
@@ -72,7 +72,7 @@ export default function ClientFooter() {
                 {t('navigation.about')}
               </Text>
               <Text style={{ color: '#fff' }}>
-                © {new Date().getFullYear()} {profile?.company_name || 'Company'}
+                © {new Date().getFullYear()} {systemInfo?.company_name || 'Company'}
               </Text>
             </Space>
           </Col>

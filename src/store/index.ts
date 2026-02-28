@@ -14,6 +14,7 @@ import { bannerApi } from './api/bannerApi';
 import { publicBannerApi } from './services/publicBannerApi';
 import { publicCategoryApi } from './services/publicCategoryApi';
 import { publicProductApi } from './services/publicProductApi';
+import { publicSystemInfoApi } from './services/publicSystemInfoApi';
 
 export const store = configureStore({
   reducer: {
@@ -27,6 +28,7 @@ export const store = configureStore({
     [publicBannerApi.reducerPath]: publicBannerApi.reducer,
     [publicCategoryApi.reducerPath]: publicCategoryApi.reducer,
     [publicProductApi.reducerPath]: publicProductApi.reducer,
+    [publicSystemInfoApi.reducerPath]: publicSystemInfoApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware()
@@ -38,7 +40,8 @@ export const store = configureStore({
       .concat(bannerApi.middleware)
       .concat(publicBannerApi.middleware)
       .concat(publicCategoryApi.middleware)
-      .concat(publicProductApi.middleware),
+      .concat(publicProductApi.middleware)
+      .concat(publicSystemInfoApi.middleware),
 });
 
 // Export types
