@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Form, Input, Button, message, Card, Spin, Image, Upload } from 'antd';
+import { Form, Input, Button, Card, Spin, Image, Upload, App, Divider } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
 import type { UploadFile } from 'antd';
 import { useTranslations } from 'next-intl';
@@ -8,14 +8,23 @@ import { useGetProfileQuery, useUpdateProfileMutation } from '@/store/api/profil
 import { getErrorMessage } from '@/utils/api-interceptor';
 import { uploadToSupabase, deleteFromSupabase } from '@/utils/supabase';
 import { useSignedImageUrl } from '@/hooks/useSignedImageUrl';
+import dynamic from 'next/dynamic';
+
+// Dynamic import to avoid SSR issues with Leaflet
+const MapPicker = dynamic(() => import('@/components/map/MapPicker'), {
+  ssr: false,
+  loading: () => <div style={{ height: 400, background: '#f0f0f0' }}>Loading map...</div>,
+});
 
 const AdminProfilePage = () => {
   const t = useTranslations();
+  const { message } = App.useApp();
   const [form] = Form.useForm();
   const [updateProfile, { isLoading: isUpdating }] = useUpdateProfileMutation();
   const { data, isLoading, isError } = useGetProfileQuery();
   const [fileList, setFileList] = useState<UploadFile[]>([]);
   const [isUploading, setIsUploading] = useState(false);
+  const [mapCoords, setMapCoords] = useState<{ lat: number; lng: number } | null>(null);
 
   const signedLogoUrl = useSignedImageUrl(data?.logo || '');
 
@@ -26,10 +35,15 @@ const AdminProfilePage = () => {
         company_name: data.company_name,
         phone: data.phone || '',
         address: data.address || '',
+        about_us: data.about_us || '',
         email: data.email || '',
         logo: data.logo || '',
         username: data.username,
       });
+      
+      if (data.map_latitude && data.map_longitude) {
+        setMapCoords({ lat: data.map_latitude, lng: data.map_longitude });
+      }
     }
   }, [data, form]);
 
@@ -75,8 +89,15 @@ const AdminProfilePage = () => {
         }
       }
 
-      // Step 2: Update profile
-      await updateProfile({ ...updateData, logo: logoUrl }).unwrap();
+      // Step 2: Update profile with map coordinates
+      const finalData = {
+        ...updateData,
+        logo: logoUrl,
+        map_latitude: mapCoords?.lat || null,
+        map_longitude: mapCoords?.lng || null,
+      };
+      
+      await updateProfile(finalData).unwrap();
       message.success(t('profile.messages.updateSuccess'));
       setFileList([]);
     } catch (err) {
@@ -143,6 +164,20 @@ const AdminProfilePage = () => {
             <Input.TextArea placeholder={t('profile.placeholders.address')} rows={3} size="large" />
           </Form.Item>
 
+          <Form.Item 
+            name="about_us" 
+            label={t('profile.labels.aboutUs')}
+            tooltip={t('profile.messages.aboutUsTooltip')}
+          >
+            <Input.TextArea 
+              placeholder={t('profile.placeholders.aboutUs')} 
+              rows={6} 
+              size="large"
+              showCount
+              maxLength={2000}
+            />
+          </Form.Item>
+
           <Form.Item
             name="email"
             label={t('profile.labels.email')}
@@ -188,6 +223,19 @@ const AdminProfilePage = () => {
 
           <Form.Item name="username" label={t('profile.labels.username')} tooltip={t('profile.messages.usernameTooltip')}>
             <Input disabled size="large" />
+          </Form.Item>
+
+          <Divider />
+
+          <Form.Item 
+            label={t('profile.labels.mapLocation')}
+            tooltip={t('profile.messages.mapLocationTooltip')}
+          >
+            <MapPicker
+              latitude={mapCoords?.lat}
+              longitude={mapCoords?.lng}
+              onChange={(lat, lng) => setMapCoords({ lat, lng })}
+            />
           </Form.Item>
 
           <Form.Item>

@@ -7,6 +7,9 @@ export interface SystemInfo {
   phone?: string;
   email?: string;
   address?: string;
+  about_us?: string;
+  map_latitude?: number;
+  map_longitude?: number;
 }
 
 export const publicSystemInfoApi = createApi({

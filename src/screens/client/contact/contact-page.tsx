@@ -24,6 +24,13 @@ import {
 import { useTranslations } from 'next-intl';
 import { useGetSystemInfoQuery } from '@/store/services/publicSystemInfoApi';
 import { Controller, useForm } from 'react-hook-form';
+import dynamic from 'next/dynamic';
+
+// Dynamic import to avoid SSR issues with Leaflet
+const MapDisplay = dynamic(() => import('@/components/map/MapDisplay'), {
+  ssr: false,
+  loading: () => <div style={{ height: 300, background: '#f0f0f0' }}>Loading map...</div>,
+});
 
 const { Title, Text } = Typography;
 const { TextArea } = Input;
@@ -61,10 +68,10 @@ export default function ContactPage() {
     try {
       console.log('Contact form submitted:', values);
       await new Promise((resolve) => setTimeout(resolve, 1000));
-      message.success('Message sent successfully! We will contact you soon.');
+      message.success(t('client.contact.messageSentSuccess'));
       reset();
     } catch {
-      message.error('Failed to send message. Please try again.');
+      message.error(t('client.contact.messageSentFailed'));
     } finally {
       setSubmitting(false);
     }
@@ -91,7 +98,7 @@ export default function ContactPage() {
             <Form layout="vertical" onFinish={handleSubmit(onSubmit)}>
               {/* Name */}
               <Form.Item
-                label="Full Name"
+                label={t('client.contact.fullName')}
                 validateStatus={errors.name ? 'error' : ''}
                 help={errors.name?.message}
                 required
@@ -99,14 +106,14 @@ export default function ContactPage() {
                 <Controller
                   name="name"
                   control={control}
-                  rules={{ required: 'Name is required' }}
-                  render={({ field }) => <Input {...field} size="large" placeholder="Enter your name" />}
+                  rules={{ required: t('client.contact.nameRequired') }}
+                  render={({ field }) => <Input {...field} size="large" placeholder={t('client.contact.enterName')} />}
                 />
               </Form.Item>
 
               {/* Email */}
               <Form.Item
-                label="Email"
+                label={t('client.contact.email')}
                 validateStatus={errors.email ? 'error' : ''}
                 help={errors.email?.message}
                 required
@@ -115,19 +122,19 @@ export default function ContactPage() {
                   name="email"
                   control={control}
                   rules={{
-                    required: 'Email is required',
+                    required: t('client.contact.emailRequired'),
                     pattern: {
                       value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                      message: 'Invalid email address',
+                      message: t('client.contact.invalidEmail'),
                     },
                   }}
-                  render={({ field }) => <Input {...field} size="large" placeholder="Enter your email" />}
+                  render={({ field }) => <Input {...field} size="large" placeholder={t('client.contact.enterEmail')} />}
                 />
               </Form.Item>
 
               {/* Phone */}
               <Form.Item
-                label="Phone Number"
+                label={t('client.contact.phone')}
                 validateStatus={errors.phone ? 'error' : ''}
                 help={errors.phone?.message}
                 required
@@ -135,9 +142,9 @@ export default function ContactPage() {
                 <Controller
                   name="phone"
                   control={control}
-                  rules={{ required: 'Phone number is required' }}
+                  rules={{ required: t('client.contact.phoneRequired') }}
                   render={({ field }) => (
-                    <Input {...field} size="large" placeholder="Enter your phone number" />
+                    <Input {...field} size="large" placeholder={t('client.contact.enterPhone')} />
                   )}
                 />
               </Form.Item>
@@ -148,14 +155,14 @@ export default function ContactPage() {
                   name="product"
                   control={control}
                   render={({ field }) => (
-                    <Input {...field} size="large" placeholder="Product name (optional)" />
+                    <Input {...field} size="large" placeholder={t('client.contact.enterProduct')} />
                   )}
                 />
               </Form.Item>
 
               {/* Message */}
               <Form.Item
-                label="Message"
+                label={t('client.contact.message')}
                 validateStatus={errors.message ? 'error' : ''}
                 help={errors.message?.message}
                 required
@@ -163,9 +170,9 @@ export default function ContactPage() {
                 <Controller
                   name="message"
                   control={control}
-                  rules={{ required: 'Message is required' }}
+                  rules={{ required: t('client.contact.messageRequired') }}
                   render={({ field }) => (
-                    <TextArea {...field} rows={6} placeholder="Tell us about your inquiry..." />
+                    <TextArea {...field} rows={6} placeholder={t('client.contact.enterMessage')} />
                   )}
                 />
               </Form.Item>
@@ -180,7 +187,7 @@ export default function ContactPage() {
                   loading={submitting}
                   block
                 >
-                  Send Message
+                  {t('client.contact.sendMessage')}
                 </Button>
               </Form.Item>
             </Form>
@@ -189,7 +196,7 @@ export default function ContactPage() {
 
         {/* Company Info */}
         <Col xs={24} md={10}>
-          <Card title="Contact Information">
+          <Card title={t('client.contact.contactInformation')}>
             <Space direction="vertical" size="large" style={{ width: '100%' }}>
               {/* Company Name */}
               {systemInfo?.company_name && (
@@ -205,7 +212,7 @@ export default function ContactPage() {
                 <Space>
                   <PhoneOutlined style={{ fontSize: 20, color: '#1890ff' }} />
                   <div>
-                    <Text strong>Phone</Text>
+                    <Text strong>{t('client.about.phone')}</Text>
                     <br />
                     <a href={`tel:${systemInfo.phone}`} style={{ fontSize: 16 }}>
                       {systemInfo.phone}
@@ -219,7 +226,7 @@ export default function ContactPage() {
                 <Space>
                   <MailOutlined style={{ fontSize: 20, color: '#1890ff' }} />
                   <div>
-                    <Text strong>Email</Text>
+                    <Text strong>{t('client.about.email')}</Text>
                     <br />
                     <a href={`mailto:${systemInfo.email}`} style={{ fontSize: 16 }}>
                       {systemInfo.email}
@@ -233,7 +240,7 @@ export default function ContactPage() {
                 <Space align="start">
                   <EnvironmentOutlined style={{ fontSize: 20, color: '#1890ff' }} />
                   <div>
-                    <Text strong>Address</Text>
+                    <Text strong>{t('client.about.address')}</Text>
                     <br />
                     <Text style={{ fontSize: 16 }}>{systemInfo.address}</Text>
                   </div>
@@ -246,33 +253,42 @@ export default function ContactPage() {
               <Space align="start">
                 <ClockCircleOutlined style={{ fontSize: 20, color: '#1890ff' }} />
                 <div>
-                  <Text strong>Business Hours</Text>
+                  <Text strong>{t('client.contact.businessHours')}</Text>
                   <br />
-                  <Text>Monday - Friday: 8:00 AM - 6:00 PM</Text>
+                  <Text>{t('client.contact.mondayFriday')}</Text>
                   <br />
-                  <Text>Saturday: 8:00 AM - 12:00 PM</Text>
+                  <Text>{t('client.contact.saturday')}</Text>
                   <br />
-                  <Text>Sunday: Closed</Text>
+                  <Text>{t('client.contact.sunday')}</Text>
                 </div>
               </Space>
             </Space>
           </Card>
 
           {/* Map or Additional Info Card */}
-          <Card style={{ marginTop: 16 }} title="Find Us">
-            <div
-              style={{
-                width: '100%',
-                height: 200,
-                backgroundColor: '#f0f0f0',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                borderRadius: 8,
-              }}
-            >
-              <Text type="secondary">Map integration coming soon</Text>
-            </div>
+          <Card style={{ marginTop: 16 }} title={t('client.contact.findUs')}>
+            {systemInfo?.map_latitude && systemInfo?.map_longitude ? (
+              <MapDisplay
+                latitude={systemInfo.map_latitude}
+                longitude={systemInfo.map_longitude}
+                companyName={systemInfo.company_name}
+                address={systemInfo.address}
+              />
+            ) : (
+              <div
+                style={{
+                  width: '100%',
+                  height: 300,
+                  backgroundColor: '#f0f0f0',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  borderRadius: 8,
+                }}
+              >
+                <Text type="secondary">{t('client.contact.mapComingSoon')}</Text>
+              </div>
+            )}
           </Card>
         </Col>
       </Row>

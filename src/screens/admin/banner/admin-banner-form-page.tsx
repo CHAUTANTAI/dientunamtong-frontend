@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Card, Form, Input, Select, Switch, Button, App, Upload, Image as AntImage, Spin } from 'antd';
 import { PlusOutlined, UploadOutlined } from '@ant-design/icons';
 import { useRouter, useParams } from 'next/navigation';
@@ -42,16 +42,18 @@ export const AdminBannerFormPage = () => {
   const [imageFile, setImageFile] = useState<UploadFile | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
+  
+  const hasSetDefaultSortOrder = useRef(false);
 
   const existingImageUrl = useSignedImageUrl(banner?.media?.file_url || '');
 
   // Set default sort_order for create mode
   useEffect(() => {
-    if (!isEditMode && sortOrderData && !form.getFieldValue('sort_order')) {
+    if (!isEditMode && sortOrderData && !hasSetDefaultSortOrder.current && !form.getFieldValue('sort_order')) {
       form.setFieldValue('sort_order', sortOrderData.default);
+      hasSetDefaultSortOrder.current = true;
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sortOrderData, isEditMode]);
+  }, [sortOrderData, isEditMode, form]);
 
   useEffect(() => {
     if (isEditMode && banner) {
@@ -62,8 +64,7 @@ export const AdminBannerFormPage = () => {
         is_active: banner.is_active,
       });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [banner, isEditMode]);
+  }, [banner, isEditMode, form]);
 
   const handleImageChange: UploadProps['onChange'] = ({ fileList }) => {
     if (fileList.length > 0) {

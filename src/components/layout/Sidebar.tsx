@@ -1,12 +1,12 @@
 /**
  * Sidebar Component
- * Left navigation sidebar for admin layout
+ * Left navigation sidebar for admin layout with mobile drawer support
  */
 
 'use client';
 
-import { Layout, Menu, Typography, Button, Image } from 'antd';
-import { LeftOutlined, RightOutlined } from '@ant-design/icons';
+import { Layout, Menu, Typography, Button, Image, Drawer } from 'antd';
+import { LeftOutlined, RightOutlined, CloseOutlined } from '@ant-design/icons';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
@@ -22,9 +22,18 @@ const { Text } = Typography;
 interface SidebarProps {
   collapsed?: boolean;
   onToggle?: () => void;
+  isMobile?: boolean;
+  mobileDrawerOpen?: boolean;
+  onMobileClose?: () => void;
 }
 
-export const Sidebar = ({ collapsed = false, onToggle }: SidebarProps) => {
+export const Sidebar = ({ 
+  collapsed = false, 
+  onToggle,
+  isMobile = false,
+  mobileDrawerOpen = false,
+  onMobileClose
+}: SidebarProps) => {
   const t = useTranslations();
   const pathname = usePathname();
   const { user } = useAuth();
@@ -59,62 +68,48 @@ export const Sidebar = ({ collapsed = false, onToggle }: SidebarProps) => {
   }));
 
   // Determine selected menu key based on current pathname
-  // Sort by href length (longest first) to match most specific route
   const selectedKey =
     [...visibleMenuItems]
       .sort((a, b) => (b.href?.length || 0) - (a.href?.length || 0))
       .find((m) => m.href && pathname.startsWith(m.href))?.key ?? 'dashboard';
 
-  return (
-    <Layout.Sider
-      collapsed={collapsed}
-      collapsible
-      trigger={null}
-      width={260}
-      collapsedWidth={80}
+  const sidebarContent = (
+    <div
       style={{
-        overflow: 'hidden',
-        height: '100vh',
-        position: 'sticky',
-        left: 0,
-        top: 0,
-        background: 'linear-gradient(180deg, #1e1e2e 0%, #27273f 100%)',
-        boxShadow: '2px 0 12px rgba(0, 0, 0, 0.2)',
-        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
         display: 'flex',
         flexDirection: 'column',
+        height: '100%',
       }}
     >
-      {/* Logo & Brand Section with Toggle */}
+      {/* Logo & Brand Section */}
       <div
         style={{
           height: '64px',
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'space-between',
+          justifyContent: isMobile ? 'space-between' : (collapsed ? 'center' : 'space-between'),
           padding: collapsed ? '12px 16px' : '12px 20px',
           background: 'rgba(255, 255, 255, 0.08)',
           borderBottom: '1px solid rgba(255, 255, 255, 0.12)',
-          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
           gap: '12px',
         }}
       >
-        {/* Logo Only */}
+        {/* Logo */}
         <div
           style={{
             display: 'flex',
             alignItems: 'center',
             flex: 1,
             minWidth: 0,
-            justifyContent: 'center',
+            justifyContent: isMobile || !collapsed ? 'flex-start' : 'center',
           }}
         >
           {signedLogoUrl && (
             <Image
               src={signedLogoUrl}
               alt="Logo"
-              width={collapsed ? 40 : 42}
-              height={collapsed ? 40 : 42}
+              width={isMobile ? 36 : (collapsed ? 40 : 42)}
+              height={isMobile ? 36 : (collapsed ? 40 : 42)}
               preview={false}
               style={{
                 borderRadius: '10px',
@@ -122,123 +117,109 @@ export const Sidebar = ({ collapsed = false, onToggle }: SidebarProps) => {
                 border: '2px solid rgba(255, 255, 255, 0.3)',
                 boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
                 flexShrink: 0,
-                transition: 'all 0.3s ease',
               }}
             />
           )}
         </div>
 
-        {/* Toggle Button */}
-        <Button
-          type="text"
-          icon={
-            collapsed ? (
-              <RightOutlined
-                style={{
-                  fontSize: '16px',
-                  color: '#fff',
-                }}
-              />
-            ) : (
-              <LeftOutlined
-                style={{
-                  fontSize: '16px',
-                  color: '#fff',
-                }}
-              />
-            )
-          }
-          onClick={onToggle}
-          style={{
-            color: '#fff',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            height: '36px',
-            width: '36px',
-            minWidth: '36px',
-            borderRadius: '8px',
-            background: 'rgba(255, 255, 255, 0.1)',
-            transition: 'all 0.2s ease',
-            flexShrink: 0,
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)';
-            e.currentTarget.style.transform = 'scale(1.05)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
-            e.currentTarget.style.transform = 'scale(1)';
-          }}
-        />
+        {/* Toggle/Close Button */}
+        {!isMobile && (
+          <Button
+            type="text"
+            icon={
+              collapsed ? (
+                <RightOutlined style={{ fontSize: '16px', color: '#fff' }} />
+              ) : (
+                <LeftOutlined style={{ fontSize: '16px', color: '#fff' }} />
+              )
+            }
+            onClick={onToggle}
+            style={{
+              color: '#fff',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              height: '36px',
+              width: '36px',
+              minWidth: '36px',
+              borderRadius: '8px',
+              background: 'rgba(255, 255, 255, 0.1)',
+              flexShrink: 0,
+            }}
+          />
+        )}
+
+        {isMobile && (
+          <Button
+            type="text"
+            icon={<CloseOutlined style={{ fontSize: '16px', color: '#fff' }} />}
+            onClick={onMobileClose}
+            style={{
+              color: '#fff',
+              height: '36px',
+              width: '36px',
+              borderRadius: '8px',
+              background: 'rgba(255, 255, 255, 0.1)',
+            }}
+          />
+        )}
       </div>
 
-      {/* Content Container with Flex Layout */}
+      {/* Menu */}
+      <Menu
+        selectedKeys={[String(selectedKey)]}
+        items={menuItems}
+        mode="inline"
+        onClick={isMobile ? onMobileClose : undefined}
+        style={{
+          background: 'transparent',
+          border: 'none',
+          marginTop: '8px',
+          flex: 1,
+          minHeight: 'fit-content',
+        }}
+        theme="dark"
+        inlineIndent={24}
+        className="custom-sidebar-menu"
+      />
+
+      {/* Bottom Info */}
       <div
         style={{
-          display: 'flex',
-          flexDirection: 'column',
-          flex: 1,
-          minHeight: 0,
+          margin: '20px',
+          padding: (collapsed && !isMobile) ? '12px' : '16px',
+          background: (collapsed && !isMobile)
+            ? 'transparent'
+            : 'linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(147, 51, 234, 0.1))',
+          borderRadius: '12px',
+          border: (collapsed && !isMobile) ? 'none' : '1px solid rgba(255, 255, 255, 0.15)',
+          opacity: (collapsed && !isMobile) ? 0 : 1,
+          height: (collapsed && !isMobile) ? '0' : 'auto',
+          overflow: 'hidden',
         }}
       >
-        {/* Menu */}
-        <Menu
-          selectedKeys={[String(selectedKey)]}
-          items={menuItems}
-          mode="inline"
+        <Text
           style={{
-            background: 'transparent',
-            border: 'none',
-            marginTop: '8px',
-            flex: 1,
-            minHeight: 'fit-content',
-          }}
-          theme="dark"
-          inlineIndent={24}
-          className="custom-sidebar-menu"
-        />
-
-        {/* Bottom Decoration */}
-        <div
-          style={{
-            margin: '20px',
-            padding: collapsed ? '12px' : '16px',
-            background: collapsed
-              ? 'transparent'
-              : 'linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(147, 51, 234, 0.1))',
-            borderRadius: '12px',
-            border: collapsed ? 'none' : '1px solid rgba(255, 255, 255, 0.15)',
-            boxShadow: collapsed ? 'none' : '0 4px 12px rgba(0, 0, 0, 0.1)',
-            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-            opacity: collapsed ? 0 : 1,
-            height: collapsed ? '0' : 'auto',
-            overflow: 'hidden',
+            color: 'rgba(255, 255, 255, 0.7)',
+            fontSize: '12px',
+            display: 'block',
+            textAlign: 'center',
+            fontWeight: 500,
           }}
         >
-          <Text
-            style={{
-              color: 'rgba(255, 255, 255, 0.7)',
-              fontSize: '12px',
-              display: 'block',
-              textAlign: 'center',
-              fontWeight: 500,
-            }}
-          >
-            © 2026 Nam Tông Store
-          </Text>
-          <Text
-            style={{
-              color: 'rgba(255, 255, 255, 0.45)',
-              fontSize: '11px',
-              display: 'block',
-              textAlign: 'center',
-              marginTop: '4px',
-            }}
-          >
-            Version 1.0.0
-          </Text>
-        </div>
+          © 2026 Nam Tông Store
+        </Text>
+        <Text
+          style={{
+            color: 'rgba(255, 255, 255, 0.45)',
+            fontSize: '11px',
+            display: 'block',
+            textAlign: 'center',
+            marginTop: '4px',
+          }}
+        >
+          Version 1.0.0
+        </Text>
       </div>
 
       {/* Custom Menu Styles */}
@@ -249,14 +230,10 @@ export const Sidebar = ({ collapsed = false, onToggle }: SidebarProps) => {
           padding-left: 20px !important;
           height: 44px;
           line-height: 44px;
-          display: flex;
-          align-items: center;
-          transition: all 0.2s ease;
         }
 
         .custom-sidebar-menu .ant-menu-item:hover {
           background: rgba(255, 255, 255, 0.12) !important;
-          transform: translateX(2px);
         }
 
         .custom-sidebar-menu .ant-menu-item-selected {
@@ -269,15 +246,55 @@ export const Sidebar = ({ collapsed = false, onToggle }: SidebarProps) => {
         }
 
         .custom-sidebar-menu .ant-menu-item .ant-menu-item-icon {
-          font-size: ${collapsed ? '20px' : '18px'};
-          transition: all 0.2s ease;
+          font-size: ${(collapsed && !isMobile) ? '20px' : '18px'};
         }
 
         .custom-sidebar-menu .ant-menu-item-selected .ant-menu-item-icon {
           color: #60a5fa;
-          transform: scale(1.1);
         }
       `}</style>
+    </div>
+  );
+
+  // Mobile: Use Drawer
+  if (isMobile) {
+    return (
+      <Drawer
+        placement="left"
+        open={mobileDrawerOpen}
+        onClose={onMobileClose}
+        closable={false}
+        width={260}
+        styles={{
+          body: { padding: 0, background: 'linear-gradient(180deg, #1e1e2e 0%, #27273f 100%)' }
+        }}
+        style={{ zIndex: 999 }}
+      >
+        {sidebarContent}
+      </Drawer>
+    );
+  }
+
+  // Desktop: Use Sider
+  return (
+    <Layout.Sider
+      collapsed={collapsed}
+      collapsible
+      trigger={null}
+      width={260}
+      collapsedWidth={80}
+      breakpoint="lg"
+      style={{
+        overflow: 'hidden',
+        height: '100vh',
+        position: 'sticky',
+        left: 0,
+        top: 0,
+        background: 'linear-gradient(180deg, #1e1e2e 0%, #27273f 100%)',
+        boxShadow: '2px 0 12px rgba(0, 0, 0, 0.2)',
+      }}
+    >
+      {sidebarContent}
     </Layout.Sider>
   );
 };

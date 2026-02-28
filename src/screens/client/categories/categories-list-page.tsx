@@ -331,11 +331,6 @@ export default function CategoriesListPage() {
               </Space>
             </Col>
           </Row>
-
-          <Text type="secondary">
-            {filteredCategories.length} {t('common.results')}
-            {searchTerm && ` (searching: "${searchTerm}")`}
-          </Text>
         </Space>
       </Card>
 

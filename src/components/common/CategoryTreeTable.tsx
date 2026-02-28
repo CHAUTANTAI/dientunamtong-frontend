@@ -250,6 +250,7 @@ export const CategoryTreeTable = ({
       columns={columns}
       dataSource={flattenedData}
       pagination={false}
+      scroll={{ x: 'max-content' }}
       bordered
     />
   );

@@ -302,8 +302,8 @@ export function ProductForm({ mode, product, isLoading }: ProductFormProps) {
 
   if (mode === 'edit' && isLoading) {
     return (
-      <Card title="Edit Product">
-        <div>Loading...</div>
+      <Card title={t('product.actions.edit')}>
+        <div>{t('product.messages.loading')}</div>
       </Card>
     );
   }

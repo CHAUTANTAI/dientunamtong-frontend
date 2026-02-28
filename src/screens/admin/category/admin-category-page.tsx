@@ -176,13 +176,13 @@ export default function AdminCategoryPage() {
             gap: 8,
           }}
         >
-          <Space wrap>
+          <Space wrap style={{ flex: 1, minWidth: 0 }}>
             <Input
               placeholder={t('category.search.searchPlaceholder')}
               prefix={<SearchOutlined />}
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
-              style={{ width: 250 }}
+              style={{ width: '100%', maxWidth: 250, minWidth: 150 }}
               allowClear
             />
             <Select
@@ -203,17 +203,19 @@ export default function AdminCategoryPage() {
           </Link>
         </Space>
 
-        {/* Category Tree Table */}
-        <CategoryTreeTable
-          categories={filteredCategories}
-          isLoading={isLoading}
-          onView={openDetail}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
-          onAddChild={handleAddChild}
-          isDeleting={isDeleting}
-          canDelete={permissions.canDeleteCategory}
-        />
+        {/* Category Tree Table with horizontal scroll */}
+        <div style={{ overflowX: 'auto' }}>
+          <CategoryTreeTable
+            categories={filteredCategories}
+            isLoading={isLoading}
+            onView={openDetail}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+            onAddChild={handleAddChild}
+            isDeleting={isDeleting}
+            canDelete={permissions.canDeleteCategory}
+          />
+        </div>
       </Card>
 
       {/* Detail Modal */}

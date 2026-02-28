@@ -6,8 +6,8 @@ import AntdProvider from '@/providers/AntdProvider';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'Admin Panel',
-  description: 'Admin system for managing applications',
+  title: 'Nam Tông Store',
+  description: 'Motorcycle electronics and accessories',
 };
 
 export default async function RootLayout({

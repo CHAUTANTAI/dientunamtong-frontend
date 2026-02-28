@@ -1,12 +1,12 @@
 /**
  * Header Component
- * Top header for admin layout
+ * Top header for admin layout with mobile responsive
  */
 
 'use client';
 
 import { Layout, Button, Dropdown, Typography, Space, Badge, Tag } from 'antd';
-import { LogoutOutlined, BellOutlined, SettingOutlined, UserOutlined } from '@ant-design/icons';
+import { LogoutOutlined, BellOutlined, SettingOutlined, UserOutlined, MenuOutlined } from '@ant-design/icons';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { useGetProfileQuery } from '@/store/api/profileApi';
@@ -17,7 +17,12 @@ import type { MenuProps } from 'antd';
 
 const { Text } = Typography;
 
-export const Header = () => {
+interface HeaderProps {
+  onMenuClick?: () => void;
+  isMobile?: boolean;
+}
+
+export const Header = ({ onMenuClick, isMobile = false }: HeaderProps) => {
   const router = useRouter();
   const { user, logout } = useAuth();
 
@@ -32,13 +37,15 @@ export const Header = () => {
   const menuItems: MenuProps['items'] = [
     {
       key: 'username',
-      icon: user && (
-        <div style={{ borderBottom: '1px solid #f0f0f0' }}>
+      label: (
+        <div style={{ borderBottom: '1px solid #f0f0f0', paddingBottom: 8 }}>
           <Space direction="vertical" size={4}>
-            <Text strong>{user.username}</Text>
-            <Tag color={getRoleColor(user.role)} style={{ margin: 0 }}>
-              {getRoleDisplayName(user.role)}
-            </Tag>
+            <Text strong>{user?.username}</Text>
+            {user && (
+              <Tag color={getRoleColor(user.role)} style={{ margin: 0 }}>
+                {getRoleDisplayName(user.role)}
+              </Tag>
+            )}
           </Space>
         </div>
       ),
@@ -69,37 +76,70 @@ export const Header = () => {
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
-        padding: '0 24px',
+        padding: isMobile ? '0 12px' : '0 24px',
         position: 'sticky',
         top: 0,
         zIndex: 999,
         height: '64px',
       }}
     >
-      {/* Left Section - Company Name */}
-      <Space size="large">
+      {/* Left Section */}
+      <Space size={isMobile ? 'small' : 'large'}>
+        {/* Mobile Menu Button */}
+        {isMobile && (
+          <Button
+            type="text"
+            icon={<MenuOutlined style={{ fontSize: '20px', color: '#fff' }} />}
+            onClick={onMenuClick}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          />
+        )}
+
+        {/* Company Name - Hidden on small mobile */}
         <Text
           style={{
             color: '#fff',
-            fontSize: '18px',
+            fontSize: isMobile ? '14px' : '18px',
             fontWeight: 600,
             letterSpacing: '0.3px',
+            display: isMobile ? 'none' : 'block',
           }}
+          className="company-name-header"
         >
           {profile?.company_name || 'Nam Tông'}
         </Text>
       </Space>
 
       {/* Right Section */}
-      <Space size="large" style={{ marginLeft: 'auto' }}>
+      <Space size={isMobile ? 'small' : 'middle'} style={{ marginLeft: 'auto' }}>
         {/* Language Switcher */}
         <LanguageSwitcher />
 
-        {/* Notifications */}
-        <Badge count={0} showZero={false}>
+        {/* Notifications - Hidden on small mobile */}
+        {!isMobile && (
+          <Badge count={0} showZero={false}>
+            <Button
+              type="text"
+              icon={<BellOutlined style={{ fontSize: '18px' }} />}
+              style={{
+                color: '#fff',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            />
+          </Badge>
+        )}
+
+        {/* Settings - Hidden on small mobile */}
+        {!isMobile && (
           <Button
             type="text"
-            icon={<BellOutlined style={{ fontSize: '18px' }} />}
+            icon={<SettingOutlined style={{ fontSize: '18px' }} />}
             style={{
               color: '#fff',
               display: 'flex',
@@ -107,50 +147,45 @@ export const Header = () => {
               justifyContent: 'center',
             }}
           />
-        </Badge>
-
-        {/* Settings */}
-        <Button
-          type="text"
-          icon={<SettingOutlined style={{ fontSize: '18px' }} />}
-          style={{
-            color: '#fff',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        />
+        )}
 
         {/* User Menu */}
         <Dropdown menu={{ items: menuItems }} placement="bottomRight">
           <Button
             type="text"
+            icon={isMobile ? <UserOutlined style={{ fontSize: '18px', color: '#fff' }} /> : undefined}
             style={{
               height: 'auto',
-              padding: '8px 16px',
+              padding: isMobile ? '8px' : '8px 16px',
               background: 'rgba(255, 255, 255, 0.1)',
               border: '1px solid rgba(255, 255, 255, 0.2)',
-              borderRadius: '24px',
-              transition: 'all 0.3s ease',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.2)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
+              borderRadius: isMobile ? '50%' : '24px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
             }}
           >
-            <Text
-              style={{
-                color: '#fff',
-                fontWeight: 500,
-              }}
-            >
-              Admin
-            </Text>
+            {!isMobile && (
+              <Text
+                style={{
+                  color: '#fff',
+                  fontWeight: 500,
+                }}
+              >
+                Admin
+              </Text>
+            )}
           </Button>
         </Dropdown>
       </Space>
+
+      <style jsx global>{`
+        @media (min-width: 480px) {
+          .company-name-header {
+            display: block !important;
+          }
+        }
+      `}</style>
     </Layout.Header>
   );
 };

@@ -287,41 +287,68 @@ export const AdminBannerPage = () => {
   ];
 
   return (
-    <Card
-      title={t('banner.list')}
-      extra={
-        <Space>
-          <span style={{ fontSize: 14, color: '#666' }}>
-            {t('banner.maxBannersLabel')}:
-          </span>
-          <InputNumber
-            min={1}
-            max={20}
-            value={maxBannersValue}
-            onChange={handleMaxBannersChange}
-            style={{ width: 80 }}
-            status={validationError ? 'error' : undefined}
-          />
-          <Button
-            type="default"
-            icon={<SaveOutlined />}
-            onClick={handleSaveMaxBanners}
-            disabled={!hasMaxBannersChanged || !!validationError}
-            loading={isUpdatingMax}
-          >
-            {t('banner.saveMaxBanners')}
-          </Button>
-          <Button
-            type="primary"
-            icon={<PlusOutlined />}
-            onClick={() => router.push('/admin/banner/create')}
-            disabled={banners.length >= (maxBannersData?.max_banners || 6)}
-          >
-            {t('banner.addBanner')}
-          </Button>
-        </Space>
-      }
-    >
+    <>
+      <style jsx global>{`
+        @media (max-width: 768px) {
+          .banner-page-header {
+            flex-direction: column !important;
+            align-items: stretch !important;
+            gap: 12px !important;
+          }
+          .banner-page-header .max-banners-group {
+            width: 100% !important;
+          }
+          .banner-page-header .action-buttons {
+            width: 100% !important;
+            justify-content: flex-start !important;
+          }
+        }
+      `}</style>
+      <Card title={t('banner.list')}>
+        <div 
+          className="banner-page-header"
+          style={{ 
+            display: 'flex', 
+            justifyContent: 'space-between', 
+            alignItems: 'center',
+            marginBottom: 16,
+            gap: 8,
+            flexWrap: 'wrap'
+          }}
+        >
+          <Space className="max-banners-group" style={{ flex: 1, minWidth: 200 }}>
+            <span style={{ fontSize: 14, color: '#666', whiteSpace: 'nowrap' }}>
+              {t('banner.maxBannersLabel')}:
+            </span>
+            <InputNumber
+              min={1}
+              max={20}
+              value={maxBannersValue}
+              onChange={handleMaxBannersChange}
+              style={{ width: 80 }}
+              status={validationError ? 'error' : undefined}
+            />
+          </Space>
+          <Space className="action-buttons">
+            <Button
+              type="default"
+              icon={<SaveOutlined />}
+              onClick={handleSaveMaxBanners}
+              disabled={!hasMaxBannersChanged || !!validationError}
+              loading={isUpdatingMax}
+            >
+              {t('banner.saveMaxBanners')}
+            </Button>
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              onClick={() => router.push('/admin/banner/create')}
+              disabled={banners.length >= (maxBannersData?.max_banners || 6)}
+            >
+              {t('banner.addBanner')}
+            </Button>
+          </Space>
+        </div>
       {validationError && (
         <Alert
           message={validationError}
@@ -362,7 +389,8 @@ export const AdminBannerPage = () => {
           </Button>
         </div>
       )}
-    </Card>
+      </Card>
+    </>
   );
 };
 

@@ -268,14 +268,14 @@ export default function AdminProductPage() {
             size="small"
             icon={<EyeOutlined />}
             onClick={() => handleView(record)}
-            title="View"
+            title={t('common.view')}
           />
           <Button
             type="text"
             size="small"
             icon={<EditOutlined />}
             onClick={() => handleEdit(record)}
-            title="Edit"
+            title={t('common.edit')}
           />
           <Button
             type="text"
@@ -284,7 +284,7 @@ export default function AdminProductPage() {
             icon={<DeleteOutlined />}
             onClick={() => handleDeleteClick(record)}
             loading={isDeleting && selectedProduct?.id === record.id}
-            title="Delete"
+            title={t('common.delete')}
           />
         </Space>
       ),
@@ -316,7 +316,7 @@ export default function AdminProductPage() {
             <label style={{ display: 'block', marginBottom: 8, fontWeight: 500 }}>
               {t('product.search.searchByName')}
             </label>
-            <Space.Compact style={{ width: '100%', maxWidth: 400 }}>
+            <Space.Compact style={{ width: '100%', maxWidth: '100%', display: 'flex' }}>
               <Input
                 placeholder={t('product.search.searchPlaceholder')}
                 prefix={<SearchOutlined />}
@@ -324,6 +324,7 @@ export default function AdminProductPage() {
                 onChange={(e) => setSearchInput(e.target.value)}
                 onPressEnter={handleSearch}
                 allowClear
+                style={{ flex: 1, minWidth: 0 }}
               />
               <Button type="primary" onClick={handleSearch}>
                 {t('product.actions.search')}
@@ -337,32 +338,23 @@ export default function AdminProductPage() {
             <label style={{ display: 'block', marginBottom: 8, fontWeight: 500 }}>
               {t('product.search.filterByCategory')}
             </label>
-            <Space direction="horizontal" style={{ width: '100%', alignItems: 'flex-start' }}>
-              <div style={{ flex: 1, minWidth: 600 }}>
-                <CategoryMultiSelect
-                  value={selectedCategoryInput}
-                  onChange={(value) => setSelectedCategoryInput(value as string[])}
-                  placeholder={t('product.search.categoryPlaceholder')}
-                  style={{ width: '100%' }}
-                  popupMatchSelectWidth={false}
-                  styles={{ 
-                    popup: {
-                      root: {
-                        minWidth: 600,
-                        maxWidth: '90vw', 
-                        overflowX: 'auto'
-                      }
-                    }
-                  }}
-                />
-              </div>
-              <Button type="primary" onClick={handleFilter}>
-                {t('product.actions.filter')}
-              </Button>
-              <Button onClick={handleClearCategory}>
-                {t('product.actions.clear')}
-              </Button>
-            </Space>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, width: '100%' }}>
+              <CategoryMultiSelect
+                value={selectedCategoryInput}
+                onChange={(value) => setSelectedCategoryInput(value as string[])}
+                placeholder={t('product.search.categoryPlaceholder')}
+                style={{ width: '100%', minWidth: 300 }}
+                popupMatchSelectWidth={false}
+              />
+              <Space>
+                <Button type="primary" onClick={handleFilter}>
+                  {t('product.actions.filter')}
+                </Button>
+                <Button onClick={handleClearCategory}>
+                  {t('product.actions.clear')}
+                </Button>
+              </Space>
+            </div>
           </div>
           {(appliedSearchText || appliedCategoryIds.length > 0) && (
             <div>
@@ -383,17 +375,20 @@ export default function AdminProductPage() {
         </Space>
       </Card>
 
-      <Table<Product>
-        rowKey="id"
-        loading={isLoading}
-        columns={columns}
-        dataSource={filteredProducts}
-        pagination={{
-          pageSize: 20,
-          showSizeChanger: true,
-          showTotal: (total) => t('product.search.totalProducts', { count: total }),
-        }}
-      />
+      <div style={{ overflowX: 'auto' }}>
+        <Table<Product>
+          rowKey="id"
+          loading={isLoading}
+          columns={columns}
+          dataSource={filteredProducts}
+          scroll={{ x: 'max-content' }}
+          pagination={{
+            pageSize: 20,
+            showSizeChanger: true,
+            showTotal: (total) => t('product.search.totalProducts', { count: total }),
+          }}
+        />
+      </div>
 
       {/* Product Detail Modal */}
       <Modal

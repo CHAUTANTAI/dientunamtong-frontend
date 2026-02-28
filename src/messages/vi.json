@@ -247,13 +247,16 @@
       "email": "Email",
       "logo": "Logo công ty",
       "currentLogo": "Logo hiện tại",
-      "username": "Tên đăng nhập"
+      "username": "Tên đăng nhập",
+      "aboutUs": "Giới thiệu",
+      "mapLocation": "Vị trí bản đồ"
     },
     "placeholders": {
       "companyName": "Nhập tên công ty",
       "phone": "Nhập số điện thoại",
       "address": "Nhập địa chỉ công ty",
-      "email": "Nhập địa chỉ email"
+      "email": "Nhập địa chỉ email",
+      "aboutUs": "Nhập nội dung giới thiệu công ty cho trang Giới thiệu..."
     },
     "actions": {
       "selectLogo": "Chọn ảnh logo",
@@ -267,6 +270,8 @@
       "errorLoadingProfile": "Lỗi khi tải hồ sơ",
       "logoHelp": "Tải lên logo mới (tối đa 25MB). Định dạng: JPG, PNG, GIF",
       "usernameTooltip": "Không thể thay đổi tên đăng nhập",
+      "aboutUsTooltip": "Nội dung này sẽ hiển thị trên trang Giới thiệu",
+      "mapLocationTooltip": "Nhấp vào bản đồ để chọn vị trí công ty. Vị trí này sẽ được hiển thị trên trang Liên hệ và Giới thiệu.",
       "onlyImageAllowed": "Chỉ được tải lên file ảnh!",
       "fileTooLarge": "Ảnh phải nhỏ hơn 25MB!"
     },
@@ -359,6 +364,9 @@
     "networkError": "Lỗi kết nối mạng. Vui lòng thử lại."
   },
   "client": {
+    "header": {
+      "comingSoon": "Sắp ra mắt"
+    },
     "home": {
       "title": "Trang chủ",
       "highlightCategories": "Danh mục nổi bật",
@@ -368,10 +376,39 @@
     "contact": {
       "title": "Liên hệ",
       "getInTouch": "Liên hệ với chúng tôi",
-      "interestedProduct": "Quan tâm đến sản phẩm"
+      "interestedProduct": "Quan tâm đến sản phẩm",
+      "fullName": "Họ và tên",
+      "email": "Email",
+      "phone": "Số điện thoại",
+      "message": "Nội dung",
+      "sendMessage": "Gửi tin nhắn",
+      "contactInformation": "Thông tin liên hệ",
+      "businessHours": "Giờ làm việc",
+      "findUs": "Tìm chúng tôi",
+      "mapComingSoon": "Bản đồ sẽ sớm được tích hợp",
+      "openInGoogleMaps": "Mở trong Google Maps",
+      "nameRequired": "Vui lòng nhập tên",
+      "emailRequired": "Vui lòng nhập email",
+      "invalidEmail": "Email không hợp lệ",
+      "phoneRequired": "Vui lòng nhập số điện thoại",
+      "messageRequired": "Vui lòng nhập nội dung",
+      "enterName": "Nhập tên của bạn",
+      "enterEmail": "Nhập email của bạn",
+      "enterPhone": "Nhập số điện thoại",
+      "enterProduct": "Tên sản phẩm (không bắt buộc)",
+      "enterMessage": "Nhập nội dung yêu cầu của bạn...",
+      "messageSentSuccess": "Gửi tin nhắn thành công! Chúng tôi sẽ liên hệ lại sớm.",
+      "messageSentFailed": "Gửi tin nhắn thất bại. Vui lòng thử lại.",
+      "mondayFriday": "Thứ Hai - Thứ Sáu: 8:00 - 18:00",
+      "saturday": "Thứ Bảy: 8:00 - 12:00",
+      "sunday": "Chủ Nhật: Nghỉ"
     },
     "about": {
-      "title": "Giới thiệu"
+      "title": "Giới thiệu",
+      "contactInfo": "Thông tin liên hệ",
+      "phone": "Điện thoại",
+      "email": "Email",
+      "address": "Địa chỉ"
     }
   },
   "common": {
@@ -382,6 +419,22 @@
     "sortPopular": "Phổ biến nhất",
     "sortPriceAsc": "Giá: Thấp đến Cao",
     "sortPriceDesc": "Giá: Cao đến Thấp",
-    "sortName": "Tên: A-Z"
+    "sortName": "Tên: A-Z",
+    "active": "Hoạt động",
+    "inactive": "Không hoạt động",
+    "noTitle": "Không có tiêu đề",
+    "noLink": "Không có liên kết",
+    "view": "Xem",
+    "edit": "Sửa",
+    "delete": "Xóa",
+    "auto": "Tự động",
+    "manual": "Thủ công",
+    "cancel": "Hủy",
+    "actions": "Thao tác",
+    "close": "Đóng",
+    "inStock": "Còn hàng",
+    "outOfStock": "Hết hàng",
+    "create": "Tạo mới",
+    "update": "Cập nhật"
   }
 }

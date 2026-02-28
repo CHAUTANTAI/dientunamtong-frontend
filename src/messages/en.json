@@ -247,13 +247,16 @@
       "email": "Email",
       "logo": "Company Logo",
       "currentLogo": "Current Logo",
-      "username": "Username"
+      "username": "Username",
+      "aboutUs": "About Us",
+      "mapLocation": "Map Location"
     },
     "placeholders": {
       "companyName": "Enter company name",
       "phone": "Enter phone number",
       "address": "Enter company address",
-      "email": "Enter email address"
+      "email": "Enter email address",
+      "aboutUs": "Enter company description for About Us page..."
     },
     "actions": {
       "selectLogo": "Select Logo Image",
@@ -267,6 +270,8 @@
       "errorLoadingProfile": "Error loading profile",
       "logoHelp": "Upload a new logo (max 25MB). Supported formats: JPG, PNG, GIF",
       "usernameTooltip": "Username cannot be changed",
+      "aboutUsTooltip": "This content will be displayed on the About Us page",
+      "mapLocationTooltip": "Click on the map to select your company location. This will be displayed on Contact and About pages.",
       "onlyImageAllowed": "You can only upload image files!",
       "fileTooLarge": "Image must be smaller than 25MB!"
     },
@@ -359,6 +364,9 @@
     "networkError": "Network error. Please try again."
   },
   "client": {
+    "header": {
+      "comingSoon": "Coming soon"
+    },
     "home": {
       "title": "Home",
       "highlightCategories": "Highlight Categories",
@@ -368,10 +376,39 @@
     "contact": {
       "title": "Contact Us",
       "getInTouch": "Get in Touch",
-      "interestedProduct": "Interested in Product"
+      "interestedProduct": "Interested in Product",
+      "fullName": "Full Name",
+      "email": "Email",
+      "phone": "Phone Number",
+      "message": "Message",
+      "sendMessage": "Send Message",
+      "contactInformation": "Contact Information",
+      "businessHours": "Business Hours",
+      "findUs": "Find Us",
+      "mapComingSoon": "Map integration coming soon",
+      "openInGoogleMaps": "Open in Google Maps",
+      "nameRequired": "Name is required",
+      "emailRequired": "Email is required",
+      "invalidEmail": "Invalid email address",
+      "phoneRequired": "Phone number is required",
+      "messageRequired": "Message is required",
+      "enterName": "Enter your name",
+      "enterEmail": "Enter your email",
+      "enterPhone": "Enter your phone number",
+      "enterProduct": "Product name (optional)",
+      "enterMessage": "Tell us about your inquiry...",
+      "messageSentSuccess": "Message sent successfully! We will contact you soon.",
+      "messageSentFailed": "Failed to send message. Please try again.",
+      "mondayFriday": "Monday - Friday: 8:00 AM - 6:00 PM",
+      "saturday": "Saturday: 8:00 AM - 12:00 PM",
+      "sunday": "Sunday: Closed"
     },
     "about": {
-      "title": "About Us"
+      "title": "About Us",
+      "contactInfo": "Contact Information",
+      "phone": "Phone",
+      "email": "Email",
+      "address": "Address"
     }
   },
   "common": {
@@ -382,6 +419,22 @@
     "sortPopular": "Most Popular",
     "sortPriceAsc": "Price: Low to High",
     "sortPriceDesc": "Price: High to Low",
-    "sortName": "Name: A-Z"
+    "sortName": "Name: A-Z",
+    "active": "Active",
+    "inactive": "Inactive",
+    "noTitle": "No Title",
+    "noLink": "No Link",
+    "view": "View",
+    "edit": "Edit",
+    "delete": "Delete",
+    "auto": "Auto",
+    "manual": "Manual",
+    "cancel": "Cancel",
+    "actions": "Actions",
+    "close": "Close",
+    "inStock": "In Stock",
+    "outOfStock": "Out of Stock",
+    "create": "Create",
+    "update": "Update"
   }
 }

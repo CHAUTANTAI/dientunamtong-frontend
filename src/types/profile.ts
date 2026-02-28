@@ -13,6 +13,9 @@ export interface Profile {
   password?: string;
   is_active?: boolean;
   logo?: string | null;
+  about_us?: string | null;
+  map_latitude?: number | null;
+  map_longitude?: number | null;
   created_at?: string;
   updated_at?: string;
 }

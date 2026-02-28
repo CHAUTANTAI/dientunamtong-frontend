@@ -1,8 +1,10 @@
 'use client';
 
+import { useEffect } from 'react';
 import { Layout } from 'antd';
 import ClientHeader from './ClientHeader';
 import ClientFooter from './ClientFooter';
+import { useGetSystemInfoQuery } from '@/store/services/publicSystemInfoApi';
 
 const { Content } = Layout;
 
@@ -11,6 +13,15 @@ interface ClientLayoutProps {
 }
 
 export default function ClientLayout({ children }: ClientLayoutProps) {
+  const { data: systemInfo } = useGetSystemInfoQuery();
+
+  // Dynamically update document title based on system info
+  useEffect(() => {
+    if (systemInfo?.company_name) {
+      document.title = systemInfo.company_name;
+    }
+  }, [systemInfo]);
+
   return (
     <Layout style={{ minHeight: '100vh' }}>
       <ClientHeader />

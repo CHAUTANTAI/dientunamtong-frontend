@@ -17,6 +17,7 @@ const { Text } = Typography;
 
 export default function ClientHeader() {
   const t = useTranslations('navigation');
+  const tClient = useTranslations('client');
   const pathname = usePathname();
   const { data: systemInfo } = useGetSystemInfoQuery();
   const logoUrl = useSignedImageUrl(systemInfo?.company_logo || '');
@@ -119,7 +120,7 @@ export default function ClientHeader() {
         {/* Right: Actions */}
         <Space size="middle" style={{ flex: '0 0 auto' }}>
           <LanguageSwitcher />
-          <Tooltip title="Coming soon">
+          <Tooltip title={tClient('header.comingSoon')}>
             <Avatar 
               size={36}
               icon={<UserOutlined />} 
