@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import {
   Row,
   Col,
@@ -13,12 +13,14 @@ import {
   Space,
   Pagination,
   Tag,
+  Input,
+  TreeSelect,
 } from 'antd';
-import { HomeOutlined } from '@ant-design/icons';
+import { HomeOutlined, SearchOutlined } from '@ant-design/icons';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
-import { useGetPublicCategoryByIdQuery } from '@/store/services/publicCategoryApi';
+import { useGetPublicCategoriesQuery, useGetPublicCategoryByIdQuery } from '@/store/services/publicCategoryApi';
 import { useGetPublicProductsQuery } from '@/store/services/publicProductApi';
 import { useSignedImageUrl } from '@/hooks/useSignedImageUrl';
 import { useViewTracker } from '@/hooks/useViewTracker';
@@ -109,11 +111,14 @@ const ProductCard = ({ id, name, price, imageUrl, inStock }: ProductCardProps) =
 export default function CategoryDetailPage({ categoryId }: CategoryDetailPageProps) {
   const t = useTranslations();
   const { data: category, isLoading: categoryLoading, error } = useGetPublicCategoryByIdQuery(categoryId);
+  const { data: allCategories = [], isLoading: categoriesLoading } = useGetPublicCategoriesQuery();
   const { data: allProductsData, isLoading: productsLoading } = useGetPublicProductsQuery();
   const { trackView } = useViewTracker();
 
   const [sortBy, setSortBy] = useState<string>('newest');
   const [currentPage, setCurrentPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedSubCategory, setSelectedSubCategory] = useState<string | undefined>(undefined);
   const pageSize = 12;
 
   useEffect(() => {
@@ -122,7 +127,58 @@ export default function CategoryDetailPage({ categoryId }: CategoryDetailPagePro
     }
   }, [category, categoryId, trackView]);
 
-  if (categoryLoading || productsLoading) {
+  // Get all descendant category IDs (including current category)
+  const descendantCategoryIds = useMemo(() => {
+    if (!allCategories.length) return [categoryId];
+
+    const getAllDescendants = (catId: string): string[] => {
+      const children = allCategories.filter(cat => cat.parent_id === catId);
+      const childIds = children.map(c => c.id);
+      const grandChildIds = children.flatMap(c => getAllDescendants(c.id));
+      return [...childIds, ...grandChildIds];
+    };
+
+    return [categoryId, ...getAllDescendants(categoryId)];
+  }, [allCategories, categoryId]);
+
+  // Build subcategory tree starting from current category
+  const subCategoryTree = useMemo(() => {
+    if (!allCategories.length) return [];
+
+    interface TreeNode {
+      value: string;
+      title: string;
+      children?: TreeNode[];
+    }
+
+    const buildTree = (parentId: string | null): TreeNode[] => {
+      return allCategories
+        .filter(cat => cat.parent_id === parentId)
+        .map(cat => ({
+          value: cat.id,
+          title: cat.name,
+          children: buildTree(cat.id),
+        }));
+    };
+
+    return buildTree(categoryId);
+  }, [allCategories, categoryId]);
+
+  // Get all descendant category IDs for selected subcategory
+  const selectedDescendantIds = useMemo(() => {
+    if (!selectedSubCategory || !allCategories.length) return [];
+
+    const getAllDescendants = (catId: string): string[] => {
+      const children = allCategories.filter(cat => cat.parent_id === catId);
+      const childIds = children.map(c => c.id);
+      const grandChildIds = children.flatMap(c => getAllDescendants(c.id));
+      return [...childIds, ...grandChildIds];
+    };
+
+    return [selectedSubCategory, ...getAllDescendants(selectedSubCategory)];
+  }, [selectedSubCategory, allCategories]);
+
+  if (categoryLoading || productsLoading || categoriesLoading) {
     return (
       <div style={{ textAlign: 'center', padding: '48px 0' }}>
         <Spin size="large" />
@@ -138,13 +194,28 @@ export default function CategoryDetailPage({ categoryId }: CategoryDetailPagePro
     );
   }
 
-  // Filter products by this category
+  // Filter products by descendant categories
   let categoryProducts =
     allProductsData?.products.filter(
       (product) =>
         product.is_active &&
-        product.categories?.some((cat) => cat.id === categoryId)
+        product.categories?.some((cat) => descendantCategoryIds.includes(cat.id))
     ) || [];
+
+  // Further filter by selected subcategory if any
+  if (selectedSubCategory && selectedDescendantIds.length > 0) {
+    categoryProducts = categoryProducts.filter(product =>
+      product.categories?.some(cat => selectedDescendantIds.includes(cat.id))
+    );
+  }
+
+  // Filter by search query
+  if (searchQuery.trim()) {
+    const query = searchQuery.toLowerCase().trim();
+    categoryProducts = categoryProducts.filter(product =>
+      product.name.toLowerCase().includes(query)
+    );
+  }
 
   // Sort products
   categoryProducts = [...categoryProducts].sort((a, b) => {
@@ -227,25 +298,62 @@ export default function CategoryDetailPage({ categoryId }: CategoryDetailPagePro
 
       {/* Sort and Filter Controls */}
       <Card style={{ marginBottom: 24 }}>
-        <Row gutter={[16, 16]} align="middle" justify="space-between">
-          <Col>
-            <Text strong>
-              {categoryProducts.length} {t('common.results')}
-            </Text>
-          </Col>
-          <Col>
-            <Space>
-              <Text>Sort by:</Text>
-              <Select style={{ width: 200 }} value={sortBy} onChange={setSortBy}>
-                <Select.Option value="newest">{t('common.sortNewest')}</Select.Option>
-                <Select.Option value="popular">{t('common.sortPopular')}</Select.Option>
-                <Select.Option value="price-asc">{t('common.sortPriceAsc')}</Select.Option>
-                <Select.Option value="price-desc">{t('common.sortPriceDesc')}</Select.Option>
-                <Select.Option value="name">{t('common.sortName')}</Select.Option>
-              </Select>
-            </Space>
-          </Col>
-        </Row>
+        <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+          {/* Search and Category Filter Row */}
+          <Row gutter={[16, 16]}>
+            <Col xs={24} md={12}>
+              <Input
+                placeholder={t('common.search')}
+                prefix={<SearchOutlined />}
+                value={searchQuery}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  setCurrentPage(1); // Reset to first page
+                }}
+                allowClear
+                size="large"
+              />
+            </Col>
+            {subCategoryTree.length > 0 && (
+              <Col xs={24} md={12}>
+                <TreeSelect
+                  style={{ width: '100%' }}
+                  placeholder="Filter by subcategory"
+                  treeData={subCategoryTree}
+                  value={selectedSubCategory}
+                  onChange={(value) => {
+                    setSelectedSubCategory(value);
+                    setCurrentPage(1); // Reset to first page
+                  }}
+                  allowClear
+                  size="large"
+                  treeDefaultExpandAll
+                />
+              </Col>
+            )}
+          </Row>
+
+          {/* Results and Sort Row */}
+          <Row gutter={[16, 16]} align="middle" justify="space-between">
+            <Col>
+              <Text strong>
+                {categoryProducts.length} {t('common.results')}
+              </Text>
+            </Col>
+            <Col>
+              <Space>
+                <Text>Sort by:</Text>
+                <Select style={{ width: 200 }} value={sortBy} onChange={setSortBy}>
+                  <Select.Option value="newest">{t('common.sortNewest')}</Select.Option>
+                  <Select.Option value="popular">{t('common.sortPopular')}</Select.Option>
+                  <Select.Option value="price-asc">{t('common.sortPriceAsc')}</Select.Option>
+                  <Select.Option value="price-desc">{t('common.sortPriceDesc')}</Select.Option>
+                  <Select.Option value="name">{t('common.sortName')}</Select.Option>
+                </Select>
+              </Space>
+            </Col>
+          </Row>
+        </Space>
       </Card>
 
       {/* Products Grid */}
