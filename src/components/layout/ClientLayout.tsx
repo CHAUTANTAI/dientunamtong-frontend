@@ -27,7 +27,7 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
   }, [systemInfo]);
 
   return (
-    <Layout style={{ minHeight: '100vh' }}>
+    <Layout style={{ minHeight: '100vh', overflow: 'hidden' }}>
       <DynamicFavicon logoUrl={faviconUrl} />
       <ClientHeader />
       <Content
@@ -36,6 +36,7 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
           width: '100%',
           margin: '0 auto',
           padding: '24px 16px',
+          overflow: 'hidden',
         }}
       >
         {children}
@@ -53,6 +54,12 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
         @media (max-width: 480px) {
           .ant-layout-content {
             padding: 12px 8px !important;
+          }
+        }
+        
+        @media (max-width: 400px) {
+          .ant-layout-content {
+            padding: 8px 6px !important;
           }
         }
       `}</style>

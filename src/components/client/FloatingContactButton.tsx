@@ -228,6 +228,25 @@ export default function FloatingContactButton() {
         .contact-menu-tiktok {
           transition: all 0.3s ease !important;
         }
+        
+        /* Extra small screens */
+        @media (max-width: 400px) {
+          .floating-contact-wrapper {
+            right: 12px !important;
+            bottom: 12px !important;
+            width: 48px !important;
+            height: 48px !important;
+          }
+          
+          .floating-contact-button {
+            width: 48px !important;
+            height: 48px !important;
+          }
+          
+          .floating-contact-button .ant-float-btn-icon {
+            font-size: 18px !important;
+          }
+        }
       `}</style>
 
       {open && (
@@ -317,7 +336,7 @@ export default function FloatingContactButton() {
               size={isMobile ? 'middle' : 'large'}
               className="contact-menu-facebook"
             >
-              {t('facebook')} {!systemInfo?.facebook_url && `(${t('comingSoon')})`}
+              {t('facebook')}
             </Button>
 
             <Button
@@ -343,7 +362,7 @@ export default function FloatingContactButton() {
               size={isMobile ? 'middle' : 'large'}
               className="contact-menu-tiktok"
             >
-              {t('tiktok')} {!systemInfo?.tiktok_url && `(${t('comingSoon')})`}
+              {t('tiktok')}
             </Button>
           </Space>
         </div>

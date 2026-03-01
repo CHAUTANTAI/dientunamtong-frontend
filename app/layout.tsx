@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { NextIntlClientProvider } from 'next-intl';
 import { getLocale } from '@/i18n.server';
 import ReduxProvider from '@/providers/ReduxProvider';
@@ -8,6 +8,13 @@ import './globals.css';
 export const metadata: Metadata = {
   title: 'Nam Tông Store',
   description: 'Motorcycle electronics and accessories',
+};
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+  userScalable: true,
 };
 
 export default async function RootLayout({

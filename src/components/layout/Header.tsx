@@ -95,6 +95,11 @@ export const Header = ({ onMenuClick, isMobile = false }: HeaderProps) => {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
+              minWidth: '40px',
+              minHeight: '40px',
+              width: '40px',
+              height: '40px',
+              padding: 0,
             }}
           />
         )}
@@ -130,6 +135,8 @@ export const Header = ({ onMenuClick, isMobile = false }: HeaderProps) => {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
+                minWidth: '36px',
+                minHeight: '36px',
               }}
             />
           </Badge>
@@ -145,6 +152,8 @@ export const Header = ({ onMenuClick, isMobile = false }: HeaderProps) => {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
+              minWidth: '36px',
+              minHeight: '36px',
             }}
           />
         )}
@@ -155,7 +164,9 @@ export const Header = ({ onMenuClick, isMobile = false }: HeaderProps) => {
             type="text"
             icon={isMobile ? <UserOutlined style={{ fontSize: '18px', color: '#fff' }} /> : undefined}
             style={{
-              height: 'auto',
+              height: isMobile ? '40px' : 'auto',
+              minHeight: isMobile ? '40px' : '36px',
+              minWidth: isMobile ? '40px' : '80px',
               padding: isMobile ? '8px' : '8px 16px',
               background: 'rgba(255, 255, 255, 0.1)',
               border: '1px solid rgba(255, 255, 255, 0.2)',
@@ -163,6 +174,7 @@ export const Header = ({ onMenuClick, isMobile = false }: HeaderProps) => {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
+              flexShrink: 0,
             }}
           >
             {!isMobile && (
@@ -170,6 +182,7 @@ export const Header = ({ onMenuClick, isMobile = false }: HeaderProps) => {
                 style={{
                   color: '#fff',
                   fontWeight: 500,
+                  whiteSpace: 'nowrap',
                 }}
               >
                 Admin

@@ -181,6 +181,20 @@ export default function ClientHeader() {
             max-width: 80px;
           }
         }
+        
+        @media (max-width: 400px) {
+          .company-name-desktop {
+            max-width: 60px;
+            font-size: 12px !important;
+          }
+          .ant-space-item .ant-avatar {
+            width: 28px !important;
+            height: 28px !important;
+          }
+          .mobile-menu-button {
+            padding: 4px 8px !important;
+          }
+        }
       `}</style>
     </Header>
   );
