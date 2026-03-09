@@ -53,13 +53,14 @@ export default function ClientHeader() {
         alignItems: 'center',
         backgroundColor: '#fff',
         borderBottom: '1px solid #f0f0f0',
-        padding: '0 16px',
-        position: 'sticky',
+        padding: '0 24px',
+        position: 'fixed',
         top: 0,
-        zIndex: 100,
+        left: 0,
+        right: 0,
+        zIndex: 1000,
         width: '100%',
-        height: 'auto',
-        minHeight: 64,
+        height: 80,
       }}
     >
       <div

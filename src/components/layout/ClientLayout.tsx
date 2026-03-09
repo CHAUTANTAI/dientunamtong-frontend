@@ -27,42 +27,21 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
   }, [systemInfo]);
 
   return (
-    <Layout style={{ minHeight: '100vh', overflow: 'hidden' }}>
+    <Layout style={{ minHeight: '100vh', overflow: 'visible' }}>
       <DynamicFavicon logoUrl={faviconUrl} />
       <ClientHeader />
       <Content
         style={{
-          maxWidth: '1200px',
           width: '100%',
-          margin: '0 auto',
-          padding: '24px 16px',
-          overflow: 'hidden',
+          padding: '0',
+          paddingTop: '80px', // Space for fixed header
+          overflow: 'visible',
         }}
       >
         {children}
       </Content>
       <ClientFooter />
       <FloatingContactButton />
-
-      <style jsx global>{`
-        @media (max-width: 768px) {
-          .ant-layout-content {
-            padding: 16px 12px !important;
-          }
-        }
-        
-        @media (max-width: 480px) {
-          .ant-layout-content {
-            padding: 12px 8px !important;
-          }
-        }
-        
-        @media (max-width: 400px) {
-          .ant-layout-content {
-            padding: 8px 6px !important;
-          }
-        }
-      `}</style>
     </Layout>
   );
 }

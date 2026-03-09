@@ -7,13 +7,13 @@ import { useSignedImageUrl } from '@/hooks/useSignedImageUrl';
 
 const BannerImage = ({ url, alt }: { url: string; alt?: string }) => {
   const signedUrl = useSignedImageUrl(url);
-  
+
   if (!signedUrl) {
     return (
       <div
         style={{
           width: '100%',
-          paddingTop: '33.33%', // 3:1 aspect ratio
+          height: '200px',
           position: 'relative',
           backgroundColor: '#f0f0f0',
           display: 'flex',
@@ -21,7 +21,14 @@ const BannerImage = ({ url, alt }: { url: string; alt?: string }) => {
           justifyContent: 'center',
         }}
       >
-        <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>
+        <div
+          style={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+          }}
+        >
           <Spin />
         </div>
       </div>
@@ -32,9 +39,10 @@ const BannerImage = ({ url, alt }: { url: string; alt?: string }) => {
     <div
       style={{
         width: '100%',
-        paddingTop: '33.33%', // 3:1 aspect ratio (maintains ratio on all screens)
+        height: '200px',
         position: 'relative',
         backgroundColor: '#f0f0f0',
+        overflow: 'hidden',
       }}
     >
       <Image
@@ -43,7 +51,7 @@ const BannerImage = ({ url, alt }: { url: string; alt?: string }) => {
         fill
         style={{ objectFit: 'cover' }}
         priority
-        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 100vw, 1200px"
+        sizes="(max-width: 768px) 100vw, 1000px"
       />
     </div>
   );
@@ -57,7 +65,7 @@ export default function BannerCarousel({ bannerIds }: { bannerIds?: string[] }) 
       <div
         style={{
           width: '100%',
-          paddingTop: '33.33%',
+          height: '200px',
           position: 'relative',
           display: 'flex',
           alignItems: 'center',
@@ -65,7 +73,14 @@ export default function BannerCarousel({ bannerIds }: { bannerIds?: string[] }) 
           backgroundColor: '#f0f0f0',
         }}
       >
-        <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>
+        <div
+          style={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+          }}
+        >
           <Spin size="large" />
         </div>
       </div>
@@ -78,12 +93,14 @@ export default function BannerCarousel({ bannerIds }: { bannerIds?: string[] }) 
 
   // Filter banners based on bannerIds if provided, otherwise use all active banners
   let activeBanners = banners.filter((banner) => banner.is_active);
-  
+
   if (bannerIds && bannerIds.length > 0) {
     // Use specified banners in the configured order
     activeBanners = bannerIds
-      .map(id => banners.find(b => b.id === id))
-      .filter((banner): banner is NonNullable<typeof banner> => banner !== undefined && banner.is_active);
+      .map((id) => banners.find((b) => b.id === id))
+      .filter(
+        (banner): banner is NonNullable<typeof banner> => banner !== undefined && banner.is_active
+      );
   } else {
     // Fallback: sort by sort_order
     activeBanners = activeBanners.sort((a, b) => a.sort_order - b.sort_order);
@@ -94,8 +111,8 @@ export default function BannerCarousel({ bannerIds }: { bannerIds?: string[] }) 
   }
 
   return (
-    <div style={{ marginBottom: 32, marginLeft: -16, marginRight: -16, marginTop: -24 }}>
-      <Carousel autoplay autoplaySpeed={5000} dots={{ className: 'banner-dots' }}>
+    <div style={{ marginBottom: 0, borderRadius: 8, overflow: 'hidden' }}>
+      <Carousel autoplay autoplaySpeed={3000} dots={{ className: 'banner-dots' }}>
         {activeBanners.map((banner) => (
           <div key={banner.id}>
             {banner.link_url ? (
@@ -128,7 +145,7 @@ export default function BannerCarousel({ bannerIds }: { bannerIds?: string[] }) 
         .banner-dots li.slick-active button {
           background: #fff !important;
         }
-        
+
         @media (max-width: 768px) {
           .banner-dots {
             bottom: 8px !important;
