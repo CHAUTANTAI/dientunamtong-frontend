@@ -55,6 +55,7 @@
   "navigation": {
     "home": "Trang chủ",
     "dashboard": "Bảng điều khiển",
+    "homepageEditor": "Quản lý Trang chủ",
     "categories": "Danh mục",
     "products": "Sản phẩm",
     "banners": "Banner",
@@ -516,7 +517,12 @@
     "saveFailed": "Cập nhật trang chủ thất bại",
     "sidebar": {
       "intro": "Giới thiệu",
-      "banner": "Banner"
+      "banner": "Banner",
+      "rightContentBox": "Ô nội dung bên phải",
+      "leftSidebarCategories": "Danh mục thanh bên trái",
+      "rightSidebarItems": "Mục thanh bên phải",
+      "highlightCategories": "Danh mục nổi bật",
+      "highlightProducts": "Sản phẩm nổi bật"
     },
     "intro": {
       "title": "Phần Giới thiệu",
@@ -558,6 +564,74 @@
           "actions": "Thao tác"
         }
       }
+    },
+    "rightContentBox": {
+      "title": "Phần Ô nội dung bên phải",
+      "emptyText": "Chưa có nội dung. Nhấn + để thêm.",
+      "editButton": "Sửa Nội dung",
+      "modal": {
+        "title": "Sửa Ô nội dung bên phải",
+        "titleLabel": "Tiêu đề (Tùy chọn)",
+        "titlePlaceholder": "Nhập tiêu đề ô",
+        "subtitleLabel": "Phụ đề (Tùy chọn)",
+        "subtitlePlaceholder": "Nhập phụ đề",
+        "textLabel": "Nội dung",
+        "textPlaceholder": "Nhập nội dung (hỗ trợ HTML)",
+        "textRequired": "Vui lòng nhập nội dung"
+      }
+    },
+    "leftSidebarCategories": {
+      "title": "Phần Danh mục thanh bên trái",
+      "emptyText": "Chưa chọn danh mục nào. Nhấn + để chọn.",
+      "editButton": "Chọn Danh mục",
+      "modal": {
+        "title": "Chọn Danh mục thanh bên trái",
+        "maxItemsLabel": "Số mục hiển thị tối đa",
+        "categoriesLabel": "Chọn Danh mục",
+        "emptyText": "Không có danh mục"
+      }
+    },
+    "rightSidebarItems": {
+      "title": "Phần Mục thanh bên phải",
+      "emptyText": "Chưa có mục nào. Nhấn + để thêm.",
+      "editButton": "Quản lý Mục",
+      "modal": {
+        "title": "Quản lý Mục thanh bên phải",
+        "addItemButton": "Thêm Mục mới",
+        "itemTitleLabel": "Tiêu đề Mục",
+        "itemTitlePlaceholder": "Nhập tiêu đề mục",
+        "itemTitleRequired": "Vui lòng nhập tiêu đề mục",
+        "itemSubtitleLabel": "Phụ đề (Tùy chọn)",
+        "itemSubtitlePlaceholder": "Nhập phụ đề",
+        "itemLinkLabel": "Liên kết (Tùy chọn)",
+        "itemLinkPlaceholder": "Nhập URL liên kết",
+        "itemIconLabel": "Icon (Tùy chọn)",
+        "itemIconPlaceholder": "Nhập emoji hoặc mã icon",
+        "emptyText": "Chưa có mục nào. Nhấn 'Thêm Mục mới' để tạo."
+      }
+    },
+    "highlightCategories": {
+      "title": "Phần Danh mục nổi bật",
+      "emptyText": "Chưa có danh mục nào. Nhấn + để thêm.",
+      "editButton": "Cấu hình Danh mục",
+      "modal": {
+        "title": "Cấu hình Danh mục nổi bật",
+        "sectionTitleLabel": "Tiêu đề Phần",
+        "sectionTitlePlaceholder": "Nhập tiêu đề phần",
+        "limitLabel": "Số lượng Danh mục hiển thị",
+        "parentCategoryLabel": "Danh mục Cha",
+        "parentCategoryPlaceholder": "Chọn danh mục cha",
+        "parentCategoryRequired": "Vui lòng chọn danh mục cha",
+        "subCategoriesLabel": "Danh mục Con (Chọn tối đa 6)",
+        "subCategoriesPlaceholder": "Chọn danh mục con",
+        "addCategoryButton": "Thêm Danh mục",
+        "emptyText": "Chưa có danh mục nào được cấu hình"
+      }
+    },
+    "highlightProducts": {
+      "title": "Phần Sản phẩm nổi bật (Sắp ra mắt)",
+      "emptyText": "Tính năng này sắp ra mắt.",
+      "editButton": "Cấu hình Sản phẩm"
     }
   }
 }

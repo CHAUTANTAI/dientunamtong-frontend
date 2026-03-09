@@ -1,42 +1,65 @@
 'use client';
 
-import { Card, Typography } from 'antd';
+import { Card, Typography, Spin, Empty } from 'antd';
+import { useGetActivePageSectionsQuery } from '@/store/api/pageSectionApi';
+import { useGetCategoriesQuery } from '@/store/api/categoryApi';
+import type { LeftSidebarCategoriesContent } from '@/types/pageSection';
+import Link from 'next/link';
 
 const { Text } = Typography;
 
-// Hard coded categories for layout testing
-const MOCK_CATEGORIES = [
-  { id: '1', name: 'Điện thoại', icon: '📱' },
-  { id: '2', name: 'Laptop', icon: '💻' },
-  { id: '3', name: 'Tablet', icon: '📲' },
-  { id: '4', name: 'Tai nghe', icon: '🎧' },
-  { id: '5', name: 'Đồng hồ', icon: '⌚' },
-  { id: '6', name: 'Camera', icon: '📷' },
-  { id: '7', name: 'Phụ kiện', icon: '🔌' },
-  { id: '8', name: 'Gaming', icon: '🎮' },
-];
-
 export default function LeftSidebar() {
+  const { data: sections, isLoading: sectionsLoading } = useGetActivePageSectionsQuery('homepage');
+  const { data: allCategories, isLoading: categoriesLoading } = useGetCategoriesQuery({});
+
+  const leftSidebarSection = sections?.find(s => s.section_identifier === 'left_sidebar_categories');
+  const content = leftSidebarSection?.content as LeftSidebarCategoriesContent;
+
+  if (sectionsLoading || categoriesLoading) {
+    return (
+      <div style={{ textAlign: 'center', padding: '20px 0' }}>
+        <Spin size="small" />
+      </div>
+    );
+  }
+
+  if (!content?.category_ids?.length) {
+    return (
+      <Card size="small" style={{ borderRadius: 8 }}>
+        <Empty description="No categories configured" image={Empty.PRESENTED_IMAGE_SIMPLE} />
+      </Card>
+    );
+  }
+
+  // Filter and order categories based on config
+  const selectedCategories = content.category_ids
+    .map(id => allCategories?.items?.find((cat: any) => cat.id === id))
+    .filter(Boolean)
+    .slice(0, content.max_items || 8);
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-      {MOCK_CATEGORIES.map((cat) => (
-        <Card
-          key={cat.id}
-          hoverable
-          size="small"
-          style={{
-            borderRadius: 8,
-            cursor: 'pointer',
-          }}
-          styles={{ body: { padding: '12px' } }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ fontSize: '20px' }}>{cat.icon}</span>
-            <Text strong style={{ fontSize: '13px' }}>
-              {cat.name}
-            </Text>
-          </div>
-        </Card>
+      {selectedCategories.map((cat: any) => (
+        <Link key={cat.id} href={`/categories/${cat.slug}`} style={{ textDecoration: 'none' }}>
+          <Card
+            hoverable
+            size="small"
+            style={{
+              borderRadius: 8,
+              cursor: 'pointer',
+            }}
+            styles={{ body: { padding: '12px' } }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              {cat.icon_url && (
+                <span style={{ fontSize: '20px' }}>{cat.icon_url}</span>
+              )}
+              <Text strong style={{ fontSize: '13px' }}>
+                {cat.name}
+              </Text>
+            </div>
+          </Card>
+        </Link>
       ))}
     </div>
   );

@@ -55,6 +55,7 @@
   "navigation": {
     "home": "Home",
     "dashboard": "Dashboard",
+    "homepageEditor": "Homepage Editor",
     "categories": "Categories",
     "products": "Products",
     "banners": "Banners",
@@ -517,7 +518,12 @@
     "saveFailed": "Failed to update homepage",
     "sidebar": {
       "intro": "Introduction",
-      "banner": "Banners"
+      "banner": "Banners",
+      "rightContentBox": "Right Content Box",
+      "leftSidebarCategories": "Left Sidebar Categories",
+      "rightSidebarItems": "Right Sidebar Items",
+      "highlightCategories": "Highlight Categories",
+      "highlightProducts": "Highlight Products"
     },
     "intro": {
       "title": "Introduction Section",
@@ -559,6 +565,74 @@
           "actions": "Actions"
         }
       }
+    },
+    "rightContentBox": {
+      "title": "Right Content Box Section",
+      "emptyText": "No content set. Click + to add.",
+      "editButton": "Edit Content",
+      "modal": {
+        "title": "Edit Right Content Box",
+        "titleLabel": "Title (Optional)",
+        "titlePlaceholder": "Enter box title",
+        "subtitleLabel": "Subtitle (Optional)",
+        "subtitlePlaceholder": "Enter subtitle",
+        "textLabel": "Content",
+        "textPlaceholder": "Enter content text (HTML supported)",
+        "textRequired": "Please enter content text"
+      }
+    },
+    "leftSidebarCategories": {
+      "title": "Left Sidebar Categories Section",
+      "emptyText": "No categories selected. Click + to select.",
+      "editButton": "Select Categories",
+      "modal": {
+        "title": "Select Left Sidebar Categories",
+        "maxItemsLabel": "Maximum Items to Display",
+        "categoriesLabel": "Select Categories",
+        "emptyText": "No categories available"
+      }
+    },
+    "rightSidebarItems": {
+      "title": "Right Sidebar Items Section",
+      "emptyText": "No items configured. Click + to add.",
+      "editButton": "Manage Items",
+      "modal": {
+        "title": "Manage Right Sidebar Items",
+        "addItemButton": "Add New Item",
+        "itemTitleLabel": "Item Title",
+        "itemTitlePlaceholder": "Enter item title",
+        "itemTitleRequired": "Please enter item title",
+        "itemSubtitleLabel": "Subtitle (Optional)",
+        "itemSubtitlePlaceholder": "Enter subtitle",
+        "itemLinkLabel": "Link (Optional)",
+        "itemLinkPlaceholder": "Enter link URL",
+        "itemIconLabel": "Icon (Optional)",
+        "itemIconPlaceholder": "Enter emoji or icon code",
+        "emptyText": "No items yet. Click 'Add New Item' to create."
+      }
+    },
+    "highlightCategories": {
+      "title": "Highlight Categories Section",
+      "emptyText": "No categories configured. Click + to add.",
+      "editButton": "Configure Categories",
+      "modal": {
+        "title": "Configure Highlight Categories",
+        "sectionTitleLabel": "Section Title",
+        "sectionTitlePlaceholder": "Enter section title",
+        "limitLabel": "Number of Categories to Display",
+        "parentCategoryLabel": "Parent Category",
+        "parentCategoryPlaceholder": "Select parent category",
+        "parentCategoryRequired": "Please select a parent category",
+        "subCategoriesLabel": "Sub-Categories (Select up to 6)",
+        "subCategoriesPlaceholder": "Select sub-categories",
+        "addCategoryButton": "Add Category",
+        "emptyText": "No categories configured yet"
+      }
+    },
+    "highlightProducts": {
+      "title": "Highlight Products Section (Coming Soon)",
+      "emptyText": "This feature is coming soon.",
+      "editButton": "Configure Products"
     }
   }
 }

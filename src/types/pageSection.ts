@@ -26,13 +26,34 @@ export interface BannerContent {
   show_dots?: boolean;
 }
 
+export interface RightContentBoxContent {
+  title?: string;
+  subtitle?: string;
+  text: string;
+}
+
+export interface LeftSidebarCategoriesContent {
+  category_ids: string[];
+  max_items?: number;
+}
+
+export interface RightSidebarItemsContent {
+  items: Array<{
+    id: string;
+    title: string;
+    subtitle?: string;
+    link?: string;
+    icon?: string;
+  }>;
+}
+
 export interface HighlightCategoriesContent {
   title: string;
   limit: number;
-  mode: 'auto' | 'manual';
-  category_ids?: string[];
-  layout?: 'grid' | 'carousel';
-  show_description?: boolean;
+  categories: Array<{
+    category_id: string;
+    sub_category_ids: string[];
+  }>;
 }
 
 export interface HighlightProductsContent {
@@ -64,5 +85,8 @@ export type PageIdentifier = 'homepage' | 'about' | 'contact';
 export type SectionIdentifier = 
   | 'intro'
   | 'banner'
+  | 'right_content_box'
+  | 'left_sidebar_categories'
+  | 'right_sidebar_items'
   | 'highlight_categories'
   | 'highlight_products';

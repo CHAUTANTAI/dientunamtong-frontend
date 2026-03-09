@@ -16,6 +16,7 @@ export const ROUTES = {
 
   // Admin routes
   DASHBOARD: '/admin/dashboard',
+  HOMEPAGE_EDITOR: '/admin/homepage-editor',
   CATEGORY: '/admin/category',
   PRODUCT: '/admin/product',
   BANNER: '/admin/banner',
@@ -40,6 +41,11 @@ export const ADMIN_ROUTES: AdminRoute[] = [
     path: '/admin/dashboard',
     label: 'Dashboard',
     labelKey: 'navigation.dashboard',
+  },
+  {
+    path: '/admin/homepage-editor',
+    label: 'Homepage Editor',
+    labelKey: 'navigation.homepageEditor',
   },
   {
     path: '/admin/category',

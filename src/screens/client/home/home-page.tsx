@@ -25,20 +25,46 @@ export default function HomePage() {
       <Row gutter={16}>
         {/* Column 1 (Left - 2/10) */}
         <Col xs={0} lg={0} xl={4}>
-          {/* Row 1: Left Intro Box */}
+          {/* Row 1: Left Intro Box - with dynamic content */}
           <Card
             style={{
               marginBottom: 16,
               height: '200px',
               borderRadius: 8,
               background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              overflow: 'auto',
             }}
             styles={{ body: { padding: '20px', color: '#fff' } }}
           >
-            <h3 style={{ color: '#fff', marginTop: 0 }}>Thông tin</h3>
-            <p style={{ color: '#fff', opacity: 0.9 }}>
-              Nội dung giới thiệu bên trái
-            </p>
+            {isLoading ? (
+              <div style={{ textAlign: 'center', paddingTop: '60px' }}>
+                <Spin style={{ color: '#fff' }} />
+              </div>
+            ) : introContent ? (
+              <>
+                {introContent.title && (
+                  <h3 style={{ color: '#fff', marginTop: 0, marginBottom: 12, fontSize: 18 }}>
+                    {introContent.title}
+                  </h3>
+                )}
+                {introContent.subtitle && (
+                  <p style={{ color: '#fff', opacity: 0.9, marginBottom: 12, fontSize: 14 }}>
+                    {introContent.subtitle}
+                  </p>
+                )}
+                <div
+                  style={{ color: '#fff', opacity: 0.9, fontSize: 13, lineHeight: 1.6 }}
+                  dangerouslySetInnerHTML={{ __html: introContent.text }}
+                />
+              </>
+            ) : (
+              <>
+                <h3 style={{ color: '#fff', marginTop: 0, fontSize: 18 }}>Thông tin</h3>
+                <p style={{ color: '#fff', opacity: 0.9, fontSize: 14 }}>
+                  Nội dung giới thiệu sẽ được cập nhật sớm
+                </p>
+              </>
+            )}
           </Card>
 
           {/* Row 2: Left Sidebar */}
@@ -56,28 +82,6 @@ export default function HomePage() {
 
           {/* Row 2: Main Content (max-content, extends down) */}
           <div>
-            {/* Intro content from API if exists */}
-            {isLoading && (
-              <div style={{ textAlign: 'center', padding: '50px 0' }}>
-                <Spin size="large" tip="Loading content..." />
-              </div>
-            )}
-            
-            {!isLoading && introContent && (
-              <Card style={{ marginBottom: 24, borderRadius: 8 }} styles={{ body: { padding: '24px' } }}>
-                {introContent.title && (
-                  <h2 style={{ marginTop: 0, marginBottom: 16 }}>{introContent.title}</h2>
-                )}
-                {introContent.subtitle && (
-                  <p style={{ color: '#666', marginBottom: 16 }}>{introContent.subtitle}</p>
-                )}
-                <div
-                  style={{ fontSize: 14, lineHeight: 1.6 }}
-                  dangerouslySetInnerHTML={{ __html: introContent.text }}
-                />
-              </Card>
-            )}
-
             {/* Main content sections */}
             <HighlightCategories />
             <HighlightProducts />

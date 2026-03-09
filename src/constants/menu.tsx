@@ -11,6 +11,7 @@ import {
   UserOutlined,
   PictureOutlined,
   MessageOutlined,
+  EditOutlined,
 } from '@ant-design/icons';
 import { ROUTES } from './routes';
 import { UserRole } from '@/types/auth';
@@ -33,6 +34,14 @@ export const ADMIN_MENU_ITEMS: AdminMenuItem[] = [
     labelKey: 'navigation.dashboard',
     href: ROUTES.DASHBOARD,
     icon: <DashboardOutlined />,
+  },
+  {
+    key: 'homepage-editor',
+    label: 'Homepage Editor',
+    labelKey: 'navigation.homepageEditor',
+    href: ROUTES.HOMEPAGE_EDITOR,
+    icon: <EditOutlined />,
+    minRole: UserRole.MANAGER,
   },
   {
     key: 'category',
