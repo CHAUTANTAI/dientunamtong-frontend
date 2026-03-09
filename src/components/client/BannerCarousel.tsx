@@ -49,7 +49,7 @@ const BannerImage = ({ url, alt }: { url: string; alt?: string }) => {
   );
 };
 
-export default function BannerCarousel() {
+export default function BannerCarousel({ bannerIds }: { bannerIds?: string[] }) {
   const { data: banners, isLoading } = useGetPublicBannersQuery();
 
   if (isLoading) {
@@ -76,10 +76,18 @@ export default function BannerCarousel() {
     return null;
   }
 
-  // Filter active banners and sort by sort_order
-  const activeBanners = banners
-    .filter((banner) => banner.is_active)
-    .sort((a, b) => a.sort_order - b.sort_order);
+  // Filter banners based on bannerIds if provided, otherwise use all active banners
+  let activeBanners = banners.filter((banner) => banner.is_active);
+  
+  if (bannerIds && bannerIds.length > 0) {
+    // Use specified banners in the configured order
+    activeBanners = bannerIds
+      .map(id => banners.find(b => b.id === id))
+      .filter((banner): banner is NonNullable<typeof banner> => banner !== undefined && banner.is_active);
+  } else {
+    // Fallback: sort by sort_order
+    activeBanners = activeBanners.sort((a, b) => a.sort_order - b.sort_order);
+  }
 
   if (activeBanners.length === 0) {
     return null;

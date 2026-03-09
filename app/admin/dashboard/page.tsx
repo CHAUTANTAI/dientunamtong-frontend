@@ -1,12 +1,12 @@
 /*
- * Dashboard Page
- * Admin dashboard home page
+ * Dashboard Page (Homepage Editor)
+ * Admin homepage content management
  */
 
 'use client';
 
-import DashboardPage from '@/screens/admin/dashboard/admin-dashboard-page';
+import HomepageEditorPage from '@/screens/admin/homepage/homepage-editor-page';
 
 export default function Page() {
-  return <DashboardPage />;
+  return <HomepageEditorPage />;
 }

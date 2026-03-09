@@ -506,5 +506,58 @@
       "deleteFailed": "Xóa liên hệ thất bại",
       "confirmDelete": "Bạn có chắc chắn muốn xóa liên hệ này?"
     }
+  },
+  "homepageEditor": {
+    "title": "Quản lý Trang chủ",
+    "subtitle": "Quản lý nội dung các phần trên trang chủ",
+    "saveAll": "Lưu tất cả",
+    "saving": "Đang lưu...",
+    "saveSuccess": "Cập nhật trang chủ thành công",
+    "saveFailed": "Cập nhật trang chủ thất bại",
+    "sidebar": {
+      "intro": "Giới thiệu",
+      "banner": "Banner"
+    },
+    "intro": {
+      "title": "Phần Giới thiệu",
+      "emptyText": "Chưa có nội dung giới thiệu. Nhấn + để thêm.",
+      "editButton": "Sửa Giới thiệu",
+      "modal": {
+        "title": "Sửa Giới thiệu",
+        "titleLabel": "Tiêu đề (Tùy chọn)",
+        "titlePlaceholder": "Nhập tiêu đề phần",
+        "subtitleLabel": "Phụ đề (Tùy chọn)",
+        "subtitlePlaceholder": "Nhập phụ đề",
+        "textLabel": "Nội dung",
+        "textPlaceholder": "Nhập nội dung giới thiệu (hỗ trợ HTML)",
+        "textRequired": "Vui lòng nhập nội dung giới thiệu"
+      }
+    },
+    "banner": {
+      "title": "Phần Banner",
+      "emptyText": "Chưa có banner nào. Nhấn + để quản lý.",
+      "manageButton": "Quản lý Banner",
+      "modal": {
+        "title": "Quản lý Banner",
+        "addBanners": "Thêm Banner",
+        "uploadHint": "Chọn nhiều ảnh banner (JPEG, PNG, GIF)",
+        "validationError": "Một số ảnh không hợp lệ:",
+        "fileTooLarge": "File quá lớn (tối đa 5MB)",
+        "invalidType": "Loại file không hợp lệ (chỉ JPEG, PNG, GIF)",
+        "uploadSuccess": "Đã thêm {count} banner thành công",
+        "uploadFailed": "Thêm banner thất bại",
+        "noBanners": "Chưa có banner nào. Nhấn 'Thêm Banner' để tải lên.",
+        "dragHint": "Kéo để sắp xếp lại banner",
+        "deleteConfirm": "Bạn có chắc chắn muốn xóa banner này?",
+        "deleteSuccess": "Đã xóa banner thành công",
+        "table": {
+          "order": "Thứ tự",
+          "image": "Hình ảnh",
+          "title": "Tiêu đề",
+          "link": "Liên kết",
+          "actions": "Thao tác"
+        }
+      }
+    }
   }
 }

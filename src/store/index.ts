@@ -12,6 +12,7 @@ import { profileApi } from './api/profileApi';
 import { mediaApi } from './api/mediaApi';
 import { bannerApi } from './api/bannerApi';
 import { contactApi as adminContactApi } from './api/contactApi';
+import { pageSectionApi } from './api/pageSectionApi';
 import { publicBannerApi } from './services/publicBannerApi';
 import { publicCategoryApi } from './services/publicCategoryApi';
 import { publicProductApi } from './services/publicProductApi';
@@ -28,6 +29,7 @@ export const store = configureStore({
     [mediaApi.reducerPath]: mediaApi.reducer,
     [bannerApi.reducerPath]: bannerApi.reducer,
     [adminContactApi.reducerPath]: adminContactApi.reducer,
+    [pageSectionApi.reducerPath]: pageSectionApi.reducer,
     [publicBannerApi.reducerPath]: publicBannerApi.reducer,
     [publicCategoryApi.reducerPath]: publicCategoryApi.reducer,
     [publicProductApi.reducerPath]: publicProductApi.reducer,
@@ -43,6 +45,7 @@ export const store = configureStore({
       .concat(mediaApi.middleware)
       .concat(bannerApi.middleware)
       .concat(adminContactApi.middleware)
+      .concat(pageSectionApi.middleware)
       .concat(publicBannerApi.middleware)
       .concat(publicCategoryApi.middleware)
       .concat(publicProductApi.middleware)

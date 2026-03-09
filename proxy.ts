@@ -39,10 +39,10 @@ export function proxy(request: NextRequest) {
   }
 
   // Redirect authenticated users away from login page
-  if (isAuthenticated && pathname.startsWith(ROUTES.LOGIN)) {
+  if (isAuthenticated && (pathname.startsWith(ROUTES.LOGIN) || pathname.startsWith('/admin/auth'))) {
     const callbackUrl = request.nextUrl.searchParams.get('callbackUrl');
     const redirectUrl = callbackUrl || ROUTES.DASHBOARD;
-    console.log('[PROXY] Redirecting from login to:', redirectUrl);
+    console.log('[PROXY] Redirecting authenticated user from login to:', redirectUrl);
     return NextResponse.redirect(new URL(redirectUrl, request.url));
   }
 

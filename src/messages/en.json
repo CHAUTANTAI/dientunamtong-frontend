@@ -507,5 +507,58 @@
       "deleteFailed": "Failed to delete contact",
       "confirmDelete": "Are you sure you want to delete this contact?"
     }
+  },
+  "homepageEditor": {
+    "title": "Homepage Editor",
+    "subtitle": "Manage homepage content sections",
+    "saveAll": "Save All Changes",
+    "saving": "Saving...",
+    "saveSuccess": "Homepage updated successfully",
+    "saveFailed": "Failed to update homepage",
+    "sidebar": {
+      "intro": "Introduction",
+      "banner": "Banners"
+    },
+    "intro": {
+      "title": "Introduction Section",
+      "emptyText": "No introduction text set. Click + to add.",
+      "editButton": "Edit Introduction",
+      "modal": {
+        "title": "Edit Introduction",
+        "titleLabel": "Title (Optional)",
+        "titlePlaceholder": "Enter section title",
+        "subtitleLabel": "Subtitle (Optional)",
+        "subtitlePlaceholder": "Enter subtitle",
+        "textLabel": "Content",
+        "textPlaceholder": "Enter introduction text (HTML supported)",
+        "textRequired": "Please enter introduction text"
+      }
+    },
+    "banner": {
+      "title": "Banner Section",
+      "emptyText": "No banners configured. Click + to manage.",
+      "manageButton": "Manage Banners",
+      "modal": {
+        "title": "Manage Banners",
+        "addBanners": "Add Banners",
+        "uploadHint": "Select multiple banner images (JPEG, PNG, GIF)",
+        "validationError": "Some images failed validation:",
+        "fileTooLarge": "File too large (max 5MB)",
+        "invalidType": "Invalid file type (JPEG, PNG, GIF only)",
+        "uploadSuccess": "{count} banner(s) added successfully",
+        "uploadFailed": "Failed to upload banners",
+        "noBanners": "No banners yet. Click 'Add Banners' to upload.",
+        "dragHint": "Drag to reorder banners",
+        "deleteConfirm": "Are you sure you want to remove this banner?",
+        "deleteSuccess": "Banner removed successfully",
+        "table": {
+          "order": "Order",
+          "image": "Image",
+          "title": "Title",
+          "link": "Link",
+          "actions": "Actions"
+        }
+      }
+    }
   }
 }
