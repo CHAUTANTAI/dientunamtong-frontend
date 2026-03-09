@@ -1,5 +1,5 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
-import { createBaseQueryWithInterceptor } from '@/store/api/baseQuery';
+import { createBaseQueryWithInterceptor, baseQueryWithoutAuth } from '@/store/api/baseQuery';
 import type { PageSection, UpdatePageSectionsRequest } from '@/types/pageSection';
 
 export const pageSectionApi = createApi({
@@ -44,13 +44,21 @@ export const pageSectionApi = createApi({
         { type: 'PageSection', id: `public-${pageIdentifier}` },
       ],
     }),
+  }),
+});
 
+// Public API - separate API slice without auth
+export const publicPageSectionApi = createApi({
+  reducerPath: 'publicPageSectionApi',
+  baseQuery: baseQueryWithoutAuth,
+  tagTypes: ['PublicPageSection'],
+  endpoints: (builder) => ({
     // Public: Get active sections for a page
     getActivePageSections: builder.query<PageSection[], string>({
       query: (pageIdentifier) => `/public/page-sections/${pageIdentifier}`,
       transformResponse: (response: { data: PageSection[] }) => response.data,
       providesTags: (result, error, pageIdentifier) => [
-        { type: 'PageSection', id: `public-${pageIdentifier}` },
+        { type: 'PublicPageSection', id: pageIdentifier },
       ],
     }),
   }),
@@ -60,5 +68,8 @@ export const {
   useGetPageSectionsQuery,
   useUpdatePageSectionsMutation,
   useDeletePageSectionMutation,
-  useGetActivePageSectionsQuery,
 } = pageSectionApi;
+
+export const {
+  useGetActivePageSectionsQuery,
+} = publicPageSectionApi;
