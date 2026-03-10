@@ -1,11 +1,15 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Card, Button, Space, Typography, Row, Col, App, Spin } from 'antd';
+import { Card, Button, Space, Typography, Row, Col, App, Spin, Progress } from 'antd';
 import { PlusOutlined, SaveOutlined } from '@ant-design/icons';
 import { useTranslations } from 'next-intl';
 import { useGetPageSectionsQuery, useUpdatePageSectionsMutation } from '@/store/api/pageSectionApi';
+import { useCreateMediaMutation } from '@/store/api/mediaApi';
 import type { PageSection, IntroContent, BannerContent, RightContentBoxContent, LeftSidebarCategoriesContent, RightSidebarItemsContent, HighlightCategoriesContent, HighlightProductsContent } from '@/types/pageSection';
+import type { PendingBanner } from '@/types/banner';
+import { MediaType } from '@/types/media';
+import { uploadToSupabase } from '@/utils/supabase';
 import IntroEditModal from './IntroEditModal';
 import BannerManageModal from './BannerManageModal';
 import RightContentBoxEditModal from './RightContentBoxEditModal';
@@ -21,6 +25,7 @@ export default function HomepageEditorPage() {
   
   const { data: sections, isLoading } = useGetPageSectionsQuery('homepage');
   const [updateSections, { isLoading: isSaving }] = useUpdatePageSectionsMutation();
+  const [createMedia] = useCreateMediaMutation();
 
   // Local state for editing
   const [introSection, setIntroSection] = useState<PageSection | null>(null);
@@ -30,6 +35,10 @@ export default function HomepageEditorPage() {
   const [rightSidebarItemsSection, setRightSidebarItemsSection] = useState<PageSection | null>(null);
   const [highlightCategoriesSection, setHighlightCategoriesSection] = useState<PageSection | null>(null);
   const [highlightProductsSection, setHighlightProductsSection] = useState<PageSection | null>(null);
+  
+  // Pending banners state (not yet uploaded)
+  const [pendingBanners, setPendingBanners] = useState<PendingBanner[]>([]);
+  const [uploadProgress, setUploadProgress] = useState<{ current: number; total: number } | null>(null);
   
   // Modal states
   const [introModalOpen, setIntroModalOpen] = useState(false);
@@ -66,7 +75,7 @@ export default function HomepageEditorPage() {
         id: '',
         page_identifier: 'homepage',
         section_identifier: 'banner',
-        content: { banner_ids: [] },
+        content: { media_ids: [] }, // Changed from banner_ids
         sort_order: 1,
         is_active: true,
         created_at: '',
@@ -135,6 +144,60 @@ export default function HomepageEditorPage() {
     if (!introSection || !bannerSection || !rightContentBoxSection || !leftSidebarCategoriesSection || !rightSidebarItemsSection || !highlightCategoriesSection || !highlightProductsSection) return;
 
     try {
+      let uploadedMediaIds: string[] = [];
+
+      // Step 1: Upload pending banners if any
+      if (pendingBanners.length > 0) {
+        console.log(`📤 Uploading ${pendingBanners.length} pending banners...`);
+        setUploadProgress({ current: 0, total: pendingBanners.length });
+
+        for (let i = 0; i < pendingBanners.length; i++) {
+          const banner = pendingBanners[i];
+          
+          try {
+            console.log(`📤 Uploading ${i + 1}/${pendingBanners.length}: ${banner.file.name}`);
+            
+            // Upload to Supabase
+            const fileExt = banner.file.name.split('.').pop();
+            const fileName = `banner_${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+            const { path } = await uploadToSupabase(banner.file, 'banners', { fileName });
+            
+            console.log(`✅ File uploaded to Supabase: ${path}`);
+
+            // Create media record
+            const media = await createMedia({
+              file_name: fileName,
+              file_url: `/${path}`,
+              media_type: MediaType.IMAGE,
+              mime_type: banner.file.type,
+              file_size: banner.file.size,
+              is_active: true,
+            }).unwrap();
+            
+            console.log(`✅ Media record created: ${media.id}`);
+            uploadedMediaIds.push(media.id);
+            
+            setUploadProgress({ current: i + 1, total: pendingBanners.length });
+          } catch (uploadError) {
+            console.error(`❌ Failed to upload banner ${banner.file.name}:`, uploadError);
+            throw new Error(`Failed to upload ${banner.file.name}`);
+          }
+        }
+
+        console.log(`✅ All banners uploaded successfully. Media IDs:`, uploadedMediaIds);
+        setUploadProgress(null);
+        
+        // Update banner section content with uploaded media IDs
+        setBannerSection({
+          ...bannerSection,
+          content: {
+            ...bannerSection.content,
+            media_ids: uploadedMediaIds,
+          } as BannerContent,
+        });
+      }
+
+      // Step 2: Save all sections
       await updateSections({
         pageIdentifier: 'homepage',
         data: {
@@ -147,7 +210,12 @@ export default function HomepageEditorPage() {
             },
             {
               sectionIdentifier: 'banner',
-              content: bannerSection.content,
+              content: {
+                ...(bannerSection.content as BannerContent),
+                media_ids: uploadedMediaIds.length > 0 
+                  ? uploadedMediaIds 
+                  : (bannerSection.content as BannerContent).media_ids || [],
+              },
               sortOrder: 1,
               isActive: true,
             },
@@ -185,10 +253,17 @@ export default function HomepageEditorPage() {
         },
       }).unwrap();
 
+      // Clear pending banners after successful save
+      setPendingBanners([]);
       message.success(t('saveSuccess'));
     } catch (error) {
       console.error('Save error:', error);
-      message.error(t('saveFailed'));
+      setUploadProgress(null);
+      if (error instanceof Error) {
+        message.error(`${t('saveFailed')}: ${error.message}`);
+      } else {
+        message.error(t('saveFailed'));
+      }
     }
   };
 
@@ -216,17 +291,40 @@ export default function HomepageEditorPage() {
           <Title level={2} style={{ margin: 0 }}>
             {t('title')}
           </Title>
-          <Button
-            type="primary"
-            icon={<SaveOutlined />}
-            size="large"
-            onClick={handleSaveAll}
-            loading={isSaving}
-          >
-            {isSaving ? t('saving') : t('saveAll')}
-          </Button>
+          <Space>
+            {pendingBanners.length > 0 && (
+              <Text type="warning" style={{ marginRight: 8 }}>
+                ⚠️ {pendingBanners.length} banner(s) pending upload
+              </Text>
+            )}
+            <Button
+              type="primary"
+              icon={<SaveOutlined />}
+              size="large"
+              onClick={handleSaveAll}
+              loading={isSaving || uploadProgress !== null}
+              disabled={isSaving || uploadProgress !== null}
+            >
+              {uploadProgress 
+                ? `Uploading ${uploadProgress.current}/${uploadProgress.total}...`
+                : isSaving 
+                  ? t('saving') 
+                  : t('saveAll')}
+            </Button>
+          </Space>
         </div>
         <Text type="secondary">{t('subtitle')}</Text>
+        
+        {/* Upload Progress */}
+        {uploadProgress && (
+          <div style={{ marginTop: 16, marginBottom: 16 }}>
+            <Progress 
+              percent={Math.round((uploadProgress.current / uploadProgress.total) * 100)} 
+              status="active"
+              format={() => `${uploadProgress.current}/${uploadProgress.total} banners uploaded`}
+            />
+          </div>
+        )}
       </div>
 
       <Row gutter={[24, 24]}>
@@ -342,9 +440,14 @@ export default function HomepageEditorPage() {
                 </div>
               }
             >
-              {bannerContent?.banner_ids?.length > 0 ? (
+              {bannerContent?.media_ids?.length > 0 || pendingBanners.length > 0 ? (
                 <Text>
-                  {bannerContent.banner_ids.length} banner(s) configured
+                  {(bannerContent?.media_ids?.length || 0) + pendingBanners.length} banner(s) configured
+                  {pendingBanners.length > 0 && (
+                    <Text type="warning" style={{ marginLeft: 8 }}>
+                      ({pendingBanners.length} pending upload)
+                    </Text>
+                  )}
                 </Text>
               ) : (
                 <Text type="secondary">{t('banner.emptyText')}</Text>
@@ -499,13 +602,11 @@ export default function HomepageEditorPage() {
           open={bannerModalOpen}
           onClose={() => setBannerModalOpen(false)}
           content={bannerContent}
-          onSave={(newContent) => {
-            setBannerSection({
-              ...bannerSection,
-              content: newContent,
-            });
+          onSave={(newPendingBanners) => {
+            // Save pending banners to state (will be uploaded on Save All)
+            setPendingBanners(newPendingBanners);
             setBannerModalOpen(false);
-            message.success('Banners updated. Click "Save All" to persist changes.');
+            message.success(`${newPendingBanners.length} banner(s) ready. Click "Save All Changes" to upload.`);
           }}
         />
       )}

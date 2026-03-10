@@ -77,7 +77,7 @@ export default function HomePage() {
         <Col xs={24} lg={24} xl={16}>
           {/* Row 1: Banner - height matches intro boxes */}
           <div style={{ marginBottom: 16 }}>
-            <BannerCarousel bannerIds={bannerContent?.banner_ids} />
+            <BannerCarousel mediaIds={bannerContent?.media_ids} />
           </div>
 
           {/* Row 2: Main Content (max-content, extends down) */}
