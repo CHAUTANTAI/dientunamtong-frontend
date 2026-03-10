@@ -1,6 +1,6 @@
 'use client';
 
-import { Modal, Button, Form, Input, List, Space, Typography, Select, Spin, InputNumber } from 'antd';
+import { Modal, Button, Form, Input, List, Space, Typography, Select, Spin } from 'antd';
 import { PlusOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons';
 import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
@@ -8,6 +8,8 @@ import { useGetCategoriesQuery } from '@/store/api/categoryApi';
 import type { HighlightCategoriesContent } from '@/types/pageSection';
 
 const { Text } = Typography;
+
+const MAX_CATEGORIES = 3; // Fixed maximum categories to display
 
 interface HighlightCategoriesEditModalProps {
   open: boolean;
@@ -29,10 +31,9 @@ export default function HighlightCategoriesEditModal({
 }: HighlightCategoriesEditModalProps) {
   const t = useTranslations('homepageEditor.highlightCategories.modal');
   const [form] = Form.useForm();
-  const { data: allCategories, isLoading } = useGetCategoriesQuery({});
+  const { data: allCategories, isLoading } = useGetCategoriesQuery();
   
   const [title, setTitle] = useState(content?.title || 'Highlight Categories');
-  const [limit, setLimit] = useState(content?.limit || 3);
   const [categories, setCategories] = useState<CategoryConfig[]>(content?.categories || []);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [categoryFormVisible, setCategoryFormVisible] = useState(false);
@@ -40,7 +41,6 @@ export default function HighlightCategoriesEditModal({
   useEffect(() => {
     if (open) {
       setTitle(content?.title || 'Highlight Categories');
-      setLimit(content?.limit || 3);
       setCategories(content?.categories || []);
       setEditingIndex(null);
       setCategoryFormVisible(false);
@@ -84,21 +84,23 @@ export default function HighlightCategoriesEditModal({
   const handleSubmit = () => {
     onSave({
       title,
-      limit,
+      limit: MAX_CATEGORIES,
       categories,
     });
   };
 
   // Get root categories (parent_id is null)
-  const rootCategories = allCategories?.items?.filter((cat: any) => !cat.parent_id) || [];
+  const rootCategories = allCategories?.filter((cat: any) => !cat.parent_id) || [];
   
   // Get sub-categories for selected parent
   const selectedParentId = Form.useWatch('category_id', form);
-  const subCategories = allCategories?.items?.filter((cat: any) => cat.parent_id === selectedParentId) || [];
+  const subCategories = allCategories?.filter((cat: any) => cat.parent_id === selectedParentId) || [];
 
   const getCategoryName = (id: string) => {
-    return allCategories?.items?.find((cat: any) => cat.id === id)?.name || id;
+    return allCategories?.find((cat: any) => cat.id === id)?.name || id;
   };
+
+  const isMaxReached = categories.length >= MAX_CATEGORIES;
 
   return (
     <Modal
@@ -130,16 +132,17 @@ export default function HighlightCategoriesEditModal({
             />
           </Form.Item>
 
-          {/* Limit */}
-          <Form.Item label={t('limitLabel')}>
-            <InputNumber
-              min={1}
-              max={10}
-              value={limit}
-              onChange={(val) => setLimit(val || 3)}
-              style={{ width: '100%' }}
-            />
-          </Form.Item>
+          {/* Info text */}
+          <div style={{ padding: '8px 12px', backgroundColor: '#f0f5ff', borderRadius: 4, border: '1px solid #d6e4ff' }}>
+            <Text type="secondary">
+              Maximum {MAX_CATEGORIES} categories will be displayed on homepage
+            </Text>
+            {isMaxReached && (
+              <div style={{ color: '#faad14', marginTop: 4 }}>
+                ⚠️ Maximum limit reached ({categories.length}/{MAX_CATEGORIES}). Delete a category to add another.
+              </div>
+            )}
+          </div>
 
           {/* Add/Edit Category Form */}
           {categoryFormVisible ? (
@@ -204,6 +207,7 @@ export default function HighlightCategoriesEditModal({
               block
               icon={<PlusOutlined />}
               onClick={() => setCategoryFormVisible(true)}
+              disabled={isMaxReached && editingIndex === null}
             >
               {t('addCategoryButton')}
             </Button>

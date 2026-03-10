@@ -130,7 +130,7 @@ const CategoryCard = ({ category, subCategories }: CategoryCardProps) => {
 export default function HighlightCategories() {
   const t = useTranslations('client.home');
   const { data: sections, isLoading: sectionsLoading } = useGetActivePageSectionsQuery('homepage');
-  const { data: allCategories, isLoading: categoriesLoading } = useGetCategoriesQuery({});
+  const { data: allCategories, isLoading: categoriesLoading } = useGetCategoriesQuery();
 
   const highlightSection = sections?.find(s => s.section_identifier === 'highlight_categories');
   const content = highlightSection?.content as HighlightCategoriesContent;
@@ -158,11 +158,11 @@ export default function HighlightCategories() {
 
   // Build category data with sub-categories
   const categoryData = content.categories.slice(0, content.limit || 3).map(catConfig => {
-    const category = allCategories?.items?.find((c: any) => c.id === catConfig.category_id);
+    const category = allCategories?.find((c: any) => c.id === catConfig.category_id);
     if (!category) return null;
 
     const subCategories = catConfig.sub_category_ids
-      .map(subId => allCategories?.items?.find((c: any) => c.id === subId))
+      .map(subId => allCategories?.find((c: any) => c.id === subId))
       .filter(Boolean);
 
     return {

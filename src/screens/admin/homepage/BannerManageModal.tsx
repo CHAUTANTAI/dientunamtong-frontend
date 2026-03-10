@@ -8,12 +8,9 @@ import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, us
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import type { BannerContent } from '@/types/pageSection';
-import { useGetBannersQuery, useCreateBannerMutation, useDeleteBannerMutation } from '@/store/api/bannerApi';
-import { useCreateMediaMutation } from '@/store/api/mediaApi';
-import { MediaType } from '@/types/media';
-import { uploadToSupabase } from '@/utils/supabase';
+import type { PendingBanner } from '@/types/banner';
 import type { UploadFile } from 'antd';
-import type { Banner } from '@/types/banner';
+import { v4 as uuidv4 } from 'uuid';
 
 const { Text } = Typography;
 
@@ -21,7 +18,7 @@ interface BannerManageModalProps {
   open: boolean;
   onClose: () => void;
   content: BannerContent;
-  onSave: (content: BannerContent) => void;
+  onSave: (pendingBanners: PendingBanner[]) => void; // Changed: return pending banners instead of content
 }
 
 interface SortableRowProps {
@@ -43,12 +40,13 @@ const SortableRow = ({ children, ...props }: SortableRowProps) => {
 
   return (
     <tr ref={setNodeRef} style={style} {...attributes} {...props}>
-      {React.Children.map(children, (child: any) => {
-        if (child?.key === 'drag-handle') {
-          return React.cloneElement(child, {
+      {React.Children.map(children, (child) => {
+        if (React.isValidElement(child) && child.key === 'drag-handle') {
+          const childElement = child as React.ReactElement<{ children?: React.ReactNode }>;
+          return React.cloneElement(childElement, {
             children: (
               <div {...listeners} style={{ cursor: 'grab', padding: '4px' }}>
-                {child.props.children}
+                {childElement.props.children}
               </div>
             ),
           });
@@ -61,15 +59,9 @@ const SortableRow = ({ children, ...props }: SortableRowProps) => {
 
 export default function BannerManageModal({ open, onClose, content, onSave }: BannerManageModalProps) {
   const t = useTranslations('homepageEditor.banner.modal');
-  const { message, modal } = App.useApp();
+  const { message } = App.useApp();
 
-  const { data: allBanners, isLoading } = useGetBannersQuery();
-  const [createBanner] = useCreateBannerMutation();
-  const [deleteBanner] = useDeleteBannerMutation();
-  const [createMedia] = useCreateMediaMutation();
-
-  const [bannerIds, setBannerIds] = useState<string[]>(content?.banner_ids || []);
-  const [uploading, setUploading] = useState(false);
+  const [pendingBanners, setPendingBanners] = useState<PendingBanner[]>([]);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
 
   const sensors = useSensors(
@@ -81,40 +73,60 @@ export default function BannerManageModal({ open, onClose, content, onSave }: Ba
 
   useEffect(() => {
     if (open) {
-      setBannerIds(content?.banner_ids || []);
+      // Reset on modal open - no existing banners to load
+      setPendingBanners([]);
       setValidationErrors([]);
     }
-  }, [open, content]);
+  }, [open]);
 
-  // Get banners that are in our list
-  const selectedBanners = bannerIds
-    .map(id => allBanners?.find((b: Banner) => b.id === id))
-    .filter(Boolean) as Banner[];
+  // Cleanup preview URLs on unmount
+  useEffect(() => {
+    return () => {
+      pendingBanners.forEach(banner => {
+        if (banner.previewUrl) {
+          URL.revokeObjectURL(banner.previewUrl);
+        }
+      });
+    };
+  }, [pendingBanners]);
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
 
     if (over && active.id !== over.id) {
-      const oldIndex = bannerIds.indexOf(active.id as string);
-      const newIndex = bannerIds.indexOf(over.id as string);
-      const newOrder = arrayMove(bannerIds, oldIndex, newIndex);
-      setBannerIds(newOrder);
+      setPendingBanners((items) => {
+        const oldIndex = items.findIndex(item => item.id === active.id);
+        const newIndex = items.findIndex(item => item.id === over.id);
+        
+        const newOrder = arrayMove(items, oldIndex, newIndex);
+        
+        // Update sort_order
+        return newOrder.map((item, index) => ({
+          ...item,
+          sort_order: index,
+        }));
+      });
     }
   };
 
-  const handleDelete = (bannerId: string) => {
-    modal.confirm({
-      title: t('deleteConfirm'),
-      onOk: () => {
-        setBannerIds(bannerIds.filter(id => id !== bannerId));
-        message.success(t('deleteSuccess'));
-      },
+  const handleDelete = (id: string) => {
+    const banner = pendingBanners.find(b => b.id === id);
+    if (banner?.previewUrl) {
+      URL.revokeObjectURL(banner.previewUrl);
+    }
+    
+    setPendingBanners(prev => {
+      const filtered = prev.filter(b => b.id !== id);
+      // Reorder
+      return filtered.map((b, index) => ({ ...b, sort_order: index }));
     });
+    
+    message.success(t('deleteSuccess'));
   };
 
   const validateFile = (file: File): string | null => {
     const maxSize = 5 * 1024 * 1024; // 5MB
-    const validTypes = ['image/jpeg', 'image/png', 'image/gif'];
+    const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'];
 
     if (file.size > maxSize) {
       return `${file.name}: ${t('fileTooLarge')}`;
@@ -127,7 +139,7 @@ export default function BannerManageModal({ open, onClose, content, onSave }: Ba
     return null;
   };
 
-  const handleUpload = async (options: { fileList: UploadFile[] }) => {
+  const handleUpload = (options: { fileList: UploadFile[] }) => {
     const files = options.fileList.map(f => f.originFileObj).filter(Boolean) as File[];
     
     if (files.length === 0) return;
@@ -152,54 +164,31 @@ export default function BannerManageModal({ open, onClose, content, onSave }: Ba
       return;
     }
 
-    setUploading(true);
+    // Create pending banners with preview URLs
+    const newPendingBanners: PendingBanner[] = validFiles.map((file, index) => ({
+      id: uuidv4(),
+      file,
+      previewUrl: URL.createObjectURL(file),
+      sort_order: pendingBanners.length + index,
+    }));
 
-    try {
-      const newBannerIds: string[] = [];
-
-      for (const file of validFiles) {
-        // Upload to Supabase
-        const fileExt = file.name.split('.').pop();
-        const fileName = `banner_${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
-        const { path } = await uploadToSupabase(file, 'banners', { fileName });
-
-        // Create media record first
-        const media = await createMedia({
-          file_name: fileName,
-          file_url: `/${path}`,
-          media_type: MediaType.IMAGE,
-          mime_type: file.type,
-          file_size: file.size,
-          is_active: true,
-        }).unwrap();
-
-        // Create banner record with media_id
-        const result = await createBanner({
-          media_id: media.id,
-          sort_order: bannerIds.length + newBannerIds.length,
-        }).unwrap();
-
-        newBannerIds.push(result.id);
-      }
-
-      setBannerIds([...bannerIds, ...newBannerIds]);
-      message.success(t('uploadSuccess', { count: newBannerIds.length }));
-    } catch (error) {
-      console.error('Upload error:', error);
-      message.error(t('uploadFailed'));
-    } finally {
-      setUploading(false);
-    }
+    setPendingBanners([...pendingBanners, ...newPendingBanners]);
+    message.success(t('uploadSuccess', { count: validFiles.length }));
   };
 
   const handleSave = () => {
-    onSave({
-      banner_ids: bannerIds,
-      auto_play: true,
-      interval: 5000,
-      show_arrows: true,
-      show_dots: true,
+    onSave(pendingBanners);
+    onClose();
+  };
+
+  const handleClose = () => {
+    // Cleanup all preview URLs
+    pendingBanners.forEach(banner => {
+      if (banner.previewUrl) {
+        URL.revokeObjectURL(banner.previewUrl);
+      }
     });
+    onClose();
   };
 
   const columns = [
@@ -212,20 +201,20 @@ export default function BannerManageModal({ open, onClose, content, onSave }: Ba
       title: t('table.order'),
       key: 'order',
       width: 80,
-      render: (_: any, __: any, index: number) => index + 1,
+      render: (_: unknown, __: unknown, index: number) => index + 1,
     },
     {
       title: t('table.image'),
-      dataIndex: 'image_url',
       key: 'image',
       width: 120,
-      render: (url: string) => (
+      render: (_: unknown, record: PendingBanner) => (
         <Image
-          src={url}
-          alt="Banner"
+          src={record.previewUrl}
+          alt="Banner preview"
           width={100}
           height={60}
           style={{ objectFit: 'cover', borderRadius: 4 }}
+          preview={false}
         />
       ),
     },
@@ -245,7 +234,7 @@ export default function BannerManageModal({ open, onClose, content, onSave }: Ba
       title: t('table.actions'),
       key: 'actions',
       width: 100,
-      render: (_: any, record: Banner) => (
+      render: (_: unknown, record: PendingBanner) => (
         <Button
           danger
           icon={<DeleteOutlined />}
@@ -259,10 +248,10 @@ export default function BannerManageModal({ open, onClose, content, onSave }: Ba
     <Modal
       title={t('title')}
       open={open}
-      onCancel={onClose}
+      onCancel={handleClose}
       width={1000}
       footer={[
-        <Button key="cancel" onClick={onClose}>
+        <Button key="cancel" onClick={handleClose}>
           Cancel
         </Button>,
         <Button key="save" type="primary" onClick={handleSave}>
@@ -275,7 +264,7 @@ export default function BannerManageModal({ open, onClose, content, onSave }: Ba
         <div>
           <Upload
             multiple
-            accept="image/jpeg,image/png,image/gif"
+            accept="image/jpeg,image/png,image/gif,image/webp,image/svg+xml"
             showUploadList={false}
             beforeUpload={() => false}
             onChange={handleUpload}
@@ -285,7 +274,6 @@ export default function BannerManageModal({ open, onClose, content, onSave }: Ba
               icon={<PlusOutlined />}
               size="large"
               block
-              loading={uploading}
             >
               {t('addBanners')}
             </Button>
@@ -296,41 +284,59 @@ export default function BannerManageModal({ open, onClose, content, onSave }: Ba
           {validationErrors.length > 0 && (
             <div style={{ marginTop: 8 }}>
               <Text type="danger">{t('validationError')}</Text>
-              {validationErrors.map((err, idx) => (
-                <div key={idx}>
-                  <Text type="danger" style={{ fontSize: 12 }}>• {err}</Text>
-                </div>
-              ))}
+              <ul style={{ margin: '4px 0', paddingLeft: 20 }}>
+                {validationErrors.map((error, index) => (
+                  <li key={index}>
+                    <Text type="danger" style={{ fontSize: 12 }}>{error}</Text>
+                  </li>
+                ))}
+              </ul>
             </div>
           )}
         </div>
 
-        {/* Banner List */}
-        {selectedBanners.length > 0 ? (
-          <>
-            <Text type="secondary" style={{ fontSize: 12 }}>
+        {/* Banner Table */}
+        {pendingBanners.length === 0 ? (
+          <Empty
+            description={t('noBanners')}
+            image={Empty.PRESENTED_IMAGE_SIMPLE}
+          />
+        ) : (
+          <div>
+            <Text type="secondary" style={{ fontSize: 12, display: 'block', marginBottom: 8 }}>
               {t('dragHint')}
             </Text>
-            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-              <SortableContext items={bannerIds} strategy={verticalListSortingStrategy}>
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={handleDragEnd}
+            >
+              <SortableContext
+                items={pendingBanners.map(b => b.id)}
+                strategy={verticalListSortingStrategy}
+              >
                 <Table
-                  dataSource={selectedBanners}
+                  dataSource={pendingBanners}
                   columns={columns}
                   rowKey="id"
                   pagination={false}
-                  loading={isLoading}
                   components={{
                     body: {
                       row: SortableRow,
                     },
                   }}
+                  onRow={(record) => ({
+                    'data-row-key': record.id,
+                  } as React.HTMLAttributes<HTMLElement>)}
                 />
               </SortableContext>
             </DndContext>
-          </>
-        ) : (
-          <Empty description={t('noBanners')} />
+          </div>
         )}
+
+        <Text type="warning" style={{ fontSize: 12 }}>
+          ⚠️ Banners will be uploaded when you click "Save All Changes" on the Homepage Editor.
+        </Text>
       </Space>
     </Modal>
   );

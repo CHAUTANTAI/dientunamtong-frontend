@@ -10,7 +10,7 @@ const { Text } = Typography;
 
 export default function LeftSidebar() {
   const { data: sections, isLoading: sectionsLoading } = useGetActivePageSectionsQuery('homepage');
-  const { data: allCategories, isLoading: categoriesLoading } = useGetCategoriesQuery({});
+  const { data: allCategories, isLoading: categoriesLoading } = useGetCategoriesQuery();
 
   const leftSidebarSection = sections?.find(s => s.section_identifier === 'left_sidebar_categories');
   const content = leftSidebarSection?.content as LeftSidebarCategoriesContent;
@@ -33,7 +33,7 @@ export default function LeftSidebar() {
 
   // Filter and order categories based on config
   const selectedCategories = content.category_ids
-    .map(id => allCategories?.items?.find((cat: any) => cat.id === id))
+    .map(id => allCategories?.find((cat: any) => cat.id === id))
     .filter(Boolean)
     .slice(0, content.max_items || 8);
 

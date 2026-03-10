@@ -60,14 +60,6 @@ export const ADMIN_MENU_ITEMS: AdminMenuItem[] = [
     minRole: UserRole.MANAGER,
   },
   {
-    key: 'banner',
-    label: 'Banners',
-    labelKey: 'navigation.banners',
-    href: ROUTES.BANNER,
-    icon: <PictureOutlined />,
-    minRole: UserRole.MANAGER,
-  },
-  {
     key: 'contact',
     label: 'Contact',
     labelKey: 'navigation.contact',

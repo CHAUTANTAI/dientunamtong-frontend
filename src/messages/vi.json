@@ -546,10 +546,10 @@
       "modal": {
         "title": "Quản lý Banner",
         "addBanners": "Thêm Banner",
-        "uploadHint": "Chọn nhiều ảnh banner (JPEG, PNG, GIF)",
+        "uploadHint": "Chọn nhiều ảnh banner (JPEG, PNG, GIF, WEBP, SVG)",
         "validationError": "Một số ảnh không hợp lệ:",
         "fileTooLarge": "File quá lớn (tối đa 5MB)",
-        "invalidType": "Loại file không hợp lệ (chỉ JPEG, PNG, GIF)",
+        "invalidType": "Loại file không hợp lệ (chỉ JPEG, PNG, GIF, WEBP, SVG)",
         "uploadSuccess": "Đã thêm {count} banner thành công",
         "uploadFailed": "Thêm banner thất bại",
         "noBanners": "Chưa có banner nào. Nhấn 'Thêm Banner' để tải lên.",
@@ -562,6 +562,12 @@
           "title": "Tiêu đề",
           "link": "Liên kết",
           "actions": "Thao tác"
+        },
+        "unsavedChanges": {
+          "title": "Chưa lưu thay đổi",
+          "message": "Bạn đã tải lên {count} banner nhưng chưa lưu. Chúng sẽ bị xóa.",
+          "discard": "Bỏ thay đổi",
+          "keepEditing": "Tiếp tục chỉnh sửa"
         }
       }
     },

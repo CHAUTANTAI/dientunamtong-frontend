@@ -19,7 +19,7 @@ export interface IntroContent {
 }
 
 export interface BannerContent {
-  banner_ids: string[];
+  media_ids: string[];  // Changed from banner_ids to media_ids
   auto_play?: boolean;
   interval?: number;
   show_arrows?: boolean;

@@ -1,6 +1,6 @@
 'use client';
 
-import { Modal, Button, Transfer, InputNumber, Form, Spin } from 'antd';
+import { Modal, Button, Transfer, Form, Spin } from 'antd';
 import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
 import { useGetCategoriesQuery } from '@/store/api/categoryApi';
@@ -13,6 +13,8 @@ interface LeftSidebarCategoriesEditModalProps {
   onSave: (content: LeftSidebarCategoriesContent) => void;
 }
 
+const MAX_ITEMS = 8; // Fixed maximum items
+
 export default function LeftSidebarCategoriesEditModal({
   open,
   onClose,
@@ -21,29 +23,34 @@ export default function LeftSidebarCategoriesEditModal({
 }: LeftSidebarCategoriesEditModalProps) {
   const t = useTranslations('homepageEditor.leftSidebarCategories.modal');
   const [form] = Form.useForm();
-  const { data: categories, isLoading } = useGetCategoriesQuery({});
+  const { data: categories, isLoading } = useGetCategoriesQuery();
   
   const [selectedKeys, setSelectedKeys] = useState<string[]>(content?.category_ids || []);
-  const [maxItems, setMaxItems] = useState<number>(content?.max_items || 8);
 
   useEffect(() => {
     if (open) {
       setSelectedKeys(content?.category_ids || []);
-      setMaxItems(content?.max_items || 8);
     }
   }, [open, content]);
 
   const handleSubmit = () => {
     onSave({
       category_ids: selectedKeys,
-      max_items: maxItems,
+      max_items: MAX_ITEMS,
     });
   };
 
-  const dataSource = categories?.items?.map((cat: any) => ({
+  // Filter to show only root categories (no parent_id)
+  const rootCategories = categories?.filter((cat: any) => !cat.parent_id) || [];
+  
+  // Check if max items reached
+  const isMaxReached = selectedKeys.length >= MAX_ITEMS;
+  
+  const dataSource = rootCategories.map((cat: any) => ({
     key: cat.id,
     title: cat.name,
-  })) || [];
+    disabled: isMaxReached && !selectedKeys.includes(cat.id), // Disable if max reached and not selected
+  }));
 
   return (
     <Modal
@@ -66,22 +73,24 @@ export default function LeftSidebarCategoriesEditModal({
         </div>
       ) : (
         <Form form={form} layout="vertical">
-          <Form.Item label={t('maxItemsLabel')}>
-            <InputNumber
-              min={1}
-              max={20}
-              value={maxItems}
-              onChange={(val) => setMaxItems(val || 8)}
-              style={{ width: '100%' }}
-            />
-          </Form.Item>
-
-          <Form.Item label={t('categoriesLabel')}>
+          <Form.Item 
+            label={t('categoriesLabel')}
+            extra={
+              <div>
+                <div>Maximum {MAX_ITEMS} categories will be displayed on homepage</div>
+                {isMaxReached && (
+                  <div style={{ color: '#faad14', marginTop: 4 }}>
+                    ⚠️ Maximum limit reached. Unselect an item to select another.
+                  </div>
+                )}
+              </div>
+            }
+          >
             <Transfer
               dataSource={dataSource}
               titles={['Available', 'Selected']}
               targetKeys={selectedKeys}
-              onChange={setSelectedKeys}
+              onChange={(targetKeys) => setSelectedKeys(targetKeys as string[])}
               render={(item) => item.title}
               listStyle={{
                 width: 300,

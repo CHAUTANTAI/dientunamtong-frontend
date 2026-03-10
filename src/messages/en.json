@@ -547,10 +547,10 @@
       "modal": {
         "title": "Manage Banners",
         "addBanners": "Add Banners",
-        "uploadHint": "Select multiple banner images (JPEG, PNG, GIF)",
+        "uploadHint": "Select multiple banner images (JPEG, PNG, GIF, WEBP, SVG)",
         "validationError": "Some images failed validation:",
         "fileTooLarge": "File too large (max 5MB)",
-        "invalidType": "Invalid file type (JPEG, PNG, GIF only)",
+        "invalidType": "Invalid file type (JPEG, PNG, GIF, WEBP, SVG only)",
         "uploadSuccess": "{count} banner(s) added successfully",
         "uploadFailed": "Failed to upload banners",
         "noBanners": "No banners yet. Click 'Add Banners' to upload.",
@@ -563,6 +563,12 @@
           "title": "Title",
           "link": "Link",
           "actions": "Actions"
+        },
+        "unsavedChanges": {
+          "title": "Unsaved Changes",
+          "message": "You uploaded {count} banner(s) but didn't save. These will be deleted.",
+          "discard": "Discard Changes",
+          "keepEditing": "Keep Editing"
         }
       }
     },

@@ -2,8 +2,9 @@
 
 import { Carousel, Spin } from 'antd';
 import Image from 'next/image';
-import { useGetPublicBannersQuery } from '@/store/services/publicBannerApi';
+import { useGetPublicMediaQuery } from '@/store/services/publicMediaApi';
 import { useSignedImageUrl } from '@/hooks/useSignedImageUrl';
+import type { Media } from '@/types/media';
 
 const BannerImage = ({ url, alt }: { url: string; alt?: string }) => {
   const signedUrl = useSignedImageUrl(url);
@@ -57,8 +58,11 @@ const BannerImage = ({ url, alt }: { url: string; alt?: string }) => {
   );
 };
 
-export default function BannerCarousel({ bannerIds }: { bannerIds?: string[] }) {
-  const { data: banners, isLoading } = useGetPublicBannersQuery();
+export default function BannerCarousel({ mediaIds }: { mediaIds?: string[] }) {
+  // Get all media for the specified IDs
+  const { data: mediaList, isLoading } = useGetPublicMediaQuery(
+    mediaIds && mediaIds.length > 0 ? { ids: mediaIds } : undefined
+  );
 
   if (isLoading) {
     return (
@@ -87,52 +91,36 @@ export default function BannerCarousel({ bannerIds }: { bannerIds?: string[] }) 
     );
   }
 
-  if (!banners || banners.length === 0) {
+  if (!mediaList || mediaList.length === 0) {
     return null;
   }
 
-  // Filter banners based on bannerIds if provided, otherwise use all active banners
-  let activeBanners = banners.filter((banner) => banner.is_active);
-
-  if (bannerIds && bannerIds.length > 0) {
-    // Use specified banners in the configured order
-    activeBanners = bannerIds
-      .map((id) => banners.find((b) => b.id === id))
-      .filter(
-        (banner): banner is NonNullable<typeof banner> => banner !== undefined && banner.is_active
-      );
+  // Filter active media and maintain order from mediaIds
+  let activeMedia: Media[] = [];
+  
+  if (mediaIds && mediaIds.length > 0) {
+    // Preserve order from mediaIds
+    activeMedia = mediaIds
+      .map(id => mediaList.find((m: Media) => m.id === id))
+      .filter((media): media is Media => media !== undefined && media.is_active);
   } else {
-    // Fallback: sort by sort_order
-    activeBanners = activeBanners.sort((a, b) => a.sort_order - b.sort_order);
+    // Fallback: use all active media
+    activeMedia = mediaList.filter((media: Media) => media.is_active);
   }
 
-  if (activeBanners.length === 0) {
+  if (activeMedia.length === 0) {
     return null;
   }
 
   return (
     <div style={{ marginBottom: 0, borderRadius: 8, overflow: 'hidden' }}>
       <Carousel autoplay autoplaySpeed={3000} dots={{ className: 'banner-dots' }}>
-        {activeBanners.map((banner) => (
-          <div key={banner.id}>
-            {banner.link_url ? (
-              <a
-                href={banner.link_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{ display: 'block' }}
-              >
-                <BannerImage
-                  url={banner.media?.file_url || ''}
-                  alt={banner.media?.alt_text || banner.title || 'Banner'}
-                />
-              </a>
-            ) : (
-              <BannerImage
-                url={banner.media?.file_url || ''}
-                alt={banner.media?.alt_text || banner.title || 'Banner'}
-              />
-            )}
+        {activeMedia.map((media) => (
+          <div key={media.id}>
+            <BannerImage
+              url={media.file_url}
+              alt={media.alt_text || 'Banner'}
+            />
           </div>
         ))}
       </Carousel>
