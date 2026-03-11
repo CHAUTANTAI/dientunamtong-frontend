@@ -57,7 +57,7 @@ const SortableRow = ({ children, ...props }: SortableRowProps) => {
   );
 };
 
-export default function BannerManageModal({ open, onClose, content, onSave }: BannerManageModalProps) {
+export default function BannerManageModal({ open, onClose, onSave }: BannerManageModalProps) {
   const t = useTranslations('homepageEditor.banner.modal');
   const { message } = App.useApp();
 
@@ -335,7 +335,7 @@ export default function BannerManageModal({ open, onClose, content, onSave }: Ba
         )}
 
         <Text type="warning" style={{ fontSize: 12 }}>
-          ⚠️ Banners will be uploaded when you click "Save All Changes" on the Homepage Editor.
+          ⚠️ Banners will be uploaded when you click &quot;Save All Changes&quot; on the Homepage Editor.
         </Text>
       </Space>
     </Modal>

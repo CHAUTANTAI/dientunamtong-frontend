@@ -49,7 +49,7 @@ export default function AdminContactDetailPage() {
     try {
       await updateStatus({ id: contactId, status: selectedStatus }).unwrap();
       message.success(t('adminContact.actions.updateSuccess'));
-    } catch (error) {
+    } catch {
       message.error(t('adminContact.actions.updateFailed'));
     }
   };
@@ -67,7 +67,7 @@ export default function AdminContactDetailPage() {
           await deleteContact(contactId).unwrap();
           message.success(t('adminContact.actions.deleteSuccess'));
           router.push('/admin/contact');
-        } catch (error) {
+        } catch {
           message.error(t('adminContact.actions.deleteFailed'));
         }
       },

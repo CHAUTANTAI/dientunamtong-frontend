@@ -6,7 +6,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Table, Tag, Button, Space, Select, App, Modal } from 'antd';
+import { Table, Tag, Button, Space, Select, App } from 'antd';
 import { EyeOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
@@ -53,7 +53,7 @@ export default function AdminContactPage() {
         try {
           await deleteContact(id).unwrap();
           message.success(t('adminContact.actions.deleteSuccess'));
-        } catch (error) {
+        } catch {
           message.error(t('adminContact.actions.deleteFailed'));
         }
       },
@@ -94,7 +94,7 @@ export default function AdminContactPage() {
       dataIndex: 'email',
       key: 'email',
       width: 200,
-      responsive: ['md'] as any,
+      responsive: ['md'] as ('xs' | 'sm' | 'md' | 'lg' | 'xl' | 'xxl')[],
       render: (email?: string) => email || '-',
     },
     {
@@ -108,7 +108,7 @@ export default function AdminContactPage() {
       dataIndex: 'product',
       key: 'product',
       width: 180,
-      responsive: ['lg'] as any,
+      responsive: ['lg'] as ('xs' | 'sm' | 'md' | 'lg' | 'xl' | 'xxl')[],
       render: (product?: { id: string; name: string; slug: string }) =>
         product ? (
           <Link href={`/products/${product.id}`} target="_blank" style={{ color: '#1890ff' }}>
@@ -132,7 +132,7 @@ export default function AdminContactPage() {
       dataIndex: 'created_at',
       key: 'created_at',
       width: 160,
-      responsive: ['lg'] as any,
+      responsive: ['lg'] as ('xs' | 'sm' | 'md' | 'lg' | 'xl' | 'xxl')[],
       render: (date: string) => new Date(date).toLocaleString(),
     },
     {

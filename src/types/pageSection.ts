@@ -4,7 +4,7 @@ export interface PageSection {
   id: string;
   page_identifier: string;
   section_identifier: string;
-  content: Record<string, any>;
+  content: Record<string, unknown>;
   sort_order: number;
   is_active: boolean;
   created_at: string;
@@ -69,7 +69,7 @@ export interface HighlightProductsContent {
 // Update section request
 export interface UpdateSectionRequest {
   sectionIdentifier: string;
-  content: Record<string, any>;
+  content: Record<string, unknown>;
   sortOrder?: number;
   isActive?: boolean;
 }

@@ -7,17 +7,24 @@ import RightSidebar from '@/components/client/RightSidebar';
 import HighlightCategories from '@/components/client/HighlightCategories';
 import HighlightProducts from '@/components/client/HighlightProducts';
 import { useGetActivePageSectionsQuery } from '@/store/api/pageSectionApi';
-import type { IntroContent, BannerContent } from '@/types/pageSection';
+import type { IntroContent, BannerContent, RightContentBoxContent } from '@/types/pageSection';
+
+// Helper to strip HTML tags for tooltip
+const stripHtml = (html: string): string => {
+  return html.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
+};
 
 export default function HomePage() {
-  const { data: sections, isLoading, error } = useGetActivePageSectionsQuery('homepage');
+  const { data: sections, isLoading } = useGetActivePageSectionsQuery('homepage');
 
-  // Extract section data (even if still loading or error)
+  // Extract section data
   const introSection = sections?.find(s => s.section_identifier === 'intro');
   const bannerSection = sections?.find(s => s.section_identifier === 'banner');
+  const rightContentBoxSection = sections?.find(s => s.section_identifier === 'right_content_box');
 
-  const introContent = introSection?.content as IntroContent;
-  const bannerContent = bannerSection?.content as BannerContent;
+  const introContent = introSection?.content as unknown as IntroContent;
+  const bannerContent = bannerSection?.content as unknown as BannerContent;
+  const rightContentBoxContent = rightContentBoxSection?.content as unknown as RightContentBoxContent;
 
   return (
     <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '24px 16px' }}>
@@ -29,12 +36,12 @@ export default function HomePage() {
           <Card
             style={{
               marginBottom: 16,
-              height: '200px',
+              height: '200px', // Fixed height
               borderRadius: 8,
               background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-              overflow: 'auto',
+              overflow: 'hidden', // Changed from auto to hidden
             }}
-            styles={{ body: { padding: '20px', color: '#fff' } }}
+            styles={{ body: { padding: '20px', color: '#fff', height: '100%', display: 'flex', flexDirection: 'column' } }}
           >
             {isLoading ? (
               <div style={{ textAlign: 'center', paddingTop: '60px' }}>
@@ -43,17 +50,50 @@ export default function HomePage() {
             ) : introContent ? (
               <>
                 {introContent.title && (
-                  <h3 style={{ color: '#fff', marginTop: 0, marginBottom: 12, fontSize: 18 }}>
+                  <h3 
+                    title={introContent.title}
+                    style={{ 
+                      color: '#fff', 
+                      marginTop: 0, 
+                      marginBottom: 12, 
+                      fontSize: 18,
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                      cursor: 'help',
+                    }}
+                  >
                     {introContent.title}
                   </h3>
                 )}
                 {introContent.subtitle && (
-                  <p style={{ color: '#fff', opacity: 0.9, marginBottom: 12, fontSize: 14 }}>
+                  <p 
+                    title={introContent.subtitle}
+                    style={{ 
+                      color: '#fff', 
+                      opacity: 0.9, 
+                      marginBottom: 12, 
+                      fontSize: 14,
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                      cursor: 'help',
+                    }}
+                  >
                     {introContent.subtitle}
                   </p>
                 )}
                 <div
-                  style={{ color: '#fff', opacity: 0.9, fontSize: 13, lineHeight: 1.6 }}
+                  title={stripHtml(introContent.text)}
+                  style={{ 
+                    color: '#fff', 
+                    opacity: 0.9, 
+                    fontSize: 13, 
+                    lineHeight: 1.6,
+                    overflow: 'hidden',
+                    flex: 1,
+                    cursor: 'help',
+                  }}
                   dangerouslySetInnerHTML={{ __html: introContent.text }}
                 />
               </>
@@ -90,20 +130,79 @@ export default function HomePage() {
 
         {/* Column 3 (Right - 2/10) */}
         <Col xs={0} lg={0} xl={4}>
-          {/* Row 1: Right Info Box */}
+          {/* Row 1: Right Content Box - Dynamic from page_sections */}
           <Card
             style={{
               marginBottom: 16,
-              height: '200px',
+              height: '200px', // Fixed height
               borderRadius: 8,
               background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+              overflow: 'hidden', // Changed from auto to hidden
             }}
-            styles={{ body: { padding: '20px', textAlign: 'center', color: '#fff' } }}
+            styles={{ body: { padding: '20px', color: '#fff', height: '100%', display: 'flex', flexDirection: 'column' } }}
           >
-            <h3 style={{ color: '#fff', marginTop: 0 }}>Khuyến mãi</h3>
-            <p style={{ color: '#fff', opacity: 0.9 }}>
-              Nội dung khuyến mãi hoặc thông tin
-            </p>
+            {isLoading ? (
+              <div style={{ textAlign: 'center', paddingTop: '60px' }}>
+                <Spin style={{ color: '#fff' }} />
+              </div>
+            ) : rightContentBoxContent ? (
+              <>
+                {rightContentBoxContent.title && (
+                  <h3 
+                    title={rightContentBoxContent.title}
+                    style={{ 
+                      color: '#fff', 
+                      marginTop: 0, 
+                      marginBottom: 12, 
+                      fontSize: 18,
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                      cursor: 'help',
+                    }}
+                  >
+                    {rightContentBoxContent.title}
+                  </h3>
+                )}
+                {rightContentBoxContent.subtitle && (
+                  <p 
+                    title={rightContentBoxContent.subtitle}
+                    style={{ 
+                      color: '#fff', 
+                      opacity: 0.9, 
+                      marginBottom: 12, 
+                      fontSize: 14,
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                      cursor: 'help',
+                    }}
+                  >
+                    {rightContentBoxContent.subtitle}
+                  </p>
+                )}
+                <div
+                  title={stripHtml(rightContentBoxContent.text)}
+                  style={{ 
+                    color: '#fff', 
+                    opacity: 0.9, 
+                    fontSize: 13, 
+                    lineHeight: 1.6,
+                    overflow: 'hidden',
+                    flex: 1,
+                    cursor: 'help',
+                  }}
+                  dangerouslySetInnerHTML={{ __html: rightContentBoxContent.text }}
+                />
+              </>
+            ) : (
+              <>
+                <h3 style={{ color: '#fff', marginTop: 0, fontSize: 18 }}>Khuyến mãi</h3>
+                <p style={{ color: '#fff', opacity: 0.9, fontSize: 14 }}>
+                  Nội dung khuyến mãi hoặc thông tin
+                </p>
+              </>
+            )}
           </Card>
 
           {/* Row 2: Right Sidebar */}

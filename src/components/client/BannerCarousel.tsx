@@ -59,10 +59,17 @@ const BannerImage = ({ url, alt }: { url: string; alt?: string }) => {
 };
 
 export default function BannerCarousel({ mediaIds }: { mediaIds?: string[] }) {
-  // Get all media for the specified IDs
+  // MUST call hooks before any conditional returns (Rules of Hooks)
+  const shouldFetch = mediaIds && mediaIds.length > 0;
   const { data: mediaList, isLoading } = useGetPublicMediaQuery(
-    mediaIds && mediaIds.length > 0 ? { ids: mediaIds } : undefined
+    shouldFetch ? { ids: mediaIds } : undefined,
+    { skip: !shouldFetch } // Skip query if no IDs
   );
+
+  // Early return AFTER hooks
+  if (!shouldFetch) {
+    return null;
+  }
 
   if (isLoading) {
     return (
@@ -95,18 +102,10 @@ export default function BannerCarousel({ mediaIds }: { mediaIds?: string[] }) {
     return null;
   }
 
-  // Filter active media and maintain order from mediaIds
-  let activeMedia: Media[] = [];
-  
-  if (mediaIds && mediaIds.length > 0) {
-    // Preserve order from mediaIds
-    activeMedia = mediaIds
-      .map(id => mediaList.find((m: Media) => m.id === id))
-      .filter((media): media is Media => media !== undefined && media.is_active);
-  } else {
-    // Fallback: use all active media
-    activeMedia = mediaList.filter((media: Media) => media.is_active);
-  }
+  // Preserve order from mediaIds and filter active media
+  const activeMedia = mediaIds
+    .map(id => mediaList.find((m: Media) => m.id === id))
+    .filter((media): media is Media => media !== undefined && media.is_active);
 
   if (activeMedia.length === 0) {
     return null;

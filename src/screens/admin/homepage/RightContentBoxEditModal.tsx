@@ -66,20 +66,26 @@ export default function RightContentBoxEditModal({
         <Form.Item
           label={t('titleLabel')}
           name="title"
+          extra="Recommended: 18 characters for best display"
         >
           <Input
             placeholder={t('titlePlaceholder')}
             size="large"
+            showCount
+            maxLength={100}
           />
         </Form.Item>
 
         <Form.Item
           label={t('subtitleLabel')}
           name="subtitle"
+          extra="Recommended: 25 characters for best display"
         >
           <Input
             placeholder={t('subtitlePlaceholder')}
             size="large"
+            showCount
+            maxLength={150}
           />
         </Form.Item>
 
@@ -89,12 +95,14 @@ export default function RightContentBoxEditModal({
           rules={[
             { required: true, message: t('textRequired') },
           ]}
+          extra="Recommended: 100 characters for best display"
         >
           <TextArea
             placeholder={t('textPlaceholder')}
             rows={10}
             size="large"
             showCount
+            maxLength={500}
           />
         </Form.Item>
       </Form>

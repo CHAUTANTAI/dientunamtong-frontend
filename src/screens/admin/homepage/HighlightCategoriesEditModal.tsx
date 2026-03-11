@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
 import { useGetCategoriesQuery } from '@/store/api/categoryApi';
 import type { HighlightCategoriesContent } from '@/types/pageSection';
+import type { Category } from '@/types/category';
 
 const { Text } = Typography;
 
@@ -90,14 +91,14 @@ export default function HighlightCategoriesEditModal({
   };
 
   // Get root categories (parent_id is null)
-  const rootCategories = allCategories?.filter((cat: any) => !cat.parent_id) || [];
+  const rootCategories = allCategories?.filter((cat: Category) => !cat.parent_id) || [];
   
   // Get sub-categories for selected parent
   const selectedParentId = Form.useWatch('category_id', form);
-  const subCategories = allCategories?.filter((cat: any) => cat.parent_id === selectedParentId) || [];
+  const subCategories = allCategories?.filter((cat: Category) => cat.parent_id === selectedParentId) || [];
 
   const getCategoryName = (id: string) => {
-    return allCategories?.find((cat: any) => cat.id === id)?.name || id;
+    return allCategories?.find((cat: Category) => cat.id === id)?.name || id;
   };
 
   const isMaxReached = categories.length >= MAX_CATEGORIES;
@@ -162,7 +163,7 @@ export default function HighlightCategoriesEditModal({
                   filterOption={(input, option) =>
                     (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
                   }
-                  options={rootCategories.map((cat: any) => ({
+                  options={rootCategories.map((cat: Category) => ({
                     value: cat.id,
                     label: cat.name,
                   }))}
@@ -180,7 +181,7 @@ export default function HighlightCategoriesEditModal({
                   filterOption={(input, option) =>
                     (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
                   }
-                  options={subCategories.map((cat: any) => ({
+                  options={subCategories.map((cat: Category) => ({
                     value: cat.id,
                     label: cat.name,
                   }))}

@@ -6,7 +6,7 @@ import { PlusOutlined, SaveOutlined } from '@ant-design/icons';
 import { useTranslations } from 'next-intl';
 import { useGetPageSectionsQuery, useUpdatePageSectionsMutation } from '@/store/api/pageSectionApi';
 import { useCreateMediaMutation } from '@/store/api/mediaApi';
-import type { PageSection, IntroContent, BannerContent, RightContentBoxContent, LeftSidebarCategoriesContent, RightSidebarItemsContent, HighlightCategoriesContent, HighlightProductsContent } from '@/types/pageSection';
+import type { PageSection, IntroContent, BannerContent, RightContentBoxContent, LeftSidebarCategoriesContent, RightSidebarItemsContent, HighlightCategoriesContent } from '@/types/pageSection';
 import type { PendingBanner } from '@/types/banner';
 import { MediaType } from '@/types/media';
 import { uploadToSupabase } from '@/utils/supabase';
@@ -47,7 +47,7 @@ export default function HomepageEditorPage() {
   const [leftSidebarCategoriesModalOpen, setLeftSidebarCategoriesModalOpen] = useState(false);
   const [rightSidebarItemsModalOpen, setRightSidebarItemsModalOpen] = useState(false);
   const [highlightCategoriesModalOpen, setHighlightCategoriesModalOpen] = useState(false);
-  const [highlightProductsModalOpen, setHighlightProductsModalOpen] = useState(false);
+  // const [highlightProductsModalOpen, setHighlightProductsModalOpen] = useState(false);
 
   // Initialize sections from API data
   useEffect(() => {
@@ -144,7 +144,7 @@ export default function HomepageEditorPage() {
     if (!introSection || !bannerSection || !rightContentBoxSection || !leftSidebarCategoriesSection || !rightSidebarItemsSection || !highlightCategoriesSection || !highlightProductsSection) return;
 
     try {
-      let uploadedMediaIds: string[] = [];
+      const uploadedMediaIds: string[] = [];
 
       // Step 1: Upload pending banners if any
       if (pendingBanners.length > 0) {
@@ -193,8 +193,8 @@ export default function HomepageEditorPage() {
           content: {
             ...bannerSection.content,
             media_ids: uploadedMediaIds,
-          } as BannerContent,
-        });
+          } as unknown as BannerContent,
+        } as unknown as PageSection);
       }
 
       // Step 2: Save all sections
@@ -211,10 +211,10 @@ export default function HomepageEditorPage() {
             {
               sectionIdentifier: 'banner',
               content: {
-                ...(bannerSection.content as BannerContent),
+                ...(bannerSection.content as unknown as BannerContent),
                 media_ids: uploadedMediaIds.length > 0 
                   ? uploadedMediaIds 
-                  : (bannerSection.content as BannerContent).media_ids || [],
+                  : (bannerSection.content as unknown as BannerContent).media_ids || [],
               },
               sortOrder: 1,
               isActive: true,
@@ -275,13 +275,13 @@ export default function HomepageEditorPage() {
     );
   }
 
-  const introContent = introSection?.content as IntroContent;
-  const bannerContent = bannerSection?.content as BannerContent;
-  const rightContentBoxContent = rightContentBoxSection?.content as RightContentBoxContent;
-  const leftSidebarCategoriesContent = leftSidebarCategoriesSection?.content as LeftSidebarCategoriesContent;
-  const rightSidebarItemsContent = rightSidebarItemsSection?.content as RightSidebarItemsContent;
-  const highlightCategoriesContent = highlightCategoriesSection?.content as HighlightCategoriesContent;
-  const highlightProductsContent = highlightProductsSection?.content as HighlightProductsContent;
+  const introContent = introSection?.content as unknown as IntroContent;
+  const bannerContent = bannerSection?.content as unknown as BannerContent;
+  const rightContentBoxContent = rightContentBoxSection?.content as unknown as RightContentBoxContent;
+  const leftSidebarCategoriesContent = leftSidebarCategoriesSection?.content as unknown as LeftSidebarCategoriesContent;
+  const rightSidebarItemsContent = rightSidebarItemsSection?.content as unknown as RightSidebarItemsContent;
+  const highlightCategoriesContent = highlightCategoriesSection?.content as unknown as HighlightCategoriesContent;
+  // const highlightProductsContent = highlightProductsSection?.content as unknown as HighlightProductsContent;
 
   return (
     <div>
@@ -589,8 +589,8 @@ export default function HomepageEditorPage() {
           onSave={(newContent) => {
             setIntroSection({
               ...introSection,
-              content: newContent,
-            });
+              content: newContent as unknown as Record<string, unknown>,
+            } as PageSection);
             setIntroModalOpen(false);
             message.success('Introduction updated. Click "Save All" to persist changes.');
           }}
@@ -619,8 +619,8 @@ export default function HomepageEditorPage() {
           onSave={(newContent) => {
             setRightContentBoxSection({
               ...rightContentBoxSection,
-              content: newContent,
-            });
+              content: newContent as unknown as Record<string, unknown>,
+            } as PageSection);
             setRightContentBoxModalOpen(false);
             message.success('Right content box updated. Click "Save All" to persist changes.');
           }}
@@ -635,8 +635,8 @@ export default function HomepageEditorPage() {
           onSave={(newContent) => {
             setLeftSidebarCategoriesSection({
               ...leftSidebarCategoriesSection,
-              content: newContent,
-            });
+              content: newContent as unknown as Record<string, unknown>,
+            } as PageSection);
             setLeftSidebarCategoriesModalOpen(false);
             message.success('Left sidebar categories updated. Click "Save All" to persist changes.');
           }}
@@ -651,8 +651,8 @@ export default function HomepageEditorPage() {
           onSave={(newContent) => {
             setRightSidebarItemsSection({
               ...rightSidebarItemsSection,
-              content: newContent,
-            });
+              content: newContent as unknown as Record<string, unknown>,
+            } as PageSection);
             setRightSidebarItemsModalOpen(false);
             message.success('Right sidebar items updated. Click "Save All" to persist changes.');
           }}
@@ -667,8 +667,8 @@ export default function HomepageEditorPage() {
           onSave={(newContent) => {
             setHighlightCategoriesSection({
               ...highlightCategoriesSection,
-              content: newContent,
-            });
+              content: newContent as unknown as Record<string, unknown>,
+            } as PageSection);
             setHighlightCategoriesModalOpen(false);
             message.success('Highlight categories updated. Click "Save All" to persist changes.');
           }}

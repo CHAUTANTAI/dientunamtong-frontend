@@ -9,7 +9,6 @@ import {
   AppstoreOutlined,
   ShoppingOutlined,
   UserOutlined,
-  PictureOutlined,
   MessageOutlined,
   EditOutlined,
 } from '@ant-design/icons';

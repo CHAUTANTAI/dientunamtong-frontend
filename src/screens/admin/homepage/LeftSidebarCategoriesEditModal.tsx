@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
 import { useGetCategoriesQuery } from '@/store/api/categoryApi';
 import type { LeftSidebarCategoriesContent } from '@/types/pageSection';
+import type { Category } from '@/types/category';
 
 interface LeftSidebarCategoriesEditModalProps {
   open: boolean;
@@ -41,12 +42,12 @@ export default function LeftSidebarCategoriesEditModal({
   };
 
   // Filter to show only root categories (no parent_id)
-  const rootCategories = categories?.filter((cat: any) => !cat.parent_id) || [];
+  const rootCategories = categories?.filter((cat: Category) => !cat.parent_id) || [];
   
   // Check if max items reached
   const isMaxReached = selectedKeys.length >= MAX_ITEMS;
   
-  const dataSource = rootCategories.map((cat: any) => ({
+  const dataSource = rootCategories.map((cat: Category) => ({
     key: cat.id,
     title: cat.name,
     disabled: isMaxReached && !selectedKeys.includes(cat.id), // Disable if max reached and not selected
