@@ -15,11 +15,13 @@ export const publicCategoryApi = createApi({
     // GET /public/category - Get all active categories
     getPublicCategories: builder.query<Category[], void>({
       query: () => '/public/category',
+      transformResponse: (response: { success: boolean; data: Category[] }) => response.data,
     }),
     
     // GET /public/category/:id - Get single category by ID
     getPublicCategoryById: builder.query<Category, string>({
       query: (id) => `/public/category/${id}`,
+      transformResponse: (response: { success: boolean; data: Category }) => response.data,
     }),
   }),
 });
