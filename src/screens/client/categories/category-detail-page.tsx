@@ -267,14 +267,14 @@ export default function CategoryDetailPage({ categoryId }: CategoryDetailPagePro
       <Card style={{ marginBottom: 24 }}>
         <Row gutter={[24, 24]}>
           {/* Category Image */}
-          {category.image && (
+          {category.media?.file_url && (
             <Col xs={24} md={8}>
-              <CategoryImage imageUrl={category.image} alt={category.name} />
+              <CategoryImage imageUrl={category.media.file_url} alt={category.name} />
             </Col>
           )}
 
           {/* Category Info */}
-          <Col xs={24} md={category.image ? 16 : 24}>
+          <Col xs={24} md={category.media?.file_url ? 16 : 24}>
             <Space direction="vertical" size="middle" style={{ width: '100%' }}>
               <div>
                 <Title level={2} style={{ margin: 0 }}>

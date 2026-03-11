@@ -208,14 +208,26 @@ export default function CategoriesListPage() {
       );
       
       return children.map((child) => ({
-        category: child,
+        category: {
+          ...child,
+          description: child.description ?? undefined,
+          parent_id: child.parent_id ?? undefined,
+          media_id: child.media_id ?? undefined,
+          media: child.media ?? undefined,
+        },
         level: currentLevel,
         children: buildChildren(child.id, currentLevel + 1),
       }));
     };
 
     return rootCategories.map((root) => ({
-      category: root,
+      category: {
+        ...root,
+        description: root.description ?? undefined,
+        parent_id: root.parent_id ?? undefined,
+        media_id: root.media_id ?? undefined,
+        media: root.media ?? undefined,
+      },
       level: 0,
       children: buildChildren(root.id, 1),
     }));

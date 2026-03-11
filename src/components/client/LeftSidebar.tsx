@@ -2,7 +2,7 @@
 
 import { Card, Typography, Spin, Empty, Image } from 'antd';
 import { useGetActivePageSectionsQuery } from '@/store/api/pageSectionApi';
-import { useGetCategoriesQuery } from '@/store/api/categoryApi';
+import { useGetPublicCategoriesQuery } from '@/store/services/publicCategoryApi';
 import type { LeftSidebarCategoriesContent } from '@/types/pageSection';
 import { useSignedImageUrl } from '@/hooks/useSignedImageUrl';
 import Link from 'next/link';
@@ -92,7 +92,7 @@ const CategoryItem = ({ category }: CategoryItemProps) => {
 
 export default function LeftSidebar() {
   const { data: sections, isLoading: sectionsLoading } = useGetActivePageSectionsQuery('homepage');
-  const { data: allCategories, isLoading: categoriesLoading } = useGetCategoriesQuery();
+  const { data: allCategories, isLoading: categoriesLoading } = useGetPublicCategoriesQuery();
 
   const leftSidebarSection = sections?.find(s => s.section_identifier === 'left_sidebar_categories');
   const content = leftSidebarSection?.content as unknown as LeftSidebarCategoriesContent;

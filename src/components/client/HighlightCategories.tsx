@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { ROUTES } from '@/constants/routes';
 import { useGetActivePageSectionsQuery } from '@/store/api/pageSectionApi';
-import { useGetCategoriesQuery } from '@/store/api/categoryApi';
+import { useGetPublicCategoriesQuery } from '@/store/services/publicCategoryApi';
 import { useSignedImageUrl } from '@/hooks/useSignedImageUrl';
 import type { HighlightCategoriesContent } from '@/types/pageSection';
 
@@ -179,7 +179,7 @@ const CategoryCard = ({ category, subCategories }: CategoryCardProps) => {
 export default function HighlightCategories() {
   const t = useTranslations('client.home');
   const { data: sections, isLoading: sectionsLoading } = useGetActivePageSectionsQuery('homepage');
-  const { data: allCategories, isLoading: categoriesLoading } = useGetCategoriesQuery();
+  const { data: allCategories, isLoading: categoriesLoading } = useGetPublicCategoriesQuery();
 
   const highlightSection = sections?.find(s => s.section_identifier === 'highlight_categories');
   const content = highlightSection?.content as unknown as HighlightCategoriesContent;

@@ -1,60 +1,30 @@
-import { createApi } from '@reduxjs/toolkit/query/react';
-import {
-  API_PUBLIC_CATEGORIES,
-  API_PUBLIC_CATEGORY_DETAIL,
-} from '@/constants/api';
-import { baseQueryWithoutAuth } from '../api/baseQuery';
+/**
+ * Public Category API - RTK Query
+ * For client-side category fetching without authentication
+ */
 
-export interface PublicCategory {
-  id: string;
-  name: string;
-  slug: string;
-  description?: string;
-  media_id?: string;
-  parent_id?: string;
-  is_active: boolean;
-  level: number;
-  view_count: number;
-  product_count?: number;
-  image?: string; // Derived from media.file_url
-  created_at: string;
-  updated_at: string;
-  media?: {
-    id: string;
-    file_url: string;
-    alt_text?: string;
-  };
-}
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import type { Category } from '@/types/category';
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
 
 export const publicCategoryApi = createApi({
   reducerPath: 'publicCategoryApi',
-  baseQuery: baseQueryWithoutAuth,
-  tagTypes: ['PublicCategories'],
+  baseQuery: fetchBaseQuery({ baseUrl: API_URL }),
   endpoints: (builder) => ({
-    getPublicCategories: builder.query<PublicCategory[], void>({
-      query: () => API_PUBLIC_CATEGORIES,
-      transformResponse: (response: { data: PublicCategory[] }) => {
-        // Map media.file_url to image field for easier access
-        return response.data.map(cat => ({
-          ...cat,
-          image: cat.media?.file_url,
-        }));
-      },
-      providesTags: ['PublicCategories'],
+    // GET /public/category - Get all active categories
+    getPublicCategories: builder.query<Category[], void>({
+      query: () => '/public/category',
     }),
-    getPublicCategoryById: builder.query<PublicCategory, string>({
-      query: (id) => API_PUBLIC_CATEGORY_DETAIL(id),
-      transformResponse: (response: { data: PublicCategory }) => {
-        const cat = response.data;
-        return {
-          ...cat,
-          image: cat.media?.file_url,
-        };
-      },
-      providesTags: (_result, _error, id) => [{ type: 'PublicCategories', id }],
+    
+    // GET /public/category/:id - Get single category by ID
+    getPublicCategoryById: builder.query<Category, string>({
+      query: (id) => `/public/category/${id}`,
     }),
   }),
 });
 
-export const { useGetPublicCategoriesQuery, useGetPublicCategoryByIdQuery } =
-  publicCategoryApi;
+export const { 
+  useGetPublicCategoriesQuery,
+  useGetPublicCategoryByIdQuery,
+} = publicCategoryApi;
