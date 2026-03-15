@@ -239,7 +239,7 @@ export default function CategoryDetailPage({ categoryId }: CategoryDetailPagePro
   const paginatedProducts = categoryProducts.slice(startIndex, startIndex + pageSize);
 
   return (
-    <div>
+    <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '24px 16px' }}>
       {/* Breadcrumb */}
       <Breadcrumb
         items={[

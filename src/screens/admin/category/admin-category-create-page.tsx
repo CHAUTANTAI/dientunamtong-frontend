@@ -6,7 +6,7 @@
  */
 
 import { useState, useEffect, Suspense } from 'react';
-import { Card, Form, Input, InputNumber, Switch, Space, Divider, message, Spin } from 'antd';
+import { Card, Form, Input, InputNumber, Switch, Space, Divider, App, Spin } from 'antd';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useForm, Controller, useWatch } from 'react-hook-form';
 import { useTranslations } from 'next-intl';
@@ -36,6 +36,7 @@ function AdminCategoryCreatePageContent() {
   const parentId = searchParams.get('parent_id');
   const [createCategory, { isLoading }] = useCreateCategoryMutation();
   const [autoSlug, setAutoSlug] = useState(true);
+  const { message } = App.useApp();
 
   const {
     control,

@@ -158,7 +158,7 @@ export default function ProductDetailPage({ productId }: ProductDetailPageProps)
       .slice(0, 4) || [];
 
   return (
-    <div>
+    <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '24px 16px' }}>
       {/* Breadcrumb */}
       <Breadcrumb
         items={[

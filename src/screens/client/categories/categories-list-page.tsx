@@ -305,7 +305,7 @@ export default function CategoriesListPage() {
   };
 
   return (
-    <div>
+    <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '24px 16px' }}>
       <Title level={2} style={{ marginBottom: 24 }}>
         {t('navigation.categories')}
       </Title>

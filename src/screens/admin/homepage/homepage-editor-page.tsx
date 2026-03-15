@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Card, Button, Space, Typography, Row, Col, App, Spin, Progress } from 'antd';
 import { PlusOutlined, SaveOutlined } from '@ant-design/icons';
 import { useTranslations } from 'next-intl';
@@ -48,6 +48,53 @@ export default function HomepageEditorPage() {
   const [rightSidebarItemsModalOpen, setRightSidebarItemsModalOpen] = useState(false);
   const [highlightCategoriesModalOpen, setHighlightCategoriesModalOpen] = useState(false);
   // const [highlightProductsModalOpen, setHighlightProductsModalOpen] = useState(false);
+
+  // Check if there are any changes
+  const hasChanges = useMemo(() => {
+    if (!sections) return false;
+    
+    // Check if there are pending banners
+    if (pendingBanners.length > 0) return true;
+
+    // Helper to compare content deeply
+    const compareContent = (original: Record<string, unknown> | undefined, current: Record<string, unknown> | undefined): boolean => {
+      return JSON.stringify(original) !== JSON.stringify(current);
+    };
+
+    // Compare each section
+    const intro = sections.find(s => s.section_identifier === 'intro');
+    if (intro && introSection && compareContent(intro.content, introSection.content)) return true;
+
+    const banner = sections.find(s => s.section_identifier === 'banner');
+    if (banner && bannerSection && compareContent(banner.content, bannerSection.content)) return true;
+
+    const rightContentBox = sections.find(s => s.section_identifier === 'right_content_box');
+    if (rightContentBox && rightContentBoxSection && compareContent(rightContentBox.content, rightContentBoxSection.content)) return true;
+
+    const leftSidebarCategories = sections.find(s => s.section_identifier === 'left_sidebar_categories');
+    if (leftSidebarCategories && leftSidebarCategoriesSection && compareContent(leftSidebarCategories.content, leftSidebarCategoriesSection.content)) return true;
+
+    const rightSidebarItems = sections.find(s => s.section_identifier === 'right_sidebar_items');
+    if (rightSidebarItems && rightSidebarItemsSection && compareContent(rightSidebarItems.content, rightSidebarItemsSection.content)) return true;
+
+    const highlightCategories = sections.find(s => s.section_identifier === 'highlight_categories');
+    if (highlightCategories && highlightCategoriesSection && compareContent(highlightCategories.content, highlightCategoriesSection.content)) return true;
+
+    const highlightProducts = sections.find(s => s.section_identifier === 'highlight_products');
+    if (highlightProducts && highlightProductsSection && compareContent(highlightProducts.content, highlightProductsSection.content)) return true;
+
+    return false;
+  }, [
+    sections,
+    pendingBanners,
+    introSection,
+    bannerSection,
+    rightContentBoxSection,
+    leftSidebarCategoriesSection,
+    rightSidebarItemsSection,
+    highlightCategoriesSection,
+    highlightProductsSection,
+  ]);
 
   // Initialize sections from API data
   useEffect(() => {
@@ -303,7 +350,7 @@ export default function HomepageEditorPage() {
               size="large"
               onClick={handleSaveAll}
               loading={isSaving || uploadProgress !== null}
-              disabled={isSaving || uploadProgress !== null}
+              disabled={!hasChanges || isSaving || uploadProgress !== null}
             >
               {uploadProgress 
                 ? `Uploading ${uploadProgress.current}/${uploadProgress.total}...`

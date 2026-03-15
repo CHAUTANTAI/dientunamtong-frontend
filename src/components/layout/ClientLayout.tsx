@@ -2,7 +2,11 @@
 
 import { useEffect } from 'react';
 import { Layout } from 'antd';
-import ClientHeader from './ClientHeader';
+import TopBar from './TopBar';
+import BannerHeader from './BannerHeader';
+import MegaMenu from './MegaMenu';
+import SearchSlogan from './SearchSlogan';
+import SliderArea from '@/components/client/SliderArea';
 import ClientFooter from './ClientFooter';
 import DynamicFavicon from '@/components/common/DynamicFavicon';
 import FloatingContactButton from '@/components/client/FloatingContactButton';
@@ -15,6 +19,17 @@ interface ClientLayoutProps {
   children: React.ReactNode;
 }
 
+/**
+ * ClientLayout - Main layout cho client pages
+ * Structure theo source Hoàng Trí:
+ * 1. TopBar (Work time + Cart + Menu)
+ * 2. BannerHeader (Logo + Banner + Hotline)
+ * 3. MegaMenu (Categories dropdown)
+ * 4. SearchSlogan (Search + Marquee)
+ * 5. SliderArea (Slider + Mini ads) - CHỈ hiển thị ở HomePage
+ * 6. Content
+ * 7. Footer
+ */
 export default function ClientLayout({ children }: ClientLayoutProps) {
   const { data: systemInfo } = useGetSystemInfoQuery();
   const faviconUrl = useSignedImageUrl(systemInfo?.company_logo || '');
@@ -27,21 +42,42 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
   }, [systemInfo]);
 
   return (
-    <Layout style={{ minHeight: '100vh', overflow: 'visible' }}>
+    <Layout style={{ minHeight: '100vh', overflow: 'visible', backgroundColor: '#f5f5f5' }}>
       <DynamicFavicon logoUrl={faviconUrl} />
-      <ClientHeader />
+      
+      {/* TopBar */}
+      <TopBar />
+      
+      {/* Banner Header */}
+      <BannerHeader />
+      
+      {/* Mega Menu */}
+      <MegaMenu />
+      
+      {/* Search + Slogan */}
+      <SearchSlogan />
+      
+      {/* Slider Area - TODO: Only show on homepage, hide on other pages */}
+      <SliderArea />
+      
+      {/* Main Content */}
       <Content
         style={{
           width: '100%',
           padding: '0',
-          paddingTop: '80px', // Space for fixed header
           overflow: 'visible',
+          backgroundColor: '#f5f5f5',
         }}
       >
         {children}
       </Content>
+      
+      {/* Footer */}
       <ClientFooter />
+      
+      {/* Floating Contact Button */}
       <FloatingContactButton />
     </Layout>
   );
 }
+

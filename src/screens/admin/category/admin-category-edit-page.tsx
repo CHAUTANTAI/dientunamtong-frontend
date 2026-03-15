@@ -6,7 +6,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Card, Form, Input, InputNumber, Switch, Space, Divider, Spin, message } from 'antd';
+import { Card, Form, Input, InputNumber, Switch, Space, Divider, Spin, App } from 'antd';
 import { useRouter } from 'next/navigation';
 import { useForm, Controller, useWatch } from 'react-hook-form';
 import { useTranslations } from 'next-intl';
@@ -39,6 +39,7 @@ export default function AdminCategoryEditPage({ categoryId }: AdminCategoryEditP
   const { data: category, isLoading: isLoadingCategory } = useGetCategoryQuery(categoryId);
   const [updateCategory, { isLoading: isUpdating }] = useUpdateCategoryMutation();
   const [autoSlug, setAutoSlug] = useState(false);
+  const { message } = App.useApp();
 
   const {
     control,
