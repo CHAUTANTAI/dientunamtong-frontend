@@ -6,7 +6,9 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { ROUTES } from '@/constants/routes';
 import { useGetSystemInfoQuery } from '@/store/services/publicSystemInfoApi';
+import { useGetActivePageSectionsQuery } from '@/store/api/pageSectionApi';
 import { useSignedImageUrl } from '@/hooks/useSignedImageUrl';
+import type { BannerHeaderContent } from '@/types/pageSection';
 
 const { Text } = Typography;
 
@@ -14,23 +16,26 @@ const { Text } = Typography;
  * BannerHeader Component - Header với logo, banner, hotline
  * Layout: [Logo 110x110] [Banner Image Large] [Hotline]
  * 
- * TODO: Kết nối API để lấy:
- * - Logo từ system_info.company_logo
- * - Banner từ page_sections hoặc media
- * - Hotline từ system_info.phone
+ * Config from page_sections API (banner_header section)
  */
 export default function BannerHeader() {
   const { data: systemInfo } = useGetSystemInfoQuery();
-  const logoUrl = useSignedImageUrl(systemInfo?.company_logo || '');
-
-  // TODO: Replace with API data - Get banner from page_sections or media
-  const bannerImageUrl = '/placeholder-banner.png'; // TODO: Get from API
+  const { data: sections } = useGetActivePageSectionsQuery('homepage');
   
-  // TODO: Replace with API data - Get from system_info
-  const hotlines = [
-    systemInfo?.phone || '(0286) 271 3025',
-    '0909 60 30 25', // TODO: Add secondary phone to system_info
-  ];
+  // Get banner header config from API
+  const bannerHeaderSection = sections?.find(s => s.section_identifier === 'banner_header');
+  const config = bannerHeaderSection?.content as BannerHeaderContent | undefined;
+
+  // Fallback chain: API config > system_info > defaults
+  const logoMediaId = config?.logo_media_id || systemInfo?.company_logo || '';
+  const bannerMediaId = config?.banner_media_id || '';
+  const primaryHotline = config?.primary_hotline || systemInfo?.phone || '(0286) 271 3025';
+  const secondaryHotline = config?.secondary_hotline || '0909 60 30 25';
+  
+  const logoUrl = useSignedImageUrl(logoMediaId);
+  const bannerUrl = useSignedImageUrl(bannerMediaId);
+
+  const hotlines = [primaryHotline, secondaryHotline].filter(Boolean);
 
   return (
     <div
@@ -115,21 +120,30 @@ export default function BannerHeader() {
               e.currentTarget.style.transform = 'scale(1)';
             }}
           >
-            {/* TODO: Replace with actual banner image from API */}
-            <div
-              style={{
-                width: '100%',
-                height: '100%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-              }}
-            >
-              <Text strong style={{ color: '#fff', fontSize: 24 }}>
-                {systemInfo?.company_name || 'COMPANY BANNER'}
-              </Text>
-            </div>
+            {bannerUrl ? (
+              <Image
+                src={bannerUrl}
+                alt="Banner"
+                fill
+                style={{ objectFit: 'cover' }}
+                priority
+              />
+            ) : (
+              <div
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                }}
+              >
+                <Text strong style={{ color: '#fff', fontSize: 24 }}>
+                  {systemInfo?.company_name || 'COMPANY BANNER'}
+                </Text>
+              </div>
+            )}
           </div>
         </Link>
 
@@ -138,7 +152,7 @@ export default function BannerHeader() {
           style={{
             display: 'flex',
             flexDirection: 'column',
-            gap: '8px',
+            gap: '12px',
             alignItems: 'flex-end',
           }}
         >
@@ -149,30 +163,54 @@ export default function BannerHeader() {
               style={{ textDecoration: 'none' }}
             >
               <Space
-                size="small"
+                size="middle"
                 style={{
-                  padding: '6px 12px',
+                  padding: '10px 16px',
                   backgroundColor: '#fff5f5',
-                  border: '1px solid #ffccc7',
-                  borderRadius: 6,
+                  border: '2px solid #ff4d4f',
+                  borderRadius: 8,
                   transition: 'all 0.3s',
                   cursor: 'pointer',
+                  boxShadow: '0 2px 8px rgba(255,77,79,0.2)',
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = '#fff1f0';
-                  e.currentTarget.style.borderColor = '#ff4d4f';
-                  e.currentTarget.style.transform = 'translateY(-2px)';
-                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(255,77,79,0.2)';
+                  e.currentTarget.style.backgroundColor = '#ff4d4f';
+                  e.currentTarget.style.transform = 'translateY(-2px) scale(1.05)';
+                  e.currentTarget.style.boxShadow = '0 6px 16px rgba(255,77,79,0.4)';
+                  const icon = e.currentTarget.querySelector('.phone-icon');
+                  const text = e.currentTarget.querySelector('.phone-text');
+                  if (icon) (icon as HTMLElement).style.color = '#fff';
+                  if (text) (text as HTMLElement).style.color = '#fff';
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.backgroundColor = '#fff5f5';
-                  e.currentTarget.style.borderColor = '#ffccc7';
-                  e.currentTarget.style.transform = 'translateY(0)';
-                  e.currentTarget.style.boxShadow = 'none';
+                  e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                  e.currentTarget.style.boxShadow = '0 2px 8px rgba(255,77,79,0.2)';
+                  const icon = e.currentTarget.querySelector('.phone-icon');
+                  const text = e.currentTarget.querySelector('.phone-text');
+                  if (icon) (icon as HTMLElement).style.color = '#ff4d4f';
+                  if (text) (text as HTMLElement).style.color = '#ff4d4f';
                 }}
               >
-                <PhoneOutlined style={{ color: '#ff4d4f', fontSize: 16 }} />
-                <Text strong style={{ color: '#ff4d4f', fontSize: 14 }}>
+                <PhoneOutlined 
+                  className="phone-icon"
+                  style={{ 
+                    color: '#ff4d4f', 
+                    fontSize: 24,
+                    transition: 'color 0.3s'
+                  }} 
+                />
+                <Text 
+                  className="phone-text"
+                  strong 
+                  style={{ 
+                    color: '#ff4d4f', 
+                    fontSize: 18,
+                    fontWeight: 700,
+                    letterSpacing: '0.5px',
+                    transition: 'color 0.3s'
+                  }}
+                >
                   {hotline}
                 </Text>
               </Space>

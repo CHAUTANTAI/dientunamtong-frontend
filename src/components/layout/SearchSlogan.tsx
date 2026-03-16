@@ -5,6 +5,8 @@ import { Input, Button } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import { useRouter } from 'next/navigation';
 import { ROUTES } from '@/constants/routes';
+import { useGetActivePageSectionsQuery } from '@/store/api/pageSectionApi';
+import type { SearchSloganContent } from '@/types/pageSection';
 
 const { Search } = Input;
 
@@ -12,16 +14,20 @@ const { Search } = Input;
  * SearchSlogan Component - Search bar + Marquee slogan
  * Layout: [Search Box] [Slogan chạy]
  * 
- * TODO: Kết nối API để lấy:
- * - Slogan text từ system_info hoặc page_sections
- * - Implement search với API
+ * Config slogan text from page_sections API (search_slogan section)
  */
 export default function SearchSlogan() {
   const router = useRouter();
   const [searchValue, setSearchValue] = useState('');
+  const { data: sections } = useGetActivePageSectionsQuery('homepage');
 
-  // TODO: Replace with API data - Get from system_info or page_sections
-  const sloganText = 'Dán keo xe Hoàng Trí chào mừng bạn đã ghé thăm trang Web chuyên cung cấp và lắp đặt phụ tùng inox trang trí làm đẹp xe máy, xe tay ga đời mới, tân trang xe máy, cung cấp đồ chơi xe máy';
+  // Get search slogan config from API
+  const searchSloganSection = sections?.find(s => s.section_identifier === 'search_slogan');
+  const config = searchSloganSection?.content as SearchSloganContent | undefined;
+
+  // Fallback to default slogan if not configured
+  const sloganText = config?.slogan_text || 
+    'Dán keo xe Hoàng Trí chào mừng bạn đã ghé thăm trang Web chuyên cung cấp và lắp đặt phụ tùng inox trang trí làm đẹp xe máy, xe tay ga đời mới, tân trang xe máy, cung cấp đồ chơi xe máy';
 
   const handleSearch = (value: string) => {
     if (!value.trim()) return;
@@ -60,9 +66,12 @@ export default function SearchSlogan() {
               type="primary"
               icon={<SearchOutlined />}
               style={{
-                backgroundColor: '#1890ff',
-                borderColor: '#1890ff',
+                backgroundColor: '#ff4d4f',
+                borderColor: '#ff4d4f',
                 height: '40px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
               }}
             >
               Tìm
@@ -74,12 +83,6 @@ export default function SearchSlogan() {
           onSearch={handleSearch}
           style={{
             width: '100%',
-          }}
-          styles={{
-            input: {
-              height: '40px',
-              fontSize: 14,
-            }
           }}
         />
 

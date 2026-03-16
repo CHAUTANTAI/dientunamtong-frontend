@@ -2,12 +2,12 @@
 
 import { useState } from 'react';
 import { Typography, Spin, Empty, Collapse } from 'antd';
+import type { CollapseProps } from 'antd';
 import { FolderOutlined, FolderOpenOutlined, RightOutlined } from '@ant-design/icons';
 import { useGetPublicCategoriesQuery } from '@/store/services/publicCategoryApi';
 import Link from 'next/link';
 
 const { Text, Title } = Typography;
-const { Panel } = Collapse;
 
 /**
  * LeftSidebar Component - Category tree như source Hoàng Trí
@@ -30,11 +30,11 @@ export default function LeftSidebar() {
   }
 
   // TODO: Filter parent categories (those without parent_id)
-  const parentCategories = allCategories?.filter((cat: { parent_id: string | null }) => !cat.parent_id) || [];
+  const parentCategories = allCategories?.filter((cat) => !cat.parent_id) || [];
 
   // TODO: Get subcategories for a parent
   const getSubcategories = (parentId: string) => {
-    return allCategories?.filter((cat: { parent_id: string }) => cat.parent_id === parentId) || [];
+    return allCategories?.filter((cat) => cat.parent_id === parentId) || [];
   };
 
   if (!parentCategories || parentCategories.length === 0) {
@@ -44,6 +44,77 @@ export default function LeftSidebar() {
       </div>
     );
   }
+
+  // Build items for Collapse component
+  const collapseItems: CollapseProps['items'] = parentCategories.map((category) => {
+    const subcategories = getSubcategories(category.id);
+    const hasSubcategories = subcategories.length > 0;
+
+    return {
+      key: category.id,
+      label: (
+        <Link
+          href={`/categories/${category.slug}`}
+          style={{
+            color: '#262626',
+            textDecoration: 'none',
+            fontSize: 14,
+            fontWeight: 500,
+          }}
+          onClick={(e) => {
+            e.stopPropagation();
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.color = '#ff4d4f';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.color = '#262626';
+          }}
+        >
+          {category.name}
+        </Link>
+      ),
+      children: hasSubcategories ? (
+        <div style={{ paddingLeft: '8px' }}>
+          {subcategories.map((sub) => (
+            <Link
+              key={sub.id}
+              href={`/categories/${sub.slug}`}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '8px 12px',
+                color: '#595959',
+                textDecoration: 'none',
+                fontSize: 13,
+                borderRadius: 4,
+                transition: 'all 0.3s',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = '#fff5f5';
+                e.currentTarget.style.color = '#ff4d4f';
+                e.currentTarget.style.paddingLeft = '16px';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'transparent';
+                e.currentTarget.style.color = '#595959';
+                e.currentTarget.style.paddingLeft = '12px';
+              }}
+            >
+              <RightOutlined style={{ fontSize: 10 }} />
+              <span>{sub.name}</span>
+            </Link>
+          ))}
+        </div>
+      ) : null,
+      showArrow: hasSubcategories,
+      collapsible: hasSubcategories ? 'header' : 'disabled',
+      style: {
+        borderBottom: '1px solid #f0f0f0',
+      },
+    };
+  });
 
   return (
     <div
@@ -60,7 +131,7 @@ export default function LeftSidebar() {
         style={{
           backgroundColor: '#001529',
           padding: '12px 16px',
-          borderBottom: '2px solid #1890ff',
+          borderBottom: '2px solid #ff4d4f',
         }}
       >
         <Title
@@ -82,9 +153,10 @@ export default function LeftSidebar() {
         activeKey={activeKeys}
         onChange={(keys) => setActiveKeys(keys as string[])}
         ghost
+        items={collapseItems}
         expandIcon={({ isActive }) =>
           isActive ? (
-            <FolderOpenOutlined style={{ color: '#1890ff', fontSize: 16 }} />
+            <FolderOpenOutlined style={{ color: '#ff4d4f', fontSize: 16 }} />
           ) : (
             <FolderOutlined style={{ color: '#595959', fontSize: 16 }} />
           )
@@ -92,85 +164,7 @@ export default function LeftSidebar() {
         style={{
           backgroundColor: '#fff',
         }}
-      >
-        {parentCategories.map((category: { id: string; name: string; slug: string }) => {
-          const subcategories = getSubcategories(category.id);
-          const hasSubcategories = subcategories.length > 0;
-
-          return (
-            <Panel
-              key={category.id}
-              header={
-                <Link
-                  href={`/categories/${category.slug}`}
-                  style={{
-                    color: '#262626',
-                    textDecoration: 'none',
-                    fontSize: 14,
-                    fontWeight: 500,
-                  }}
-                  onClick={(e) => {
-                    // Don't prevent default, let it navigate
-                    e.stopPropagation();
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.color = '#1890ff';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.color = '#262626';
-                  }}
-                >
-                  {category.name}
-                </Link>
-              }
-              style={{
-                borderBottom: '1px solid #f0f0f0',
-              }}
-              showArrow={hasSubcategories}
-              collapsible={hasSubcategories ? 'header' : 'disabled'}
-            >
-              {hasSubcategories && (
-                <div
-                  style={{
-                    paddingLeft: '8px',
-                  }}
-                >
-                  {subcategories.map((sub: { id: string; name: string; slug: string }) => (
-                    <Link
-                      key={sub.id}
-                      href={`/categories/${sub.slug}`}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '8px',
-                        padding: '8px 12px',
-                        color: '#595959',
-                        textDecoration: 'none',
-                        fontSize: 13,
-                        borderRadius: 4,
-                        transition: 'all 0.3s',
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor = '#f0f9ff';
-                        e.currentTarget.style.color = '#1890ff';
-                        e.currentTarget.style.paddingLeft = '16px';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.backgroundColor = 'transparent';
-                        e.currentTarget.style.color = '#595959';
-                        e.currentTarget.style.paddingLeft = '12px';
-                      }}
-                    >
-                      <RightOutlined style={{ fontSize: 10 }} />
-                      <span>{sub.name}</span>
-                    </Link>
-                  ))}
-                </div>
-              )}
-            </Panel>
-          );
-        })}
-      </Collapse>
+      />
 
       {/* TODO: Add promotional banner at bottom like source */}
       <div

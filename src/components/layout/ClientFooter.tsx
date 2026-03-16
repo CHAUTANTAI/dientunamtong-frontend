@@ -69,14 +69,14 @@ export default function ClientFooter() {
               
               {systemInfo?.address && (
                 <Space align="start">
-                  <EnvironmentOutlined style={{ color: '#1890ff', fontSize: 16, marginTop: 4 }} />
+                  <EnvironmentOutlined style={{ color: '#ff4d4f', fontSize: 16, marginTop: 4 }} />
                   <Text style={{ color: '#d9d9d9', fontSize: 13 }}>{systemInfo.address}</Text>
                 </Space>
               )}
               
               {systemInfo?.phone && (
                 <Space>
-                  <PhoneOutlined style={{ color: '#1890ff', fontSize: 16 }} />
+                  <PhoneOutlined style={{ color: '#ff4d4f', fontSize: 16 }} />
                   <a href={`tel:${systemInfo.phone}`} style={{ color: '#d9d9d9', fontSize: 13 }}>
                     {systemInfo.phone}
                   </a>
@@ -85,7 +85,7 @@ export default function ClientFooter() {
               
               {systemInfo?.email && (
                 <Space>
-                  <MailOutlined style={{ color: '#1890ff', fontSize: 16 }} />
+                  <MailOutlined style={{ color: '#ff4d4f', fontSize: 16 }} />
                   <a href={`mailto:${systemInfo.email}`} style={{ color: '#d9d9d9', fontSize: 13 }}>
                     {systemInfo.email}
                   </a>
@@ -94,7 +94,7 @@ export default function ClientFooter() {
 
               {/* Social Media */}
               <Space size="middle" style={{ marginTop: 8 }}>
-                <a href="#" style={{ color: '#1890ff', fontSize: 24 }}>
+                <a href="#" style={{ color: '#ff4d4f', fontSize: 24 }}>
                   <FacebookOutlined />
                 </a>
                 <a href="#" style={{ color: '#ff4d4f', fontSize: 24 }}>
@@ -122,7 +122,7 @@ export default function ClientFooter() {
                     transition: 'color 0.3s',
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.color = '#1890ff';
+                    e.currentTarget.style.color = '#ff4d4f';
                   }}
                   onMouseLeave={(e) => {
                     e.currentTarget.style.color = '#d9d9d9';
@@ -152,7 +152,7 @@ export default function ClientFooter() {
                     transition: 'color 0.3s',
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.color = '#1890ff';
+                    e.currentTarget.style.color = '#ff4d4f';
                   }}
                   onMouseLeave={(e) => {
                     e.currentTarget.style.color = '#d9d9d9';
@@ -182,7 +182,7 @@ export default function ClientFooter() {
                     transition: 'color 0.3s',
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.color = '#1890ff';
+                    e.currentTarget.style.color = '#ff4d4f';
                   }}
                   onMouseLeave={(e) => {
                     e.currentTarget.style.color = '#d9d9d9';

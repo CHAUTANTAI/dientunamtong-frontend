@@ -5,8 +5,10 @@ import { RightOutlined } from '@ant-design/icons';
 import Link from 'next/link';
 import { ROUTES } from '@/constants/routes';
 import { useGetPublicProductsQuery } from '@/store/services/publicProductApi';
+import { useGetActivePageSectionsQuery } from '@/store/api/pageSectionApi';
 import { useSignedImageUrl } from '@/hooks/useSignedImageUrl';
 import { useViewTracker } from '@/hooks/useViewTracker';
+import type { ProductsSectionContent } from '@/types/pageSection';
 import Image from 'next/image';
 
 const { Title, Text } = Typography;
@@ -57,9 +59,9 @@ const ProductCard = ({ product }: ProductCardProps) => {
         onMouseEnter={(e) => {
           e.currentTarget.style.transform = 'translateY(-4px)';
           e.currentTarget.style.boxShadow = '0 8px 16px rgba(0,0,0,0.1)';
-          e.currentTarget.style.borderColor = '#1890ff';
-        }}
-        onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = '#ff4d4f';
+                }}
+                onMouseLeave={(e) => {
           e.currentTarget.style.transform = 'translateY(0)';
           e.currentTarget.style.boxShadow = 'none';
           e.currentTarget.style.borderColor = '#f0f0f0';
@@ -137,18 +139,25 @@ const ProductCard = ({ product }: ProductCardProps) => {
  * ProductsSection Component - Grid products
  * Hiển thị products trong grid layout
  * 
- * TODO: Có thể customize:
- * - Filter products by category
- * - Sort order
- * - Limit items
+ * Config from page_sections API (products_section)
  */
 interface ProductsSectionProps {
   title?: string;
   limit?: number;
 }
 
-export default function ProductsSection({ title = 'Phụ tùng xe', limit = 6 }: ProductsSectionProps) {
+export default function ProductsSection({ title: propTitle, limit: propLimit }: ProductsSectionProps) {
   const { data, isLoading } = useGetPublicProductsQuery();
+  const { data: sections } = useGetActivePageSectionsQuery('homepage');
+
+  // Get products section config from API
+  const productsSectionData = sections?.find(s => s.section_identifier === 'products_section');
+  const config = productsSectionData?.content as ProductsSectionContent | undefined;
+
+  // Fallback chain: Props > API > Defaults
+  const title = propTitle || config?.title || 'Phụ tùng xe';
+  const limit = propLimit || config?.limit || 6;
+  const showPrice = config?.show_price ?? true;
 
   // Filter active products
   const products = data?.products

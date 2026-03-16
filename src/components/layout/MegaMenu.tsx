@@ -6,40 +6,50 @@ import { DownOutlined } from '@ant-design/icons';
 import Link from 'next/link';
 import { ROUTES } from '@/constants/routes';
 import { useGetPublicCategoriesQuery } from '@/store/services/publicCategoryApi';
+import { useGetActivePageSectionsQuery } from '@/store/api/pageSectionApi';
+import type { MegaMenuContent } from '@/types/pageSection';
 
 /**
  * MegaMenu Component - Menu dropdown lớn với categories
  * Hiển thị categories với subcategories trong dropdown
  * 
- * TODO: Kết nối API để lấy:
- * - Categories tree từ publicCategoryApi
- * - Hiển thị parent categories trong menu
- * - Hiển thị subcategories trong mega dropdown
+ * Config static menu items from page_sections API (mega_menu section)
  */
 export default function MegaMenu() {
   const { data: categories, isLoading } = useGetPublicCategoriesQuery();
+  const { data: sections } = useGetActivePageSectionsQuery('homepage');
   const [hoveredKey, setHoveredKey] = useState<string | null>(null);
 
-  // TODO: Filter only parent categories (those without parent_id)
-  const parentCategories = categories?.filter((cat: { parent_id: string | null }) => !cat.parent_id) || [];
+  // Get mega menu config from API
+  const megaMenuSection = sections?.find(s => s.section_identifier === 'mega_menu');
+  const config = megaMenuSection?.content as MegaMenuContent | undefined;
 
-  // TODO: Group subcategories by parent
+  // Filter only parent categories (those without parent_id)
+  const parentCategories = categories?.filter((cat) => !cat.parent_id) || [];
+
+  // Group subcategories by parent
   const getSubcategories = (parentId: string) => {
-    return categories?.filter((cat: { parent_id: string }) => cat.parent_id === parentId) || [];
+    return categories?.filter((cat) => cat.parent_id === parentId) || [];
   };
 
-  // Static menu items (TODO: Move to CMS/database)
-  const staticMenuItems = [
-    { key: 'prices', label: 'Bảng giá', href: '#' },
-    { key: 'stickers', label: 'Tem xe', href: '#' },
-    { key: 'videos', label: 'Video', href: '#' },
-  ];
+  // Get static menu items from API config with fallback
+  const staticMenuItems = config?.static_items?.length 
+    ? config.static_items.sort((a, b) => a.sort_order - b.sort_order).map(item => ({
+        key: item.id,
+        label: item.label,
+        href: item.href,
+      }))
+    : [
+        { key: 'prices', label: 'Bảng giá', href: '#' },
+        { key: 'stickers', label: 'Tem xe', href: '#' },
+        { key: 'videos', label: 'Video', href: '#' },
+      ];
 
   return (
     <div
       style={{
         backgroundColor: '#001529',
-        borderBottom: '2px solid #1890ff',
+        borderBottom: '2px solid #ff4d4f',
         position: 'relative',
         zIndex: 1000,
       }}
@@ -83,7 +93,7 @@ export default function MegaMenu() {
                     fontWeight: 500,
                     textTransform: 'uppercase',
                     transition: 'all 0.3s',
-                    backgroundColor: hoveredKey === category.id ? '#1890ff' : 'transparent',
+                    backgroundColor: hoveredKey === category.id ? '#ff4d4f' : 'transparent',
                   }}
                 >
                   {category.name}
@@ -123,16 +133,16 @@ export default function MegaMenu() {
                           transition: 'all 0.3s',
                           display: 'block',
                         }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.backgroundColor = '#f0f9ff';
-                          e.currentTarget.style.color = '#1890ff';
-                          e.currentTarget.style.transform = 'translateX(4px)';
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.backgroundColor = 'transparent';
-                          e.currentTarget.style.color = '#595959';
-                          e.currentTarget.style.transform = 'translateX(0)';
-                        }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = '#fff5f5';
+                        e.currentTarget.style.color = '#ff4d4f';
+                        e.currentTarget.style.transform = 'translateX(4px)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = 'transparent';
+                        e.currentTarget.style.color = '#595959';
+                        e.currentTarget.style.transform = 'translateX(0)';
+                      }}
                       >
                         {sub.name}
                       </Link>
@@ -160,7 +170,7 @@ export default function MegaMenu() {
                 transition: 'all 0.3s',
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = '#1890ff';
+                e.currentTarget.style.backgroundColor = '#ff4d4f';
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.backgroundColor = 'transparent';

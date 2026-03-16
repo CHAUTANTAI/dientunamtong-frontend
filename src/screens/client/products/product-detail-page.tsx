@@ -27,6 +27,8 @@ import { useGetPublicProductByIdQuery, useGetPublicProductsQuery } from '@/store
 import { useSignedImageUrl } from '@/hooks/useSignedImageUrl';
 import { useViewTracker } from '@/hooks/useViewTracker';
 import { ROUTES } from '@/constants/routes';
+import LeftSidebar from '@/components/client/LeftSidebar';
+import RightSidebar from '@/components/client/RightSidebar';
 
 const { Title, Text, Paragraph } = Typography;
 
@@ -157,8 +159,8 @@ export default function ProductDetailPage({ productId }: ProductDetailPageProps)
       )
       .slice(0, 4) || [];
 
-  return (
-    <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '24px 16px' }}>
+  const productContent = (
+    <>
       {/* Breadcrumb */}
       <Breadcrumb
         items={[
@@ -182,189 +184,183 @@ export default function ProductDetailPage({ productId }: ProductDetailPageProps)
         style={{ marginBottom: 24 }}
       />
 
-      <Row gutter={[24, 24]}>
-        {/* Left: Product Gallery */}
-        <Col xs={24} md={12}>
-          <Card>
-            {sortedMedia.length > 0 ? (
-              <div>
-                {/* Main Image/Video Display */}
-                <div
-                  style={{
-                    position: 'relative',
-                    width: '100%',
-                    height: 400,
-                    backgroundColor: '#f5f5f5',
-                    borderRadius: 8,
-                    overflow: 'hidden',
-                    marginBottom: 16,
-                  }}
-                >
-                  {sortedMedia[currentMediaIndex]?.media_type === 'video' ? (
-                    <MediaVideo fileUrl={sortedMedia[currentMediaIndex]?.file_url || ''} />
-                  ) : (
-                    <MediaImage
-                      fileUrl={sortedMedia[currentMediaIndex]?.file_url || ''}
-                      alt={product.name}
-                    />
-                  )}
-                </div>
+      {/* Product Gallery - Full width, stacked vertically */}
+      <Card style={{ marginBottom: 24 }}>
+        {sortedMedia.length > 0 ? (
+          <div>
+            {/* Main Image/Video Display */}
+            <div
+              style={{
+                position: 'relative',
+                width: '100%',
+                height: 400,
+                backgroundColor: '#f5f5f5',
+                borderRadius: 8,
+                overflow: 'hidden',
+                marginBottom: 16,
+              }}
+            >
+              {sortedMedia[currentMediaIndex]?.media_type === 'video' ? (
+                <MediaVideo fileUrl={sortedMedia[currentMediaIndex]?.file_url || ''} />
+              ) : (
+                <MediaImage
+                  fileUrl={sortedMedia[currentMediaIndex]?.file_url || ''}
+                  alt={product.name}
+                />
+              )}
+            </div>
 
-                {/* Thumbnail Gallery */}
-                {sortedMedia.length > 1 && (
-                  <Row gutter={[8, 8]}>
-                    {sortedMedia.map((media, index) => (
-                      <Col key={media.id} span={6}>
+            {/* Thumbnail Gallery */}
+            {sortedMedia.length > 1 && (
+              <Row gutter={[8, 8]}>
+                {sortedMedia.map((media, index) => (
+                  <Col key={media.id} span={6}>
+                    <div
+                      onClick={() => setCurrentMediaIndex(index)}
+                      style={{
+                        cursor: 'pointer',
+                        border: currentMediaIndex === index ? '2px solid #ff4d4f' : '1px solid #d9d9d9',
+                        borderRadius: 8,
+                        overflow: 'hidden',
+                        height: 80,
+                        position: 'relative',
+                        backgroundColor: '#f5f5f5',
+                      }}
+                    >
+                      {media.media_type === 'video' ? (
                         <div
-                          onClick={() => setCurrentMediaIndex(index)}
                           style={{
-                            cursor: 'pointer',
-                            border: currentMediaIndex === index ? '2px solid #1890ff' : '1px solid #d9d9d9',
-                            borderRadius: 8,
-                            overflow: 'hidden',
-                            height: 80,
-                            position: 'relative',
-                            backgroundColor: '#f5f5f5',
+                            width: '100%',
+                            height: '100%',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            backgroundColor: '#000',
+                            color: '#fff',
                           }}
                         >
-                          {media.media_type === 'video' ? (
-                            <div
-                              style={{
-                                width: '100%',
-                                height: '100%',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                backgroundColor: '#000',
-                                color: '#fff',
-                              }}
-                            >
-                              Video
-                            </div>
-                          ) : (
-                            <MediaImage fileUrl={media.file_url} alt={`${product.name} ${index + 1}`} />
-                          )}
+                          Video
                         </div>
-                      </Col>
-                    ))}
-                  </Row>
-                )}
-              </div>
-            ) : (
-              <div
-                style={{
-                  width: '100%',
-                  height: 400,
-                  backgroundColor: '#f0f0f0',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  borderRadius: 8,
-                }}
-              >
-                <Text type="secondary">No Media Available</Text>
-              </div>
-            )}
-          </Card>
-        </Col>
-
-        {/* Right: Product Info */}
-        <Col xs={24} md={12}>
-          <Card>
-            <Space direction="vertical" size="large" style={{ width: '100%' }}>
-              {/* Product Name and Status */}
-              <div>
-                <Title level={2} style={{ marginBottom: 8 }}>
-                  {product.name}
-                </Title>
-                {product.sku && <Text type="secondary">SKU: {product.sku}</Text>}
-                
-                {/* Status Tags - moved here, closer to name */}
-                <div style={{ marginTop: 8 }}>
-                  <Space>
-                    {product.is_active && (
-                      <Tag color="green">{t('common.active')}</Tag>
-                    )}
-                    {!product.in_stock && <Tag color="red">{t('common.outOfStock')}</Tag>}
-                  </Space>
-                </div>
-              </div>
-
-              {/* Price */}
-              <div>
-                <Text style={{ fontSize: 32, fontWeight: 'bold', color: '#ff4d4f' }}>
-                  {product.price ? formatPrice(product.price) : t('product.labels.contactForPrice')}
-                </Text>
-              </div>
-
-              <Divider />
-
-              {/* Description */}
-              {product.description && (
-                <div>
-                  <Title level={5}>{t('product.labels.description')}</Title>
-                  <Paragraph>{product.description}</Paragraph>
-                </div>
-              )}
-
-              {/* Categories */}
-              {product.categories && product.categories.length > 0 && (
-                <div>
-                  <Title level={5}>{t('product.labels.categories')}</Title>
-                  <Space wrap>
-                    {product.categories.map((cat) => (
-                      <Tag key={cat.id} color="blue">
-                        <Link href={`${ROUTES.CATEGORIES}/${cat.id}`} style={{ color: 'inherit' }}>
-                          {cat.name}
-                        </Link>
-                      </Tag>
-                    ))}
-                  </Space>
-                </div>
-              )}
-
-              <Divider />
-
-              {/* Action Buttons */}
-              <Space size="middle">
-                <Button type="primary" size="large" icon={<ShoppingCartOutlined />} disabled={!product.in_stock}>
-                  Add to Cart (Coming Soon)
-                </Button>
-                <Link href={`${ROUTES.CONTACT}?productId=${product.id}`}>
-                  <Button size="large" icon={<PhoneOutlined />}>
-                    {t('client.contact.title')}
-                  </Button>
-                </Link>
-              </Space>
-            </Space>
-          </Card>
-
-          {/* Specifications */}
-          {product.specifications && Object.keys(product.specifications).length > 0 && (
-            <Card title={t('product.labels.specifications')} style={{ marginTop: 16 }}>
-              <Descriptions column={1} bordered>
-                {Object.entries(product.specifications).map(([key, value]) => (
-                  <Descriptions.Item key={key} label={key}>
-                    {String(value)}
-                  </Descriptions.Item>
+                      ) : (
+                        <MediaImage fileUrl={media.file_url} alt={`${product.name} ${index + 1}`} />
+                      )}
+                    </div>
+                  </Col>
                 ))}
-              </Descriptions>
-            </Card>
+              </Row>
+            )}
+          </div>
+        ) : (
+          <div
+            style={{
+              width: '100%',
+              height: 400,
+              backgroundColor: '#f0f0f0',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderRadius: 8,
+            }}
+          >
+            <Text type="secondary">No Media Available</Text>
+          </div>
+        )}
+      </Card>
+
+      {/* Product Info - Full width */}
+      <Card style={{ marginBottom: 24 }}>
+        <Space direction="vertical" size="large" style={{ width: '100%' }}>
+          {/* Product Name and Status */}
+          <div>
+            <Title level={2} style={{ marginBottom: 8 }}>
+              {product.name}
+            </Title>
+            {product.sku && <Text type="secondary">SKU: {product.sku}</Text>}
+            
+            {/* Status Tags */}
+            <div style={{ marginTop: 8 }}>
+              <Space>
+                {product.is_active && (
+                  <Tag color="green">{t('common.active')}</Tag>
+                )}
+                {!product.in_stock && <Tag color="red">{t('common.outOfStock')}</Tag>}
+              </Space>
+            </div>
+          </div>
+
+          {/* Price */}
+          <div>
+            <Text style={{ fontSize: 32, fontWeight: 'bold', color: '#ff4d4f' }}>
+              {product.price ? formatPrice(product.price) : t('product.labels.contactForPrice')}
+            </Text>
+          </div>
+
+          <Divider />
+
+          {/* Description */}
+          {product.description && (
+            <div>
+              <Title level={5}>{t('product.labels.description')}</Title>
+              <Paragraph>{product.description}</Paragraph>
+            </div>
           )}
-        </Col>
-      </Row>
+
+          {/* Categories */}
+          {product.categories && product.categories.length > 0 && (
+            <div>
+              <Title level={5}>{t('product.labels.categories')}</Title>
+              <Space wrap>
+                {product.categories.map((cat) => (
+                  <Tag key={cat.id} color="blue">
+                    <Link href={`${ROUTES.CATEGORIES}/${cat.id}`} style={{ color: 'inherit' }}>
+                      {cat.name}
+                    </Link>
+                  </Tag>
+                ))}
+              </Space>
+            </div>
+          )}
+
+          <Divider />
+
+          {/* Action Buttons */}
+          <Space size="middle" wrap>
+            <Button type="primary" size="large" icon={<ShoppingCartOutlined />} disabled={!product.in_stock}>
+              Add to Cart (Coming Soon)
+            </Button>
+            <Link href={`${ROUTES.CONTACT}?productId=${product.id}`}>
+              <Button size="large" icon={<PhoneOutlined />}>
+                {t('client.contact.title')}
+              </Button>
+            </Link>
+          </Space>
+        </Space>
+      </Card>
+
+      {/* Specifications - Full width */}
+      {product.specifications && Object.keys(product.specifications).length > 0 && (
+        <Card title={t('product.labels.specifications')} style={{ marginBottom: 24 }}>
+          <Descriptions column={1} bordered>
+            {Object.entries(product.specifications).map(([key, value]) => (
+              <Descriptions.Item key={key} label={key}>
+                {String(value)}
+              </Descriptions.Item>
+            ))}
+          </Descriptions>
+        </Card>
+      )}
 
       {/* Related Products */}
       {relatedProducts.length > 0 && (
-        <div style={{ marginTop: 48 }}>
-          <Title level={3} style={{ marginBottom: 24 }}>
+        <div style={{ marginTop: 24 }}>
+          <Title level={4} style={{ marginBottom: 16 }}>
             Related Products
           </Title>
           <Row gutter={[16, 16]}>
             {relatedProducts.map((product) => {
               const firstImage = product.media?.find((m) => m.media_type === 'image');
               return (
-                <Col key={product.id} xs={24} sm={12} md={6}>
+                <Col key={product.id} xs={24} sm={12}>
                   <RelatedProductCard
                     id={product.id}
                     name={product.name}
@@ -377,6 +373,28 @@ export default function ProductDetailPage({ productId }: ProductDetailPageProps)
           </Row>
         </div>
       )}
+    </>
+  );
+
+  return (
+    <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '24px 16px' }}>
+      {/* 3-Column Layout with LeftSidebar + Product Detail + RightSidebar */}
+      <Row gutter={24}>
+        {/* Left Sidebar - 20% */}
+        <Col xs={0} lg={0} xl={5}>
+          <LeftSidebar />
+        </Col>
+
+        {/* Main Content - 55% */}
+        <Col xs={24} lg={24} xl={14}>
+          {productContent}
+        </Col>
+
+        {/* Right Sidebar - 25% */}
+        <Col xs={0} lg={0} xl={5}>
+          <RightSidebar />
+        </Col>
+      </Row>
     </div>
   );
 }

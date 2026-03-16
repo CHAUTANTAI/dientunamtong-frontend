@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 import { Layout } from 'antd';
 import TopBar from './TopBar';
 import BannerHeader from './BannerHeader';
@@ -31,8 +32,12 @@ interface ClientLayoutProps {
  * 7. Footer
  */
 export default function ClientLayout({ children }: ClientLayoutProps) {
+  const pathname = usePathname();
   const { data: systemInfo } = useGetSystemInfoQuery();
   const faviconUrl = useSignedImageUrl(systemInfo?.company_logo || '');
+
+  // Only show slider on homepage
+  const showSlider = pathname === '/';
 
   // Dynamically update document title based on system info
   useEffect(() => {
@@ -57,8 +62,8 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
       {/* Search + Slogan */}
       <SearchSlogan />
       
-      {/* Slider Area - TODO: Only show on homepage, hide on other pages */}
-      <SliderArea />
+      {/* Slider Area - Only show on homepage */}
+      {showSlider && <SliderArea />}
       
       {/* Main Content */}
       <Content

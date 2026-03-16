@@ -27,7 +27,10 @@ export const LanguageSwitcher = () => {
     <Select
       value={locale}
       onChange={handleChange}
-      style={{ width: 150 }}
+      style={{ 
+        width: 140,
+      }}
+      size="middle"
       options={languages.map((lang) => ({
         value: lang.value,
         label: (
@@ -36,7 +39,7 @@ export const LanguageSwitcher = () => {
           </span>
         ),
       }))}
-      suffixIcon={<GlobalOutlined />}
+      suffixIcon={<GlobalOutlined style={{ color: '#ff4d4f' }} />}
     />
   );
 };

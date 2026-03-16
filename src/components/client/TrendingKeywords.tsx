@@ -4,18 +4,40 @@ import { Tag } from 'antd';
 import { FireOutlined } from '@ant-design/icons';
 import Link from 'next/link';
 import { ROUTES } from '@/constants/routes';
+import { useGetActivePageSectionsQuery } from '@/store/api/pageSectionApi';
+import type { TrendingKeywordsContent } from '@/types/pageSection';
+
+export interface KeywordItem {
+  text: string;
+  link: string;
+}
+
+interface TrendingKeywordsProps {
+  keywords?: KeywordItem[];
+  title?: string;
+  limit?: number;
+  showIcon?: boolean;
+}
 
 /**
  * TrendingKeywords Component - Xu hướng tìm kiếm
  * Hiển thị các keywords/tags phổ biến
  * 
- * TODO: Kết nối API để lấy:
- * - Trending keywords từ search analytics hoặc page_sections
- * - Click count/popularity
+ * Fetches keywords from page_sections API (trending_keywords_section)
  */
-export default function TrendingKeywords() {
-  // TODO: Replace with API data - Get from search analytics or page_sections
-  const trendingKeywords = [
+export default function TrendingKeywords({
+  keywords: propKeywords,
+  title: propTitle,
+  limit: propLimit,
+  showIcon: propShowIcon,
+}: TrendingKeywordsProps = {}) {
+  // Fetch trending keywords section from API
+  const { data: sections } = useGetActivePageSectionsQuery('homepage');
+  const keywordsSection = sections?.find(s => s.section_identifier === 'trending_keywords_section');
+  const keywordsContent = keywordsSection?.content as unknown as TrendingKeywordsContent;
+
+  // Default fallback data
+  const defaultKeywords: KeywordItem[] = [
     { text: 'Sơn xe cũ thành xe mới', link: '#' },
     { text: 'Tân trang xe máy', link: '#' },
     { text: 'PCX 160', link: `${ROUTES.PRODUCTS}?search=PCX+160` },
@@ -32,6 +54,20 @@ export default function TrendingKeywords() {
     { text: 'LED Audi i8 PCX 160', link: '#' },
     { text: 'Wave độ', link: '#' },
   ];
+
+  // Transform API data to component props format
+  const apiKeywords: KeywordItem[] = keywordsContent?.keywords?.map(kw => ({
+    text: kw.text,
+    link: kw.link,
+  })) || [];
+
+  // Use props > API > defaults
+  const keywords = propKeywords || (apiKeywords.length > 0 ? apiKeywords : defaultKeywords);
+  const title = propTitle || keywordsContent?.title || 'Xu hướng tìm kiếm:';
+  const showIcon = propShowIcon ?? keywordsContent?.show_icon ?? true;
+  const limit = propLimit || keywordsContent?.limit;
+
+  const displayKeywords = limit ? keywords.slice(0, limit) : keywords;
 
   return (
     <div
@@ -52,7 +88,7 @@ export default function TrendingKeywords() {
           marginBottom: '12px',
         }}
       >
-        <FireOutlined style={{ fontSize: 18, color: '#ff4d4f' }} />
+        {showIcon && <FireOutlined style={{ fontSize: 18, color: '#ff4d4f' }} />}
         <span
           style={{
             fontSize: 15,
@@ -60,7 +96,7 @@ export default function TrendingKeywords() {
             color: '#262626',
           }}
         >
-          Xu hướng tìm kiếm:
+          {title}
         </span>
       </div>
 
@@ -68,36 +104,38 @@ export default function TrendingKeywords() {
         style={{
           display: 'flex',
           flexWrap: 'wrap',
-          gap: '8px',
+          gap: '10px',
         }}
       >
-        {trendingKeywords.map((keyword, index) => (
+          {displayKeywords.map((keyword, index) => (
           <Link key={index} href={keyword.link} style={{ textDecoration: 'none' }}>
             <Tag
               style={{
                 margin: 0,
-                padding: '4px 12px',
-                fontSize: 13,
-                borderRadius: 16,
+                padding: '8px 16px',
+                fontSize: 14,
+                fontWeight: 500,
+                borderRadius: 20,
                 cursor: 'pointer',
-                border: '1px solid #d9d9d9',
-                backgroundColor: '#fafafa',
-                color: '#595959',
+                border: '2px solid #ff4d4f',
+                backgroundColor: '#fff',
+                color: '#ff4d4f',
                 transition: 'all 0.3s',
+                boxShadow: '0 2px 6px rgba(255,77,79,0.15)',
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.borderColor = '#1890ff';
-                e.currentTarget.style.backgroundColor = '#e6f7ff';
-                e.currentTarget.style.color = '#1890ff';
-                e.currentTarget.style.transform = 'translateY(-2px)';
-                e.currentTarget.style.boxShadow = '0 2px 8px rgba(24,144,255,0.2)';
+                e.currentTarget.style.borderColor = '#ff4d4f';
+                e.currentTarget.style.backgroundColor = '#ff4d4f';
+                e.currentTarget.style.color = '#fff';
+                e.currentTarget.style.transform = 'translateY(-3px) scale(1.05)';
+                e.currentTarget.style.boxShadow = '0 6px 16px rgba(255,77,79,0.35)';
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.borderColor = '#d9d9d9';
-                e.currentTarget.style.backgroundColor = '#fafafa';
-                e.currentTarget.style.color = '#595959';
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = 'none';
+                e.currentTarget.style.borderColor = '#ff4d4f';
+                e.currentTarget.style.backgroundColor = '#fff';
+                e.currentTarget.style.color = '#ff4d4f';
+                e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                e.currentTarget.style.boxShadow = '0 2px 6px rgba(255,77,79,0.15)';
               }}
             >
               {keyword.text}

@@ -1,9 +1,10 @@
 'use client';
 
-import { Space, Typography } from 'antd';
-import { ShoppingCartOutlined, ClockCircleOutlined } from '@ant-design/icons';
+import { Space, Typography, Popover } from 'antd';
+import { ShoppingCartOutlined, ClockCircleOutlined, RocketOutlined } from '@ant-design/icons';
 import Link from 'next/link';
 import { ROUTES } from '@/constants/routes';
+import { LanguageSwitcher } from '@/components/common/LanguageSwitcher';
 
 const { Text } = Typography;
 
@@ -19,6 +20,21 @@ export default function TopBar() {
   // TODO: Replace with API data
   const businessHours = '8:00 - 18:00 (Kể cả thứ 7 và CN)';
   const cartItemCount = 0; // TODO: Get from cart state
+
+  // Coming Soon Popover content
+  const comingSoonContent = (
+    <div style={{ padding: '8px 4px', maxWidth: 250 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: 8 }}>
+        <RocketOutlined style={{ fontSize: 18, color: '#ff4d4f' }} />
+        <Text strong style={{ fontSize: 14, color: '#262626' }}>
+          Sắp ra mắt!
+        </Text>
+      </div>
+      <Text style={{ fontSize: 13, color: '#8c8c8c' }}>
+        Tính năng <strong style={{ color: '#ff4d4f' }}>Giỏ hàng</strong> đang được phát triển 🚀
+      </Text>
+    </div>
+  );
 
   const menuItems = [
     { label: 'Trang chủ', href: ROUTES.HOME },
@@ -51,8 +67,8 @@ export default function TopBar() {
       >
         {/* Left: Work Time */}
         <Space size="small">
-          <ClockCircleOutlined style={{ color: '#ff4d4f' }} />
-          <Text style={{ fontSize: 13, color: '#595959' }}>
+          <ClockCircleOutlined style={{ color: '#ff4d4f', fontSize: 15 }} />
+          <Text style={{ fontSize: 14, color: '#595959' }}>
             Thời gian làm việc: <strong style={{ color: '#ff4d4f' }}>{businessHours}</strong>
           </Text>
         </Space>
@@ -64,50 +80,62 @@ export default function TopBar() {
               key={index}
               href={item.href}
               style={{
-                fontSize: 13,
+                fontSize: 14,
                 color: '#595959',
                 textDecoration: 'none',
                 transition: 'color 0.3s',
               }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.color = '#1890ff';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.color = '#595959';
-              }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.color = '#ff4d4f';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.color = '#595959';
+            }}
             >
               {item.label}
             </Link>
           ))}
         </div>
 
-        {/* Right: Cart */}
-        <Link href={ROUTES.PRODUCTS} style={{ textDecoration: 'none' }}>
-          <Space
-            size="small"
-            style={{
-              cursor: 'pointer',
-              padding: '4px 12px',
-              borderRadius: 4,
-              backgroundColor: '#fff',
-              border: '1px solid #d9d9d9',
-              transition: 'all 0.3s',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.borderColor = '#1890ff';
-              e.currentTarget.style.boxShadow = '0 2px 8px rgba(24,144,255,0.2)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.borderColor = '#d9d9d9';
-              e.currentTarget.style.boxShadow = 'none';
-            }}
+        {/* Right: Language Switcher + Cart */}
+        <Space size="middle">
+          {/* Language Switcher */}
+          <LanguageSwitcher />
+
+          {/* Cart */}
+          <Popover
+            content={comingSoonContent}
+            title={null}
+            trigger="click"
+            placement="bottomRight"
           >
-            <ShoppingCartOutlined style={{ fontSize: 16, color: '#1890ff' }} />
-            <Text style={{ fontSize: 13, color: '#595959' }}>
-              Giỏ hàng <strong style={{ color: '#1890ff' }}>({cartItemCount})</strong>
-            </Text>
-          </Space>
-        </Link>
+            <div style={{ cursor: 'pointer' }}>
+              <Space
+                size="small"
+                style={{
+                  padding: '4px 12px',
+                  borderRadius: 4,
+                  backgroundColor: '#fff',
+                  border: '1px solid #d9d9d9',
+                  transition: 'all 0.3s',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = '#ff4d4f';
+                  e.currentTarget.style.boxShadow = '0 2px 8px rgba(255,77,79,0.2)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = '#d9d9d9';
+                  e.currentTarget.style.boxShadow = 'none';
+                }}
+              >
+                <ShoppingCartOutlined style={{ fontSize: 17, color: '#ff4d4f' }} />
+                <Text style={{ fontSize: 14, color: '#595959' }}>
+                  Giỏ hàng <strong style={{ color: '#ff4d4f' }}>({cartItemCount})</strong>
+                </Text>
+              </Space>
+            </div>
+          </Popover>
+        </Space>
       </div>
 
       {/* Responsive CSS */}

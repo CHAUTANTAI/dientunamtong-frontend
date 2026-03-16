@@ -70,7 +70,7 @@ export default function RightSidebar() {
         style={{
           backgroundColor: '#001529',
           padding: '12px 16px',
-          borderBottom: '2px solid #1890ff',
+          borderBottom: '2px solid #ff4d4f',
         }}
       >
         <Title
@@ -104,7 +104,7 @@ export default function RightSidebar() {
                 transition: 'all 0.3s',
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = '#f0f9ff';
+                e.currentTarget.style.backgroundColor = '#fff5f5';
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.backgroundColor = 'transparent';
@@ -123,7 +123,7 @@ export default function RightSidebar() {
                 <RightOutlined
                   style={{
                     fontSize: 10,
-                    color: '#1890ff',
+                    color: '#ff4d4f',
                     marginTop: '4px',
                     flexShrink: 0,
                   }}

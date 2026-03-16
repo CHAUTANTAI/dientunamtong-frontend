@@ -3,6 +3,8 @@
 import { Row, Col, Card, Typography, Button } from 'antd';
 import { RightOutlined } from '@ant-design/icons';
 import Link from 'next/link';
+import { useGetActivePageSectionsQuery } from '@/store/api/pageSectionApi';
+import type { NewsSectionContent } from '@/types/pageSection';
 
 const { Title, Text } = Typography;
 
@@ -10,18 +12,25 @@ const { Title, Text } = Typography;
  * NewsSection Component - Grid news items
  * Hiển thị tin tức trong grid layout
  * 
- * TODO: Kết nối API để lấy:
- * - News/posts từ CMS
- * - Filter by category
- * - Sort by date
+ * Config from page_sections API (news_section)
  */
 interface NewsSectionProps {
   title?: string;
   limit?: number;
 }
 
-export default function NewsSection({ title = 'Tin tức xe', limit = 6 }: NewsSectionProps) {
-  // TODO: Replace with API data
+export default function NewsSection({ title: propTitle, limit: propLimit }: NewsSectionProps) {
+  const { data: sections } = useGetActivePageSectionsQuery('homepage');
+
+  // Get news section config from API
+  const newsSectionData = sections?.find(s => s.section_identifier === 'news_section');
+  const config = newsSectionData?.content as NewsSectionContent | undefined;
+
+  // Fallback chain: Props > API > Defaults
+  const title = propTitle || config?.title || 'Tin tức xe';
+  const limit = propLimit || config?.limit || 6;
+
+  // TODO: Replace with actual API data when news/posts API is ready
   const newsItems = [
     {
       id: 1,
@@ -110,7 +119,7 @@ export default function NewsSection({ title = 'Tin tức xe', limit = 6 }: NewsS
                 onMouseEnter={(e) => {
                   e.currentTarget.style.transform = 'translateY(-4px)';
                   e.currentTarget.style.boxShadow = '0 8px 16px rgba(0,0,0,0.1)';
-                  e.currentTarget.style.borderColor = '#1890ff';
+                  e.currentTarget.style.borderColor = '#ff4d4f';
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.transform = 'translateY(0)';

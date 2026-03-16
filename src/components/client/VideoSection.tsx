@@ -3,6 +3,8 @@
 import { Carousel, Card, Typography } from 'antd';
 import { PlayCircleOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons';
 import Link from 'next/link';
+import { useGetActivePageSectionsQuery } from '@/store/api/pageSectionApi';
+import type { VideoSectionContent } from '@/types/pageSection';
 
 const { Title, Text } = Typography;
 
@@ -10,14 +12,27 @@ const { Title, Text } = Typography;
  * VideoSection Component - Video carousel
  * Hiển thị video clips trong carousel
  * 
- * TODO: Kết nối API để lấy:
- * - Videos từ CMS hoặc YouTube API
- * - Video thumbnails
- * - Video links
+ * Config from page_sections API (video_section)
  */
 export default function VideoSection() {
-  // TODO: Replace with API data
-  const videos = [
+  const { data: sections } = useGetActivePageSectionsQuery('homepage');
+
+  // Get video section config from API
+  const videoSectionData = sections?.find(s => s.section_identifier === 'video_section');
+  const config = videoSectionData?.content as VideoSectionContent | undefined;
+
+  const title = config?.title || 'Video';
+  const layoutMode = config?.layout_mode || 'carousel';
+
+  // Use configured videos or fallback to placeholders
+  const videos = config?.videos?.length 
+    ? config.videos.sort((a, b) => a.sort_order - b.sort_order).map(v => ({
+        id: v.id,
+        title: v.title,
+        thumbnail: v.thumbnail || '/placeholder-video.jpg',
+        link: v.url,
+      }))
+    : [
     {
       id: 1,
       title: 'Mạch Stop Fi nhấp nháy đèn hậu Mio M3',
@@ -78,8 +93,8 @@ export default function VideoSection() {
         boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
       }}
       onMouseEnter={(e) => {
-        e.currentTarget.style.borderColor = '#1890ff';
-        e.currentTarget.style.backgroundColor = '#1890ff';
+        e.currentTarget.style.borderColor = '#ff4d4f';
+        e.currentTarget.style.backgroundColor = '#ff4d4f';
         const icon = e.currentTarget.querySelector('span');
         if (icon) (icon as HTMLElement).style.color = '#fff';
       }}
@@ -118,7 +133,7 @@ export default function VideoSection() {
         }}
       >
         <Title level={3} style={{ margin: 0, fontSize: 20, color: '#262626' }}>
-          Video clips
+          {title}
         </Title>
       </div>
 
@@ -166,9 +181,9 @@ export default function VideoSection() {
                   onMouseEnter={(e) => {
                     e.currentTarget.style.transform = 'translateY(-4px)';
                     e.currentTarget.style.boxShadow = '0 8px 16px rgba(0,0,0,0.1)';
-                    e.currentTarget.style.borderColor = '#1890ff';
-                  }}
-                  onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = '#ff4d4f';
+                }}
+                onMouseLeave={(e) => {
                     e.currentTarget.style.transform = 'translateY(0)';
                     e.currentTarget.style.boxShadow = 'none';
                     e.currentTarget.style.borderColor = '#f0f0f0';

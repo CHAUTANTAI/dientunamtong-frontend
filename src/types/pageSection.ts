@@ -11,59 +11,138 @@ export interface PageSection {
   updated_at: string;
 }
 
-// Content types for each section
-export interface IntroContent {
-  title?: string;
-  subtitle?: string;
-  text: string;
+// ============================================
+// LAYOUT COMPONENT SECTIONS (ClientLayout)
+// ============================================
+
+// BannerHeader Section (Logo + Banner Image + Hotlines)
+export interface BannerHeaderContent {
+  logo_media_id?: string;          // Company logo
+  banner_media_id?: string;        // Banner image
+  primary_hotline?: string;        // Main phone number
+  secondary_hotline?: string;      // Secondary phone number
 }
 
-export interface BannerContent {
-  media_ids: string[];  // Changed from banner_ids to media_ids
-  auto_play?: boolean;
-  interval?: number;
-  show_arrows?: boolean;
-  show_dots?: boolean;
+// MegaMenu Section (Static menu items like "Bảng giá", "Tem xe", "Video")
+export interface MegaMenuContent {
+  static_items: Array<{
+    id: string;
+    label: string;
+    href: string;
+    sort_order: number;
+  }>;
 }
 
-export interface RightContentBoxContent {
-  title?: string;
-  subtitle?: string;
-  text: string;
+// SearchSlogan Section (Marquee slogan text)
+export interface SearchSloganContent {
+  slogan_text: string;             // Marquee text
 }
 
-export interface LeftSidebarCategoriesContent {
-  category_ids: string[];
-  max_items?: number;
+// ============================================
+// HOMEPAGE CONTENT SECTIONS
+// ============================================
+
+// LeftSidebar Section (Categories tree - mostly auto from DB)
+export interface LeftSidebarContent {
+  category_ids?: string[];         // Optional: manually select categories to show
+  max_items?: number;              // Max categories to display
+  show_all?: boolean;              // Show all categories from DB
 }
 
-export interface RightSidebarItemsContent {
-  items: Array<{
+// RightSidebar Section (News items + promotional banners)
+export interface RightSidebarContent {
+  news_items: Array<{
     id: string;
     title: string;
-    subtitle?: string;
+    link: string;
+    date?: string;
+    sort_order: number;
+  }>;
+  promotional_banners?: Array<{
+    id: string;
+    media_id: string;
     link?: string;
-    icon?: string;
+    alt?: string;
+    sort_order: number;
   }>;
 }
 
-export interface HighlightCategoriesContent {
+// Slider Section (Main Carousel + Mini Ads)
+export interface SliderContent {
+  slides: Array<{
+    id: string;
+    media_id: string;  // Reference to media table
+    link?: string;
+    alt?: string;
+    sort_order: number;
+  }>;
+  mini_ads: Array<{
+    id: string;
+    media_id: string;  // Reference to media table
+    link?: string;
+    alt?: string;
+    sort_order: number;
+  }>;
+  slider_settings?: {
+    height?: number;
+    autoplay?: boolean;
+    autoplay_speed?: number;
+  };
+  mini_ad_settings?: {
+    height?: number;
+    gap?: number;
+  };
+}
+
+// Trending Keywords Section
+export interface TrendingKeywordsContent {
+  title?: string;
+  show_icon?: boolean;
+  limit?: number;
+  keywords: Array<{
+    id: string;
+    text: string;
+    link: string;
+    sort_order: number;
+  }>;
+}
+
+// Products Section (replaces HighlightProducts for main content area)
+export interface ProductsSectionContent {
   title: string;
   limit: number;
-  categories: Array<{
-    category_id: string;
-    sub_category_ids: string[];
-  }>;
+  mode: 'auto' | 'manual';  // auto: fetch latest/popular, manual: select specific products
+  filter_by?: 'latest' | 'most_viewed' | 'popular' | 'random';
+  product_ids?: string[];  // Used when mode = 'manual'
+  category_filter?: string;  // Optional: filter by category_id
+  show_price?: boolean;
+  layout?: 'grid';  // Future: can add 'list', 'carousel'
 }
 
-export interface HighlightProductsContent {
+// News Section
+export interface NewsSectionContent {
   title: string;
   limit: number;
   mode: 'auto' | 'manual';
-  filter_by?: 'latest' | 'most_viewed' | 'random';
-  product_ids?: string[];
-  layout?: 'grid' | 'carousel';
-  show_price?: boolean;
+  news_ids?: string[];  // Used when mode = 'manual'
+  display_mode?: 'grid' | 'list';
+  show_thumbnail?: boolean;
+  show_excerpt?: boolean;
+}
+
+// Video Section
+export interface VideoSectionContent {
+  title: string;
+  videos: Array<{
+    id: string;
+    title: string;
+    url: string;  // YouTube, Vimeo, or direct video URL
+    thumbnail?: string;
+    duration?: string;
+    sort_order: number;
+  }>;
+  layout_mode?: 'carousel' | 'grid';
+  videos_per_row?: number;
 }
 
 // Update section request
@@ -83,10 +162,16 @@ export type PageIdentifier = 'homepage' | 'about' | 'contact';
 
 // Section identifiers  
 export type SectionIdentifier = 
-  | 'intro'
-  | 'banner'
-  | 'right_content_box'
-  | 'left_sidebar_categories'
-  | 'right_sidebar_items'
-  | 'highlight_categories'
-  | 'highlight_products';
+  // Layout sections (from ClientLayout)
+  | 'banner_header'
+  | 'mega_menu'
+  | 'search_slogan'
+  | 'slider_section'
+  
+  // HomePage content sections
+  | 'trending_keywords_section'
+  | 'products_section'
+  | 'news_section'
+  | 'video_section'
+  | 'left_sidebar'
+  | 'right_sidebar';
