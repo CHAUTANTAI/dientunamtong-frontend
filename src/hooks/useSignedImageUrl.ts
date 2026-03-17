@@ -1,16 +1,22 @@
 /**
  * Hook to get signed image URL from Supabase Storage
+ * DEPRECATED: For new code, use usePublicImageUrl from useImageUrl hook instead
+ * This hook now defaults to public URLs for better performance
  */
 
 import { useState, useEffect } from 'react';
-import { getSupabaseImageUrl } from '@/utils/supabase';
+import { getSupabaseImageUrl, getSupabasePublicUrl } from '@/utils/supabase';
 
 /**
- * Hook to get signed URL for an image
+ * Hook to get URL for an image
  * @param imageUrl - Relative path stored in DB
- * @returns Signed URL string (empty string while loading)
+ * @param usePublic - Whether to use public bucket (default: true for performance)
+ * @returns URL string (empty string while loading for signed URLs)
  */
-export const useSignedImageUrl = (imageUrl: string | null | undefined): string => {
+export const useSignedImageUrl = (
+  imageUrl: string | null | undefined,
+  usePublic: boolean = true
+): string => {
   const [signedUrl, setSignedUrl] = useState<string>('');
 
   useEffect(() => {
@@ -22,10 +28,20 @@ export const useSignedImageUrl = (imageUrl: string | null | undefined): string =
         return;
       }
 
+      // For public bucket, get URL synchronously
+      if (usePublic) {
+        const publicUrl = getSupabasePublicUrl(imageUrl);
+        if (!cancelled) {
+          setSignedUrl(publicUrl);
+        }
+        return;
+      }
+
+      // For private bucket (legacy), fetch signed URL
       console.log('useSignedImageUrl: Fetching signed URL for:', imageUrl);
 
       try {
-        const url = await getSupabaseImageUrl(imageUrl);
+        const url = await getSupabaseImageUrl(imageUrl, false);
         console.log('useSignedImageUrl: Got signed URL:', url);
         if (!cancelled) {
           setSignedUrl(url);
@@ -43,7 +59,7 @@ export const useSignedImageUrl = (imageUrl: string | null | undefined): string =
     return () => {
       cancelled = true;
     };
-  }, [imageUrl]);
+  }, [imageUrl, usePublic]);
 
   return signedUrl;
 };

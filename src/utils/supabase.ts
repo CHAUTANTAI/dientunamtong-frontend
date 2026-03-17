@@ -25,14 +25,47 @@ export const supabase = createClient(supabaseUrl, supabaseServiceRoleKey, {
 });
 
 /**
+ * Bucket Configuration
+ * - 'content': Private bucket (requires signed URLs)
+ * - 'public-content': Public bucket (direct public URLs, faster, no auth needed)
+ */
+export const BUCKET_PRIVATE = 'content';
+export const BUCKET_PUBLIC = 'public-content';
+
+/**
+ * Get public URL for a file in Supabase Storage (for public buckets)
+ * @param imageUrl - Relative path stored in DB (e.g., "product/id_filename.jpg")
+ * @param bucketName - Bucket name (default: 'public-content')
+ * @returns Public URL string
+ */
+export const getSupabasePublicUrl = (imageUrl: string, bucketName: string = BUCKET_PUBLIC): string => {
+  if (!imageUrl) return '';
+
+  // If imageUrl already includes http/https, return as is
+  if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
+    return imageUrl;
+  }
+
+  // Remove leading slash if present to get clean path
+  const path = imageUrl.startsWith('/') ? imageUrl.slice(1) : imageUrl;
+
+  // Get public URL from Supabase Storage
+  const { data } = supabase.storage.from(bucketName).getPublicUrl(path);
+  
+  return data?.publicUrl || '';
+};
+
+/**
  * Get signed URL for a file in Supabase Storage (for private buckets)
- * @param imageUrl - Relative path stored in DB (e.g., "/product/id_filename.jpg")
+ * @param imageUrl - Relative path stored in DB (e.g., "product/id_filename.jpg")
  * @param expiresIn - Expiration time in seconds (default: 3600 = 1 hour)
+ * @param bucketName - Bucket name (default: 'content' for private)
  * @returns Promise that resolves to signed URL
  */
 export const getSupabaseSignedUrl = async (
   imageUrl: string,
-  expiresIn: number = 3600
+  expiresIn: number = 3600,
+  bucketName: string = BUCKET_PRIVATE
 ): Promise<string> => {
   if (!imageUrl) return '';
 
@@ -46,7 +79,7 @@ export const getSupabaseSignedUrl = async (
 
   try {
     // Create signed URL for private bucket
-    const { data, error } = await supabase.storage.from('content').createSignedUrl(path, expiresIn);
+    const { data, error } = await supabase.storage.from(bucketName).createSignedUrl(path, expiresIn);
 
     if (error) {
       console.error('Error creating signed URL:', error);
@@ -66,18 +99,28 @@ export const getSupabaseSignedUrl = async (
 const signedUrlCache = new Map<string, { url: string; expiresAt: number }>();
 
 /**
- * Get signed URL with caching (refreshes if expired or about to expire)
+ * Get image URL with caching
+ * - For public bucket: Returns public URL directly (no caching needed)
+ * - For private bucket: Returns signed URL with caching (refreshes if expired)
+ * 
  * @param imageUrl - Relative path stored in DB
- * @param expiresIn - Expiration time in seconds (default: 3600)
- * @returns Promise that resolves to signed URL
+ * @param isPublic - Whether to use public bucket (default: true - CHANGED for system-wide migration)
+ * @param expiresIn - Expiration time in seconds for signed URLs (default: 3600)
+ * @returns Promise that resolves to URL string (public or signed)
  */
 export const getSupabaseImageUrl = async (
   imageUrl: string,
+  isPublic: boolean = true,
   expiresIn: number = 3600
 ): Promise<string> => {
   if (!imageUrl) return '';
 
-  // Check cache first
+  // If using public bucket, return public URL directly (no async needed, no caching)
+  if (isPublic) {
+    return getSupabasePublicUrl(imageUrl, BUCKET_PUBLIC);
+  }
+
+  // For private bucket, use signed URL with caching
   const cached = signedUrlCache.get(imageUrl);
   const now = Date.now();
 
@@ -87,7 +130,7 @@ export const getSupabaseImageUrl = async (
   }
 
   // Generate new signed URL
-  const signedUrl = await getSupabaseSignedUrl(imageUrl, expiresIn);
+  const signedUrl = await getSupabaseSignedUrl(imageUrl, expiresIn, BUCKET_PRIVATE);
 
   if (signedUrl) {
     // Cache the URL
@@ -144,6 +187,7 @@ export const uploadToSupabase = async (
     fileName?: string;
     cacheControl?: string;
     upsert?: boolean;
+    bucketName?: string; // Default: 'public-content' (public bucket)
   }
 ): Promise<SupabaseUploadResult> => {
   if (!file) {
@@ -154,13 +198,15 @@ export const uploadToSupabase = async (
     throw new Error('Folder is required');
   }
 
+  const bucketName = options?.bucketName || BUCKET_PUBLIC;
+
   // Generate file name if not provided, and sanitize it
   const originalFileName = options?.fileName || `${Date.now()}_${file.name}`;
   const sanitizedFileName = sanitizeFilename(originalFileName);
   const filePath = `${folder}/${sanitizedFileName}`;
 
   // Upload to Supabase Storage
-  const { data, error } = await supabase.storage.from('content').upload(filePath, file, {
+  const { data, error } = await supabase.storage.from(bucketName).upload(filePath, file, {
     cacheControl: options?.cacheControl || '3600',
     upsert: options?.upsert || false,
   });
@@ -175,16 +221,47 @@ export const uploadToSupabase = async (
 
   return {
     path: data.path, // Relative path (e.g., "product/123_image.jpg")
-    fullPath: data.fullPath, // Full path with bucket (e.g., "content/product/123_image.jpg")
+    fullPath: data.fullPath, // Full path with bucket (e.g., "public-content/product/123_image.jpg")
   };
+};
+
+/**
+ * Upload to private bucket (content) - requires signed URLs
+ */
+export const uploadToPrivateBucket = async (
+  file: File,
+  folder: string,
+  options?: {
+    fileName?: string;
+    cacheControl?: string;
+    upsert?: boolean;
+  }
+): Promise<SupabaseUploadResult> => {
+  return uploadToSupabase(file, folder, { ...options, bucketName: BUCKET_PRIVATE });
+};
+
+/**
+ * Upload to public bucket (public-content) - direct public URLs
+ */
+export const uploadToPublicBucket = async (
+  file: File,
+  folder: string,
+  options?: {
+    fileName?: string;
+    cacheControl?: string;
+    upsert?: boolean;
+  }
+): Promise<SupabaseUploadResult> => {
+  return uploadToSupabase(file, folder, { ...options, bucketName: BUCKET_PUBLIC });
 };
 
 /**
  * Delete file from Supabase Storage
  * @param path - Relative path to delete (e.g., "product/123_image.jpg" or "/product/123_image.jpg")
+ * @param bucketName - Bucket name (default: 'public-content')
  * @returns Promise that resolves when deleted
  */
-export const deleteFromSupabase = async (path: string): Promise<void> => {
+export const deleteFromSupabase = async (path: string, bucketName: string = BUCKET_PUBLIC): Promise<void> => {
   if (!path) {
     throw new Error('Path is required');
   }
@@ -192,9 +269,23 @@ export const deleteFromSupabase = async (path: string): Promise<void> => {
   // Remove leading slash if present
   const cleanPath = path.startsWith('/') ? path.slice(1) : path;
 
-  const { error } = await supabase.storage.from('content').remove([cleanPath]);
+  const { error } = await supabase.storage.from(bucketName).remove([cleanPath]);
 
   if (error) {
     throw new Error(`Delete failed: ${error.message}`);
   }
+};
+
+/**
+ * Delete from private bucket
+ */
+export const deleteFromPrivateBucket = async (path: string): Promise<void> => {
+  return deleteFromSupabase(path, BUCKET_PRIVATE);
+};
+
+/**
+ * Delete from public bucket
+ */
+export const deleteFromPublicBucket = async (path: string): Promise<void> => {
+  return deleteFromSupabase(path, BUCKET_PUBLIC);
 };

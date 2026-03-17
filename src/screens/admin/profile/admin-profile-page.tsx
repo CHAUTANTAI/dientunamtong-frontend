@@ -6,7 +6,7 @@ import { useTranslations } from 'next-intl';
 import { Profile } from '@/types/profile';
 import { useGetProfileQuery, useUpdateProfileMutation } from '@/store/api/profileApi';
 import { getErrorMessage } from '@/utils/api-interceptor';
-import { uploadToSupabase, deleteFromSupabase } from '@/utils/supabase';
+import { uploadToPublicBucket, deleteFromPublicBucket } from '@/utils/supabase';
 import { useSignedImageUrl } from '@/hooks/useSignedImageUrl';
 import { BusinessHoursEditor } from '@/components/business-hours/BusinessHoursEditor';
 
@@ -53,17 +53,17 @@ const AdminProfilePage = () => {
         const file = fileList[0].originFileObj;
 
         try {
-          // Upload to Supabase storage using common utility
+          // Upload to Supabase storage (public bucket for better performance)
           const fileExt = file.name.split('.').pop();
           const fileName = `profile_logo_${Date.now()}.${fileExt}`;
-          const { path } = await uploadToSupabase(file, 'profile', {
+          const { path } = await uploadToPublicBucket(file, 'profile', {
             fileName,
           });
 
           // Delete old logo if exists
           if (data?.logo && data.logo.startsWith('/profile/')) {
             try {
-              await deleteFromSupabase(data.logo);
+              await deleteFromPublicBucket(data.logo);
             } catch (error) {
               console.warn('Failed to delete old logo:', error);
               // Continue even if delete fails

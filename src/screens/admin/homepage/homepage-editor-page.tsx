@@ -1,13 +1,14 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
-import { Card, Button, Space, Typography, Row, Col, App, Spin } from 'antd';
-import { PlusOutlined, SaveOutlined } from '@ant-design/icons';
+import { Tabs, Collapse, Button, Space, Typography, App, Spin, Form, Badge } from 'antd';
+import { SaveOutlined, CheckCircleOutlined } from '@ant-design/icons';
 import { useTranslations } from 'next-intl';
 import { useGetPageSectionsQuery, useUpdatePageSectionsMutation } from '@/store/api/pageSectionApi';
 import type {
   PageSection,
   BannerHeaderContent,
+  BannerHeaderContentDraft,
   MegaMenuContent,
   SearchSloganContent,
   SliderContent,
@@ -18,18 +19,22 @@ import type {
   LeftSidebarContent,
   RightSidebarContent,
 } from '@/types/pageSection';
+import { processMediaValue, processMediaArray } from '@/utils/mediaUploadHelpers';
+import type { MediaValue } from '@/components/common/MediaUpload';
 
-// Import all modals
-import BannerHeaderEditModal from './BannerHeaderEditModal';
-import MegaMenuEditModal from './MegaMenuEditModal';
-import SearchSloganEditModal from './SearchSloganEditModal';
-import SliderEditModal from './SliderEditModal';
-import TrendingKeywordsEditModal from './TrendingKeywordsEditModal';
-import ProductsSectionEditModal from './ProductsSectionEditModal';
-import NewsSectionEditModal from './NewsSectionEditModal';
-import VideoSectionEditModal from './VideoSectionEditModal';
-import LeftSidebarEditModal from './LeftSidebarEditModal';
-import RightSidebarEditModal from './RightSidebarEditModal';
+// Import all form components
+import {
+  BannerHeaderForm,
+  MegaMenuForm,
+  SearchSloganForm,
+  SliderForm,
+  TrendingKeywordsForm,
+  ProductsSectionForm,
+  NewsSectionForm,
+  VideoSectionForm,
+  LeftSidebarForm,
+  RightSidebarForm,
+} from './forms';
 
 const { Title, Text } = Typography;
 
@@ -51,44 +56,82 @@ export default function HomepageEditorPage() {
   const [videoSectionState, setVideoSectionState] = useState<PageSection | null>(null);
   const [leftSidebarSection, setLeftSidebarSection] = useState<PageSection | null>(null);
   const [rightSidebarSection, setRightSidebarSection] = useState<PageSection | null>(null);
-  
-  // Modal states
-  const [bannerHeaderModalOpen, setBannerHeaderModalOpen] = useState(false);
-  const [megaMenuModalOpen, setMegaMenuModalOpen] = useState(false);
-  const [searchSloganModalOpen, setSearchSloganModalOpen] = useState(false);
-  const [sliderModalOpen, setSliderModalOpen] = useState(false);
-  const [trendingKeywordsModalOpen, setTrendingKeywordsModalOpen] = useState(false);
-  const [productsSectionModalOpen, setProductsSectionModalOpen] = useState(false);
-  const [newsSectionModalOpen, setNewsSectionModalOpen] = useState(false);
-  const [videoSectionModalOpen, setVideoSectionModalOpen] = useState(false);
-  const [leftSidebarModalOpen, setLeftSidebarModalOpen] = useState(false);
-  const [rightSidebarModalOpen, setRightSidebarModalOpen] = useState(false);
 
-  // Check if there are any changes
+  // Forms for sections with simple inputs (need controlled forms)
+  const [bannerHeaderForm] = Form.useForm();
+  const [searchSloganForm] = Form.useForm();
+  const [productsSectionForm] = Form.useForm();
+  const [newsSectionForm] = Form.useForm();
+  const [leftSidebarForm] = Form.useForm();
+
+  // Store ORIGINAL state (snapshot when loaded from API) for comparison
+  const [originalSections, setOriginalSections] = useState<{
+    bannerHeader?: PageSection;
+    megaMenu?: PageSection;
+    searchSlogan?: PageSection;
+    slider?: PageSection;
+    trendingKeywords?: PageSection;
+    products?: PageSection;
+    news?: PageSection;
+    video?: PageSection;
+    leftSidebar?: PageSection;
+    rightSidebar?: PageSection;
+  }>({});
+
+  // Check if there are any changes (compare CURRENT state vs ORIGINAL snapshot)
   const hasChanges = useMemo(() => {
-    if (!sections) return false;
+    // Need original snapshot to compare
+    if (!originalSections || Object.keys(originalSections).length === 0) {
+      return false;
+    }
 
-    const compareContent = (original: Record<string, unknown> | undefined, current: Record<string, unknown> | undefined): boolean => {
-      return JSON.stringify(original) !== JSON.stringify(current);
+    // Helper to check for pending file uploads
+    const hasPendingUpload = (obj: unknown): boolean => {
+      if (obj && typeof obj === 'object' && 'file' in obj) return true;
+      if (Array.isArray(obj)) return obj.some(item => hasPendingUpload(item));
+      if (obj && typeof obj === 'object') return Object.values(obj).some(val => hasPendingUpload(val));
+      return false;
     };
 
-    const checkSection = (identifier: string, currentSection: PageSection | null) => {
-      const original = sections.find(s => s.section_identifier === identifier);
-      return original && currentSection && compareContent(original.content, currentSection.content);
+    // Compare function - returns true if changed
+    const hasChanged = (original: PageSection | undefined, current: PageSection | null): boolean => {
+      if (!original || !current) return false;
+      
+      // If current state has pending uploads, consider it changed
+      if (hasPendingUpload(current.content)) {
+        console.log('✅ Has pending uploads');
+        return true;
+      }
+
+      // Compare content (deep comparison via JSON)
+      const isContentChanged = JSON.stringify(original.content) !== JSON.stringify(current.content);
+      if (isContentChanged) {
+        console.log('✅ Content changed:', { 
+          section: current.section_identifier,
+          original: original.content, 
+          current: current.content 
+        });
+      }
+      return isContentChanged;
     };
 
-    return checkSection('banner_header', bannerHeaderSection) ||
-           checkSection('mega_menu', megaMenuSection) ||
-           checkSection('search_slogan', searchSloganSection) ||
-           checkSection('slider_section', sliderSection) ||
-           checkSection('trending_keywords_section', trendingKeywordsSection) ||
-           checkSection('products_section', productsSectionState) ||
-           checkSection('news_section', newsSectionState) ||
-           checkSection('video_section', videoSectionState) ||
-           checkSection('left_sidebar', leftSidebarSection) ||
-           checkSection('right_sidebar', rightSidebarSection);
+    // Check all sections
+    const result = 
+      hasChanged(originalSections.bannerHeader, bannerHeaderSection) ||
+      hasChanged(originalSections.megaMenu, megaMenuSection) ||
+      hasChanged(originalSections.searchSlogan, searchSloganSection) ||
+      hasChanged(originalSections.slider, sliderSection) ||
+      hasChanged(originalSections.trendingKeywords, trendingKeywordsSection) ||
+      hasChanged(originalSections.products, productsSectionState) ||
+      hasChanged(originalSections.news, newsSectionState) ||
+      hasChanged(originalSections.video, videoSectionState) ||
+      hasChanged(originalSections.leftSidebar, leftSidebarSection) ||
+      hasChanged(originalSections.rightSidebar, rightSidebarSection);
+
+    console.log('🎯 hasChanges result:', result);
+    return result;
   }, [
-    sections,
+    originalSections,
     bannerHeaderSection,
     megaMenuSection,
     searchSloganSection,
@@ -102,63 +145,90 @@ export default function HomepageEditorPage() {
   ]);
 
   // Initialize sections from API data
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => {
     if (sections) {
       const getSection = (identifier: string) => sections.find(s => s.section_identifier === identifier);
 
-      setBannerHeaderSection(getSection('banner_header') || {
+      const bannerHeader = getSection('banner_header') || {
         id: '', page_identifier: 'homepage', section_identifier: 'banner_header',
         content: {}, sort_order: 0, is_active: true, created_at: '', updated_at: '',
-      });
+      };
 
-      setMegaMenuSection(getSection('mega_menu') || {
+      const megaMenu = getSection('mega_menu') || {
         id: '', page_identifier: 'homepage', section_identifier: 'mega_menu',
         content: { static_items: [] }, sort_order: 1, is_active: true, created_at: '', updated_at: '',
-      });
+      };
 
-      setSearchSloganSection(getSection('search_slogan') || {
+      const searchSlogan = getSection('search_slogan') || {
         id: '', page_identifier: 'homepage', section_identifier: 'search_slogan',
         content: { slogan_text: '' }, sort_order: 2, is_active: true, created_at: '', updated_at: '',
-      });
+      };
 
-      setSliderSection(getSection('slider_section') || {
+      const slider = getSection('slider_section') || {
         id: '', page_identifier: 'homepage', section_identifier: 'slider_section',
         content: { slides: [], mini_ads: [], slider_settings: {}, mini_ad_settings: {} },
         sort_order: 3, is_active: true, created_at: '', updated_at: '',
-      });
+      };
 
-      setTrendingKeywordsSection(getSection('trending_keywords_section') || {
+      const trendingKeywords = getSection('trending_keywords_section') || {
         id: '', page_identifier: 'homepage', section_identifier: 'trending_keywords_section',
         content: { title: 'Xu hướng tìm kiếm:', show_icon: true, keywords: [] },
         sort_order: 4, is_active: true, created_at: '', updated_at: '',
-      });
+      };
 
-      setProductsSectionState(getSection('products_section') || {
+      const products = getSection('products_section') || {
         id: '', page_identifier: 'homepage', section_identifier: 'products_section',
         content: { title: 'Phụ tùng xe', limit: 6, mode: 'auto', filter_by: 'latest', show_price: true },
         sort_order: 5, is_active: true, created_at: '', updated_at: '',
-      });
+      };
 
-      setNewsSectionState(getSection('news_section') || {
+      const news = getSection('news_section') || {
         id: '', page_identifier: 'homepage', section_identifier: 'news_section',
         content: { title: 'Tin tức xe', limit: 6, mode: 'auto', display_mode: 'grid', show_thumbnail: true },
         sort_order: 6, is_active: true, created_at: '', updated_at: '',
-      });
+      };
 
-      setVideoSectionState(getSection('video_section') || {
+      const video = getSection('video_section') || {
         id: '', page_identifier: 'homepage', section_identifier: 'video_section',
         content: { title: 'Video', videos: [], layout_mode: 'carousel' },
         sort_order: 7, is_active: true, created_at: '', updated_at: '',
-      });
+      };
 
-      setLeftSidebarSection(getSection('left_sidebar') || {
+      const leftSidebar = getSection('left_sidebar') || {
         id: '', page_identifier: 'homepage', section_identifier: 'left_sidebar',
         content: { show_all: true, max_items: 8 }, sort_order: 8, is_active: true, created_at: '', updated_at: '',
-      });
+      };
 
-      setRightSidebarSection(getSection('right_sidebar') || {
+      const rightSidebar = getSection('right_sidebar') || {
         id: '', page_identifier: 'homepage', section_identifier: 'right_sidebar',
         content: { news_items: [] }, sort_order: 9, is_active: true, created_at: '', updated_at: '',
+      };
+
+      // Set current state
+      setBannerHeaderSection(bannerHeader);
+      setMegaMenuSection(megaMenu);
+      setSearchSloganSection(searchSlogan);
+      setSliderSection(slider);
+      setTrendingKeywordsSection(trendingKeywords);
+      setProductsSectionState(products);
+      setNewsSectionState(news);
+      setVideoSectionState(video);
+      setLeftSidebarSection(leftSidebar);
+      setRightSidebarSection(rightSidebar);
+
+      // Store ORIGINAL snapshot for comparison (deep clone to avoid reference issues)
+      setOriginalSections({
+        bannerHeader: JSON.parse(JSON.stringify(bannerHeader)),
+        megaMenu: JSON.parse(JSON.stringify(megaMenu)),
+        searchSlogan: JSON.parse(JSON.stringify(searchSlogan)),
+        slider: JSON.parse(JSON.stringify(slider)),
+        trendingKeywords: JSON.parse(JSON.stringify(trendingKeywords)),
+        products: JSON.parse(JSON.stringify(products)),
+        news: JSON.parse(JSON.stringify(news)),
+        video: JSON.parse(JSON.stringify(video)),
+        leftSidebar: JSON.parse(JSON.stringify(leftSidebar)),
+        rightSidebar: JSON.parse(JSON.stringify(rightSidebar)),
       });
     }
   }, [sections]);
@@ -170,423 +240,508 @@ export default function HomepageEditorPage() {
         !videoSectionState || !leftSidebarSection || !rightSidebarSection) return;
 
     try {
+      message.loading({ content: 'Processing uploads...', key: 'upload', duration: 0 });
+
+      // Process BannerHeader uploads
+      const bannerHeaderContent = bannerHeaderSection.content as unknown as BannerHeaderContentDraft;
+      const processedBannerHeader: BannerHeaderContent = {
+        ...bannerHeaderContent,
+        logo_media_id: await processMediaValue(
+          bannerHeaderContent.logo_media_id as MediaValue, 
+          'homepage/logo'
+        ),
+        banner_media_id: await processMediaValue(
+          bannerHeaderContent.banner_media_id as MediaValue,
+          'homepage/banner'
+        ),
+      };
+
+      // Process Slider uploads
+      const sliderContent = sliderSection.content as unknown as SliderContent;
+      const processedSlider: SliderContent = {
+        ...sliderContent,
+        slides: await processMediaArray(
+          sliderContent.slides || [],
+          'homepage/slider'
+        ),
+        mini_ads: await processMediaArray(
+          sliderContent.mini_ads || [],
+          'homepage/mini-ads'
+        ),
+      };
+
+      // Process Video Section uploads
+      const videoContent = videoSectionState.content as unknown as VideoSectionContent;
+      const processedVideos = await Promise.all(
+        (videoContent.videos || []).map(async (video) => ({
+          ...video,
+          thumbnail: await processMediaValue(video.thumbnail as MediaValue, 'homepage/video-thumbnails'),
+        }))
+      );
+      const processedVideoSection: VideoSectionContent = {
+        ...videoContent,
+        videos: processedVideos,
+      };
+
+      // Process RightSidebar promotional banners
+      const rightSidebarContent = rightSidebarSection.content as unknown as RightSidebarContent;
+      const processedRightSidebar: RightSidebarContent = {
+        ...rightSidebarContent,
+        promotional_banners: await processMediaArray(
+          rightSidebarContent.promotional_banners || [],
+          'homepage/promotional-banners'
+        ),
+      };
+
+      message.loading({ content: 'Saving changes...', key: 'upload' });
+
       await updateSections({
         pageIdentifier: 'homepage',
         data: {
           sections: [
-            { sectionIdentifier: 'banner_header', content: bannerHeaderSection.content, sortOrder: 0, isActive: true },
+            { sectionIdentifier: 'banner_header', content: processedBannerHeader as unknown as Record<string, unknown>, sortOrder: 0, isActive: true },
             { sectionIdentifier: 'mega_menu', content: megaMenuSection.content, sortOrder: 1, isActive: true },
             { sectionIdentifier: 'search_slogan', content: searchSloganSection.content, sortOrder: 2, isActive: true },
-            { sectionIdentifier: 'slider_section', content: sliderSection.content, sortOrder: 3, isActive: true },
+            { sectionIdentifier: 'slider_section', content: processedSlider as unknown as Record<string, unknown>, sortOrder: 3, isActive: true },
             { sectionIdentifier: 'trending_keywords_section', content: trendingKeywordsSection.content, sortOrder: 4, isActive: true },
             { sectionIdentifier: 'products_section', content: productsSectionState.content, sortOrder: 5, isActive: true },
             { sectionIdentifier: 'news_section', content: newsSectionState.content, sortOrder: 6, isActive: true },
-            { sectionIdentifier: 'video_section', content: videoSectionState.content, sortOrder: 7, isActive: true },
+            { sectionIdentifier: 'video_section', content: processedVideoSection as unknown as Record<string, unknown>, sortOrder: 7, isActive: true },
             { sectionIdentifier: 'left_sidebar', content: leftSidebarSection.content, sortOrder: 8, isActive: true },
-            { sectionIdentifier: 'right_sidebar', content: rightSidebarSection.content, sortOrder: 9, isActive: true },
+            { sectionIdentifier: 'right_sidebar', content: processedRightSidebar as unknown as Record<string, unknown>, sortOrder: 9, isActive: true },
           ],
         },
       }).unwrap();
 
-      message.success(t('saveSuccess'));
+      message.destroy('upload');
+      message.success(t('saveSuccess') || 'Saved successfully!');
+      
+      // Update ORIGINAL snapshot after successful save (so hasChanges resets to false)
+      setOriginalSections({
+        bannerHeader: JSON.parse(JSON.stringify(bannerHeaderSection)),
+        megaMenu: JSON.parse(JSON.stringify(megaMenuSection)),
+        searchSlogan: JSON.parse(JSON.stringify(searchSloganSection)),
+        slider: JSON.parse(JSON.stringify(sliderSection)),
+        trendingKeywords: JSON.parse(JSON.stringify(trendingKeywordsSection)),
+        products: JSON.parse(JSON.stringify(productsSectionState)),
+        news: JSON.parse(JSON.stringify(newsSectionState)),
+        video: JSON.parse(JSON.stringify(videoSectionState)),
+        leftSidebar: JSON.parse(JSON.stringify(leftSidebarSection)),
+        rightSidebar: JSON.parse(JSON.stringify(rightSidebarSection)),
+      });
     } catch (error) {
+      message.destroy('upload');
       console.error('Save error:', error);
       if (error instanceof Error) {
         message.error(`${t('saveFailed')}: ${error.message}`);
       } else {
-        message.error(t('saveFailed'));
+        message.error(t('saveFailed') || 'Save failed');
       }
     }
   };
 
   if (isLoading) {
     return (
-      <div style={{ textAlign: 'center', padding: '100px 0' }}>
-        <Spin size="large" />
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
+        <Spin size="large" tip="Loading homepage editor...">
+          <div style={{ padding: 50 }} />
+        </Spin>
       </div>
     );
   }
 
   return (
-    <div>
-      {/* Header */}
-      <div style={{ marginBottom: 24 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+    <div style={{ padding: '24px', minHeight: '100vh', backgroundColor: '#f5f5f5' }}>
+      {/* Header with Save Button */}
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: '24px',
+        backgroundColor: '#fff',
+        padding: '16px 24px',
+        borderRadius: '8px',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+      }}>
+        <div>
           <Title level={2} style={{ margin: 0 }}>
-            {t('title')}
+            Homepage Editor
           </Title>
-          <Space>
-            <Button
-              type="primary"
-              icon={<SaveOutlined />}
-              size="large"
-              onClick={handleSaveAll}
-              loading={isSaving}
-              disabled={!hasChanges || isSaving}
-            >
-              {isSaving ? t('saving') : t('saveAll')}
-            </Button>
-          </Space>
+          <Text type="secondary">
+            Manage your homepage layout and content sections
+          </Text>
         </div>
-        <Text type="secondary">{t('subtitle')}</Text>
+
+        <Space>
+          {hasChanges && (
+            <Badge status="warning" text="Unsaved changes" />
+          )}
+          <Button
+            type="primary"
+            size="large"
+            icon={<SaveOutlined />}
+            onClick={handleSaveAll}
+            loading={isSaving}
+            disabled={!hasChanges}
+          >
+            Save All Changes
+          </Button>
+        </Space>
       </div>
 
-      <Row gutter={[24, 24]}>
-        {/* Sidebar - Section List */}
-        <Col xs={24} md={6}>
-          <Card title="Sections" style={{ position: 'sticky', top: 80 }}>
-            <Space direction="vertical" style={{ width: '100%' }} size="small">
-              <Text type="secondary" strong style={{ fontSize: 12 }}>LAYOUT SECTIONS</Text>
-              <Button type="text" block style={{ textAlign: 'left', justifyContent: 'flex-start' }}
-                onClick={() => document.getElementById('banner-header-section')?.scrollIntoView({ behavior: 'smooth' })}>
-                1. Banner Header
-              </Button>
-              <Button type="text" block style={{ textAlign: 'left', justifyContent: 'flex-start' }}
-                onClick={() => document.getElementById('mega-menu-section')?.scrollIntoView({ behavior: 'smooth' })}>
-                2. Mega Menu
-              </Button>
-              <Button type="text" block style={{ textAlign: 'left', justifyContent: 'flex-start' }}
-                onClick={() => document.getElementById('search-slogan-section')?.scrollIntoView({ behavior: 'smooth' })}>
-                3. Search Slogan
-              </Button>
-              <Button type="text" block style={{ textAlign: 'left', justifyContent: 'flex-start' }}
-                onClick={() => document.getElementById('slider-section')?.scrollIntoView({ behavior: 'smooth' })}>
-                4. Slider Section
-              </Button>
-              
-              <div style={{ margin: '12px 0' }} />
-              <Text type="secondary" strong style={{ fontSize: 12 }}>HOMEPAGE CONTENT</Text>
-              <Button type="text" block style={{ textAlign: 'left', justifyContent: 'flex-start' }}
-                onClick={() => document.getElementById('trending-keywords-section')?.scrollIntoView({ behavior: 'smooth' })}>
-                5. Trending Keywords
-              </Button>
-              <Button type="text" block style={{ textAlign: 'left', justifyContent: 'flex-start' }}
-                onClick={() => document.getElementById('products-section')?.scrollIntoView({ behavior: 'smooth' })}>
-                6. Products Section
-              </Button>
-              <Button type="text" block style={{ textAlign: 'left', justifyContent: 'flex-start' }}
-                onClick={() => document.getElementById('news-section')?.scrollIntoView({ behavior: 'smooth' })}>
-                7. News Section
-              </Button>
-              <Button type="text" block style={{ textAlign: 'left', justifyContent: 'flex-start' }}
-                onClick={() => document.getElementById('video-section')?.scrollIntoView({ behavior: 'smooth' })}>
-                8. Video Section
-              </Button>
-              <Button type="text" block style={{ textAlign: 'left', justifyContent: 'flex-start' }}
-                onClick={() => document.getElementById('left-sidebar-section')?.scrollIntoView({ behavior: 'smooth' })}>
-                9. Left Sidebar
-              </Button>
-              <Button type="text" block style={{ textAlign: 'left', justifyContent: 'flex-start' }}
-                onClick={() => document.getElementById('right-sidebar-section')?.scrollIntoView({ behavior: 'smooth' })}>
-                10. Right Sidebar
-              </Button>
-            </Space>
-          </Card>
-        </Col>
+      {/* Tabs + Collapse Layout */}
+      <div style={{
+        backgroundColor: '#fff',
+        borderRadius: '8px',
+        padding: '24px',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+      }}>
+        <Tabs
+          defaultActiveKey="layout"
+          size="large"
+          tabBarStyle={{
+            marginBottom: '24px',
+            borderBottom: '2px solid #f0f0f0',
+          }}
+          items={[
+            // Tab 1: Layout Sections
+            {
+              key: 'layout',
+              label: (
+                <span style={{ fontSize: '15px', fontWeight: 500 }}>
+                  <span style={{ fontSize: '18px', marginRight: '8px' }}>📐</span>
+                  Layout Sections
+                </span>
+              ),
+              children: (
+                <Collapse
+                  accordion
+                  expandIconPosition="end"
+                  style={{
+                    backgroundColor: 'transparent',
+                    border: 'none',
+                  }}
+                  items={[
+                    {
+                      key: 'banner-header',
+                      label: (
+                        <Space>
+                          <Text strong style={{ fontSize: 15 }}>1. Banner Header</Text>
+                          <Text type="secondary" style={{ fontSize: 12 }}>
+                            (Logo, Banner, Hotlines)
+                          </Text>
+                        </Space>
+                      ),
+                      children: bannerHeaderSection ? (
+                        <div style={{ padding: '16px', backgroundColor: '#fafafa', borderRadius: '4px' }}>
+                          <BannerHeaderForm
+                            content={bannerHeaderSection.content as unknown as BannerHeaderContentDraft}
+                            onChange={(newContent) => {
+                              console.log('🔄 BannerHeader onChange called:', newContent);
+                              const updatedSection = {
+                                ...bannerHeaderSection,
+                                content: newContent as unknown as Record<string, unknown>,
+                              };
+                              console.log('📦 Setting bannerHeaderSection to:', updatedSection);
+                              setBannerHeaderSection(updatedSection);
+                            }}
+                            form={bannerHeaderForm}
+                          />
+                        </div>
+                      ) : null,
+                      style: {
+                        marginBottom: '12px',
+                        border: '1px solid #e0e0e0',
+                        borderRadius: '8px',
+                        backgroundColor: '#fff',
+                      },
+                    },
+                    {
+                      key: 'mega-menu',
+                      label: (
+                        <Space>
+                          <Text strong style={{ fontSize: 15 }}>2. Mega Menu</Text>
+                          <Text type="secondary" style={{ fontSize: 12 }}>
+                            (Static Menu Items)
+                          </Text>
+                        </Space>
+                      ),
+                      children: megaMenuSection ? (
+                        <div style={{ padding: '16px', backgroundColor: '#fafafa', borderRadius: '4px' }}>
+                          <MegaMenuForm
+                            content={megaMenuSection.content as unknown as MegaMenuContent}
+                            onChange={(newContent) => {
+                              setMegaMenuSection({
+                                ...megaMenuSection,
+                                content: newContent as unknown as Record<string, unknown>,
+                              });
+                            }}
+                          />
+                        </div>
+                      ) : null,
+                      style: {
+                        marginBottom: '12px',
+                        border: '1px solid #e0e0e0',
+                        borderRadius: '8px',
+                        backgroundColor: '#fff',
+                      },
+                    },
+                    {
+                      key: 'search-slogan',
+                      label: (
+                        <Space>
+                          <Text strong style={{ fontSize: 15 }}>3. Search Slogan</Text>
+                          <Text type="secondary" style={{ fontSize: 12 }}>
+                            (Marquee Text)
+                          </Text>
+                        </Space>
+                      ),
+                      children: searchSloganSection ? (
+                        <div style={{ padding: '16px', backgroundColor: '#fafafa', borderRadius: '4px' }}>
+                          <SearchSloganForm
+                            content={searchSloganSection.content as unknown as SearchSloganContent}
+                            onChange={(newContent) => {
+                              setSearchSloganSection({
+                                ...searchSloganSection,
+                                content: newContent as unknown as Record<string, unknown>,
+                              });
+                            }}
+                            form={searchSloganForm}
+                          />
+                        </div>
+                      ) : null,
+                      style: {
+                        marginBottom: '12px',
+                        border: '1px solid #e0e0e0',
+                        borderRadius: '8px',
+                        backgroundColor: '#fff',
+                      },
+                    },
+                  ]}
+                />
+              ),
+            },
 
-        {/* Main Content - Section Editors */}
-        <Col xs={24} md={18}>
-          <Space direction="vertical" size="large" style={{ width: '100%' }}>
-            {/* Banner Header Section */}
-            <Card id="banner-header-section" title={
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span>Banner Header</span>
-                <Button type="primary" icon={<PlusOutlined />} onClick={() => setBannerHeaderModalOpen(true)}>
-                  Edit Banner Header
-                </Button>
-              </div>
-            }>
-              <Text type="secondary">Logo, banner image, and hotline numbers</Text>
-            </Card>
+            // Tab 2: Homepage Content
+            {
+              key: 'content',
+              label: (
+                <span>
+                  <span style={{ fontSize: '16px', marginRight: '8px' }}>📦</span>
+                  Homepage Content
+                </span>
+              ),
+              children: (
+                <Collapse
+                  accordion
+                  style={{ backgroundColor: '#fafafa' }}
+                  items={[
+                    {
+                      key: 'slider',
+                      label: (
+                        <Space>
+                          <Text strong>4. Slider Section</Text>
+                          <Text type="secondary" style={{ fontSize: 12 }}>
+                            (Main Slider + Mini Ads)
+                          </Text>
+                        </Space>
+                      ),
+                      children: sliderSection ? (
+                        <SliderForm
+                          content={sliderSection.content as unknown as SliderContent}
+                          onChange={(newContent) => {
+                            setSliderSection({
+                              ...sliderSection,
+                              content: newContent as unknown as Record<string, unknown>,
+                            });
+                          }}
+                        />
+                      ) : null,
+                    },
+                    {
+                      key: 'trending-keywords',
+                      label: (
+                        <Space>
+                          <Text strong>5. Trending Keywords</Text>
+                          <Text type="secondary" style={{ fontSize: 12 }}>
+                            (Search Suggestions)
+                          </Text>
+                        </Space>
+                      ),
+                      children: trendingKeywordsSection ? (
+                        <TrendingKeywordsForm
+                          content={trendingKeywordsSection.content as unknown as TrendingKeywordsContent}
+                          onChange={(newContent) => {
+                            setTrendingKeywordsSection({
+                              ...trendingKeywordsSection,
+                              content: newContent as unknown as Record<string, unknown>,
+                            });
+                          }}
+                        />
+                      ) : null,
+                    },
+                    {
+                      key: 'products',
+                      label: (
+                        <Space>
+                          <Text strong>6. Products Section</Text>
+                          <Text type="secondary" style={{ fontSize: 12 }}>
+                            (Product Grid)
+                          </Text>
+                        </Space>
+                      ),
+                      children: productsSectionState ? (
+                        <ProductsSectionForm
+                          content={productsSectionState.content as unknown as ProductsSectionContent}
+                          onChange={(newContent) => {
+                            setProductsSectionState({
+                              ...productsSectionState,
+                              content: newContent as unknown as Record<string, unknown>,
+                            });
+                          }}
+                          form={productsSectionForm}
+                        />
+                      ) : null,
+                    },
+                    {
+                      key: 'news',
+                      label: (
+                        <Space>
+                          <Text strong>7. News Section</Text>
+                          <Text type="secondary" style={{ fontSize: 12 }}>
+                            (News Grid/List)
+                          </Text>
+                        </Space>
+                      ),
+                      children: newsSectionState ? (
+                        <NewsSectionForm
+                          content={newsSectionState.content as unknown as NewsSectionContent}
+                          onChange={(newContent) => {
+                            setNewsSectionState({
+                              ...newsSectionState,
+                              content: newContent as unknown as Record<string, unknown>,
+                            });
+                          }}
+                          form={newsSectionForm}
+                        />
+                      ) : null,
+                    },
+                    {
+                      key: 'videos',
+                      label: (
+                        <Space>
+                          <Text strong>8. Video Section</Text>
+                          <Text type="secondary" style={{ fontSize: 12 }}>
+                            (Video Carousel/Grid)
+                          </Text>
+                        </Space>
+                      ),
+                      children: videoSectionState ? (
+                        <VideoSectionForm
+                          content={videoSectionState.content as unknown as VideoSectionContent}
+                          onChange={(newContent) => {
+                            setVideoSectionState({
+                              ...videoSectionState,
+                              content: newContent as unknown as Record<string, unknown>,
+                            });
+                          }}
+                        />
+                      ) : null,
+                    },
+                  ]}
+                />
+              ),
+            },
 
-            {/* Mega Menu Section */}
-            <Card id="mega-menu-section" title={
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span>Mega Menu</span>
-                <Button type="primary" icon={<PlusOutlined />} onClick={() => setMegaMenuModalOpen(true)}>
-                  Edit Menu Items
-                </Button>
-              </div>
-            }>
-              {megaMenuSection?.content && (megaMenuSection.content as unknown as MegaMenuContent).static_items?.length > 0 ? (
-                <Text>{(megaMenuSection.content as unknown as MegaMenuContent).static_items.length} menu items configured</Text>
-              ) : (
-                <Text type="secondary">No menu items configured</Text>
-              )}
-            </Card>
+            // Tab 3: Sidebars
+            {
+              key: 'sidebars',
+              label: (
+                <span>
+                  <span style={{ fontSize: '16px', marginRight: '8px' }}>📊</span>
+                  Sidebars
+                </span>
+              ),
+              children: (
+                <Collapse
+                  accordion
+                  style={{ backgroundColor: '#fafafa' }}
+                  items={[
+                    {
+                      key: 'left-sidebar',
+                      label: (
+                        <Space>
+                          <Text strong>9. Left Sidebar</Text>
+                          <Text type="secondary" style={{ fontSize: 12 }}>
+                            (Categories Menu)
+                          </Text>
+                        </Space>
+                      ),
+                      children: leftSidebarSection ? (
+                        <LeftSidebarForm
+                          content={leftSidebarSection.content as unknown as LeftSidebarContent}
+                          onChange={(newContent) => {
+                            setLeftSidebarSection({
+                              ...leftSidebarSection,
+                              content: newContent as unknown as Record<string, unknown>,
+                            });
+                          }}
+                          form={leftSidebarForm}
+                        />
+                      ) : null,
+                    },
+                    {
+                      key: 'right-sidebar',
+                      label: (
+                        <Space>
+                          <Text strong>10. Right Sidebar</Text>
+                          <Text type="secondary" style={{ fontSize: 12 }}>
+                            (News + Promotional Banners)
+                          </Text>
+                        </Space>
+                      ),
+                      children: rightSidebarSection ? (
+                        <RightSidebarForm
+                          content={rightSidebarSection.content as unknown as RightSidebarContent}
+                          onChange={(newContent) => {
+                            setRightSidebarSection({
+                              ...rightSidebarSection,
+                              content: newContent as unknown as Record<string, unknown>,
+                            });
+                          }}
+                        />
+                      ) : null,
+                    },
+                  ]}
+                />
+              ),
+            },
+          ]}
+        />
+      </div>
 
-            {/* Search Slogan Section */}
-            <Card id="search-slogan-section" title={
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span>Search Slogan</span>
-                <Button type="primary" icon={<PlusOutlined />} onClick={() => setSearchSloganModalOpen(true)}>
-                  Edit Slogan
-                </Button>
-              </div>
-            }>
-              {searchSloganSection?.content && (searchSloganSection.content as unknown as SearchSloganContent).slogan_text ? (
-                <Text style={{ fontStyle: 'italic' }}>"{(searchSloganSection.content as unknown as SearchSloganContent).slogan_text}"</Text>
-              ) : (
-                <Text type="secondary">No slogan configured</Text>
-              )}
-            </Card>
-
-            {/* Slider Section */}
-            <Card id="slider-section" title={
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span>Slider Section</span>
-                <Button type="primary" icon={<PlusOutlined />} onClick={() => setSliderModalOpen(true)}>
-                  Edit Slider
-                </Button>
-              </div>
-            }>
-              {sliderSection?.content && (
-                (sliderSection.content as unknown as SliderContent).slides?.length > 0 ||
-                (sliderSection.content as unknown as SliderContent).mini_ads?.length > 0
-              ) ? (
-                <Text>
-                  {(sliderSection.content as unknown as SliderContent).slides?.length || 0} slides, 
-                  {' '}{(sliderSection.content as unknown as SliderContent).mini_ads?.length || 0} mini ads
-                </Text>
-              ) : (
-                <Text type="secondary">No slides configured</Text>
-              )}
-            </Card>
-
-            {/* Trending Keywords Section */}
-            <Card id="trending-keywords-section" title={
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span>Trending Keywords</span>
-                <Button type="primary" icon={<PlusOutlined />} onClick={() => setTrendingKeywordsModalOpen(true)}>
-                  Edit Keywords
-                </Button>
-              </div>
-            }>
-              {trendingKeywordsSection?.content && 
-                (trendingKeywordsSection.content as unknown as TrendingKeywordsContent).keywords?.length > 0 ? (
-                <Text>{(trendingKeywordsSection.content as unknown as TrendingKeywordsContent).keywords.length} keywords configured</Text>
-              ) : (
-                <Text type="secondary">No keywords configured</Text>
-              )}
-            </Card>
-
-            {/* Products Section */}
-            <Card id="products-section" title={
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span>Products Section</span>
-                <Button type="primary" icon={<PlusOutlined />} onClick={() => setProductsSectionModalOpen(true)}>
-                  Edit Products
-                </Button>
-              </div>
-            }>
-              {productsSectionState?.content ? (
-                <Text>
-                  Title: {(productsSectionState.content as unknown as ProductsSectionContent).title}, 
-                  Limit: {(productsSectionState.content as unknown as ProductsSectionContent).limit}, 
-                  Mode: {(productsSectionState.content as unknown as ProductsSectionContent).mode}
-                </Text>
-              ) : (
-                <Text type="secondary">Not configured</Text>
-              )}
-            </Card>
-
-            {/* News Section */}
-            <Card id="news-section" title={
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span>News Section</span>
-                <Button type="primary" icon={<PlusOutlined />} onClick={() => setNewsSectionModalOpen(true)}>
-                  Edit News
-                </Button>
-              </div>
-            }>
-              {newsSectionState?.content ? (
-                <Text>
-                  Title: {(newsSectionState.content as unknown as NewsSectionContent).title}, 
-                  Limit: {(newsSectionState.content as unknown as NewsSectionContent).limit}, 
-                  Mode: {(newsSectionState.content as unknown as NewsSectionContent).mode}
-                </Text>
-              ) : (
-                <Text type="secondary">Not configured</Text>
-              )}
-            </Card>
-
-            {/* Video Section */}
-            <Card id="video-section" title={
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span>Video Section</span>
-                <Button type="primary" icon={<PlusOutlined />} onClick={() => setVideoSectionModalOpen(true)}>
-                  Edit Videos
-                </Button>
-              </div>
-            }>
-              {videoSectionState?.content && (videoSectionState.content as unknown as VideoSectionContent).videos?.length > 0 ? (
-                <Text>{(videoSectionState.content as unknown as VideoSectionContent).videos.length} videos configured</Text>
-              ) : (
-                <Text type="secondary">No videos configured</Text>
-              )}
-            </Card>
-
-            {/* Left Sidebar Section */}
-            <Card id="left-sidebar-section" title={
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span>Left Sidebar</span>
-                <Button type="primary" icon={<PlusOutlined />} onClick={() => setLeftSidebarModalOpen(true)}>
-                  Edit Sidebar
-                </Button>
-              </div>
-            }>
-              <Text type="secondary">Categories tree (auto from database)</Text>
-            </Card>
-
-            {/* Right Sidebar Section */}
-            <Card id="right-sidebar-section" title={
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span>Right Sidebar</span>
-                <Button type="primary" icon={<PlusOutlined />} onClick={() => setRightSidebarModalOpen(true)}>
-                  Edit Sidebar
-                </Button>
-              </div>
-            }>
-              {rightSidebarSection?.content && (rightSidebarSection.content as unknown as RightSidebarContent).news_items?.length > 0 ? (
-                <Text>{(rightSidebarSection.content as unknown as RightSidebarContent).news_items.length} news items configured</Text>
-              ) : (
-                <Text type="secondary">No news items configured</Text>
-              )}
-            </Card>
-          </Space>
-        </Col>
-      </Row>
-
-      {/* All Modals */}
-      <BannerHeaderEditModal
-        open={bannerHeaderModalOpen}
-        onClose={() => setBannerHeaderModalOpen(false)}
-        content={(bannerHeaderSection?.content || {}) as BannerHeaderContent}
-        onSave={(newContent) => {
-          if (bannerHeaderSection) {
-            setBannerHeaderSection({ ...bannerHeaderSection, content: newContent as unknown as Record<string, unknown> } as PageSection);
-          }
-          setBannerHeaderModalOpen(false);
-          message.success('Banner Header updated. Click "Save All" to persist changes.');
-        }}
-      />
-
-      <MegaMenuEditModal
-        open={megaMenuModalOpen}
-        onClose={() => setMegaMenuModalOpen(false)}
-        content={(megaMenuSection?.content || { static_items: [] }) as MegaMenuContent}
-        onSave={(newContent) => {
-          if (megaMenuSection) {
-            setMegaMenuSection({ ...megaMenuSection, content: newContent as unknown as Record<string, unknown> } as PageSection);
-          }
-          setMegaMenuModalOpen(false);
-          message.success('Mega Menu updated. Click "Save All" to persist changes.');
-        }}
-      />
-
-      <SearchSloganEditModal
-        open={searchSloganModalOpen}
-        onClose={() => setSearchSloganModalOpen(false)}
-        content={(searchSloganSection?.content || { slogan_text: '' }) as SearchSloganContent}
-        onSave={(newContent) => {
-          if (searchSloganSection) {
-            setSearchSloganSection({ ...searchSloganSection, content: newContent as unknown as Record<string, unknown> } as PageSection);
-          }
-          setSearchSloganModalOpen(false);
-          message.success('Search Slogan updated. Click "Save All" to persist changes.');
-        }}
-      />
-
-      <SliderEditModal
-        open={sliderModalOpen}
-        onClose={() => setSliderModalOpen(false)}
-        content={(sliderSection?.content || { slides: [], mini_ads: [], slider_settings: {}, mini_ad_settings: {} }) as SliderContent}
-        onSave={(newContent) => {
-          if (sliderSection) {
-            setSliderSection({ ...sliderSection, content: newContent as unknown as Record<string, unknown> } as PageSection);
-          }
-          setSliderModalOpen(false);
-          message.success('Slider updated. Click "Save All" to persist changes.');
-        }}
-      />
-
-      <TrendingKeywordsEditModal
-        open={trendingKeywordsModalOpen}
-        onClose={() => setTrendingKeywordsModalOpen(false)}
-        content={(trendingKeywordsSection?.content || { title: '', show_icon: true, keywords: [] }) as TrendingKeywordsContent}
-        onSave={(newContent) => {
-          if (trendingKeywordsSection) {
-            setTrendingKeywordsSection({ ...trendingKeywordsSection, content: newContent as unknown as Record<string, unknown> } as PageSection);
-          }
-          setTrendingKeywordsModalOpen(false);
-          message.success('Trending Keywords updated. Click "Save All" to persist changes.');
-        }}
-      />
-
-      <ProductsSectionEditModal
-        open={productsSectionModalOpen}
-        onClose={() => setProductsSectionModalOpen(false)}
-        content={(productsSectionState?.content || { title: '', limit: 6, mode: 'auto', filter_by: 'latest', show_price: true }) as ProductsSectionContent}
-        onSave={(newContent) => {
-          if (productsSectionState) {
-            setProductsSectionState({ ...productsSectionState, content: newContent as unknown as Record<string, unknown> } as PageSection);
-          }
-          setProductsSectionModalOpen(false);
-          message.success('Products Section updated. Click "Save All" to persist changes.');
-        }}
-      />
-
-      <NewsSectionEditModal
-        open={newsSectionModalOpen}
-        onClose={() => setNewsSectionModalOpen(false)}
-        content={(newsSectionState?.content || { title: '', limit: 6, mode: 'auto', display_mode: 'grid', show_thumbnail: true }) as NewsSectionContent}
-        onSave={(newContent) => {
-          if (newsSectionState) {
-            setNewsSectionState({ ...newsSectionState, content: newContent as unknown as Record<string, unknown> } as PageSection);
-          }
-          setNewsSectionModalOpen(false);
-          message.success('News Section updated. Click "Save All" to persist changes.');
-        }}
-      />
-
-      <VideoSectionEditModal
-        open={videoSectionModalOpen}
-        onClose={() => setVideoSectionModalOpen(false)}
-        content={(videoSectionState?.content || { title: '', videos: [], layout_mode: 'carousel' }) as VideoSectionContent}
-        onSave={(newContent) => {
-          if (videoSectionState) {
-            setVideoSectionState({ ...videoSectionState, content: newContent as unknown as Record<string, unknown> } as PageSection);
-          }
-          setVideoSectionModalOpen(false);
-          message.success('Video Section updated. Click "Save All" to persist changes.');
-        }}
-      />
-
-      <LeftSidebarEditModal
-        open={leftSidebarModalOpen}
-        onClose={() => setLeftSidebarModalOpen(false)}
-        content={(leftSidebarSection?.content || { show_all: true, max_items: 8 }) as LeftSidebarContent}
-        onSave={(newContent) => {
-          if (leftSidebarSection) {
-            setLeftSidebarSection({ ...leftSidebarSection, content: newContent as unknown as Record<string, unknown> } as PageSection);
-          }
-          setLeftSidebarModalOpen(false);
-          message.success('Left Sidebar updated. Click "Save All" to persist changes.');
-        }}
-      />
-
-      <RightSidebarEditModal
-        open={rightSidebarModalOpen}
-        onClose={() => setRightSidebarModalOpen(false)}
-        content={(rightSidebarSection?.content || { news_items: [] }) as RightSidebarContent}
-        onSave={(newContent) => {
-          if (rightSidebarSection) {
-            setRightSidebarSection({ ...rightSidebarSection, content: newContent as unknown as Record<string, unknown> } as PageSection);
-          }
-          setRightSidebarModalOpen(false);
-          message.success('Right Sidebar updated. Click "Save All" to persist changes.');
-        }}
-      />
+      {/* Floating Save Button (for convenience when scrolled) */}
+      {hasChanges && (
+        <div style={{
+          position: 'fixed',
+          bottom: '24px',
+          right: '24px',
+          zIndex: 1000,
+        }}>
+          <Button
+            type="primary"
+            size="large"
+            icon={<SaveOutlined />}
+            onClick={handleSaveAll}
+            loading={isSaving}
+            style={{
+              boxShadow: '0 4px 16px rgba(0,0,0,0.15)',
+            }}
+          >
+            Save All Changes
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

@@ -10,7 +10,7 @@ import { Upload, Button, App, Spin } from 'antd';
 import { UploadOutlined, DeleteOutlined, LoadingOutlined } from '@ant-design/icons';
 import type { UploadRequestOption } from 'rc-upload/lib/interface';
 import { useTranslations } from 'next-intl';
-import { uploadToSupabase } from '@/utils/supabase';
+import { uploadToPublicBucket } from '@/utils/supabase';
 import { useCreateMediaMutation, useDeleteMediaMutation } from '@/store/api/mediaApi';
 import type { Media, MediaType } from '@/types/media';
 import { ProductImage } from './ProductImage';
@@ -47,8 +47,8 @@ export const CategoryImageUpload = ({
     try {
       setUploading(true);
 
-      // Step 1: Upload to Supabase Storage using common utility
-      const { path: relativePath } = await uploadToSupabase(file, 'category');
+      // Step 1: Upload to Supabase Storage (public bucket)
+      const { path: relativePath } = await uploadToPublicBucket(file, 'category');
 
       // Step 2: Create Media record in database
       const mediaData = await createMedia({

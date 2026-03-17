@@ -25,7 +25,7 @@ import { CategoryMultiSelect } from '@/components/common/CategoryMultiSelect';
 import { ProductMediaUpload, MediaFile } from '@/components/common/ProductMediaUpload';
 import { isValidSlug, generateSlug } from '@/utils/slug';
 import { getErrorMessage } from '@/utils/error';
-import { uploadToSupabase } from '@/utils/supabase';
+import { uploadToPublicBucket } from '@/utils/supabase';
 
 interface ProductFormValues {
   name: string;
@@ -181,7 +181,7 @@ export function ProductForm({ mode, product, isLoading }: ProductFormProps) {
                   size: mediaFile.file.size,
                 });
 
-                const result = await uploadToSupabase(
+                const result = await uploadToPublicBucket(
                   mediaFile.file,
                   `products/${newProduct.id}`
                 );
@@ -259,7 +259,7 @@ export function ProductForm({ mode, product, isLoading }: ProductFormProps) {
                 size: mediaFile.file!.size,
               });
 
-              const result = await uploadToSupabase(
+              const result = await uploadToPublicBucket(
                 mediaFile.file!,
                 `products/${product!.id}`
               );

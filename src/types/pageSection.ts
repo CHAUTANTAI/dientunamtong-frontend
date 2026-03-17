@@ -1,5 +1,7 @@
 // Page Section Types
 
+import type { MediaValue } from '@/components/common/MediaUpload';
+
 export interface PageSection {
   id: string;
   page_identifier: string;
@@ -16,11 +18,18 @@ export interface PageSection {
 // ============================================
 
 // BannerHeader Section (Logo + Banner Image + Hotlines)
+// Client version - from API, already processed
 export interface BannerHeaderContent {
-  logo_media_id?: string;          // Company logo
-  banner_media_id?: string;        // Banner image
+  logo_media_id?: string;          // Company logo (media path from API)
+  banner_media_id?: string;        // Banner image (media path from API)
   primary_hotline?: string;        // Main phone number
   secondary_hotline?: string;      // Secondary phone number
+}
+
+// Admin version - includes unsaved pending uploads
+export interface BannerHeaderContentDraft extends Omit<BannerHeaderContent, 'logo_media_id' | 'banner_media_id'> {
+  logo_media_id?: MediaValue;      // Can be string path or PendingUpload object
+  banner_media_id?: MediaValue;    // Can be string path or PendingUpload object
 }
 
 // MegaMenu Section (Static menu items like "Bảng giá", "Tem xe", "Video")
