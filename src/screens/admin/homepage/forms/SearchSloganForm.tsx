@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import { Form, Input, Typography } from 'antd';
 import type { SearchSloganContent } from '@/types/pageSection';
+import { useDebounce } from '@/hooks/useDebounce';
 
 const { Text, Paragraph } = Typography;
 
@@ -27,9 +28,21 @@ export default function SearchSloganForm({
     });
   }, [content, form]);
 
-  const handleValuesChange = (_: unknown, allValues: Record<string, string>) => {
-    onChange({ slogan_text: allValues.slogan_text || '' });
-  };
+  // Get current form values with debounce
+  const formValues = Form.useWatch([], form) || {};
+  const debouncedFormValues = useDebounce(formValues, 500);
+
+  // Handle debounced changes (avoid infinite loop with deep comparison)
+  useEffect(() => {
+    if (Object.keys(debouncedFormValues).length > 0) {
+      const newSloganText = debouncedFormValues.slogan_text || '';
+      
+      // Only call onChange if value actually changed
+      if (newSloganText !== (content?.slogan_text || '')) {
+        onChange({ slogan_text: newSloganText });
+      }
+    }
+  }, [debouncedFormValues, content?.slogan_text, onChange]);
 
   const charCount = form.getFieldValue('slogan_text')?.length || 0;
 
@@ -37,7 +50,6 @@ export default function SearchSloganForm({
     <Form
       form={form}
       layout="vertical"
-      onValuesChange={handleValuesChange}
     >
       <Text strong>Marquee Slogan Text</Text>
       <Paragraph type="secondary" style={{ marginTop: 4, marginBottom: 8 }}>
@@ -53,7 +65,7 @@ export default function SearchSloganForm({
         style={{ marginBottom: 8 }}
       >
         <Input.TextArea
-          placeholder="e.g., Chuyên cung cấp phụ tùng, đồ chơi xe máy chính hãng..."
+          placeholder="Enter your slogan text here..."
           rows={3}
           maxLength={500}
           showCount={{

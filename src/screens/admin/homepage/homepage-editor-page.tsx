@@ -14,8 +14,6 @@ import type {
   SliderContent,
   TrendingKeywordsContent,
   ProductsSectionContent,
-  NewsSectionContent,
-  VideoSectionContent,
   LeftSidebarContent,
   RightSidebarContent,
 } from '@/types/pageSection';
@@ -30,11 +28,10 @@ import {
   SliderForm,
   TrendingKeywordsForm,
   ProductsSectionForm,
-  NewsSectionForm,
-  VideoSectionForm,
   LeftSidebarForm,
   RightSidebarForm,
 } from './forms';
+import HomepageLayoutPreview from '@/components/admin/HomepageLayoutPreview';
 
 const { Title, Text } = Typography;
 
@@ -45,6 +42,10 @@ export default function HomepageEditorPage() {
   const { data: sections, isLoading } = useGetPageSectionsQuery('homepage');
   const [updateSections, { isLoading: isSaving }] = useUpdatePageSectionsMutation();
 
+  // State for tracking active section in preview
+  const [activeTab, setActiveTab] = useState<string>('layout');
+  const [activeCollapseKey, setActiveCollapseKey] = useState<string[]>([]);
+
   // State for all 10 sections
   const [bannerHeaderSection, setBannerHeaderSection] = useState<PageSection | null>(null);
   const [megaMenuSection, setMegaMenuSection] = useState<PageSection | null>(null);
@@ -52,17 +53,12 @@ export default function HomepageEditorPage() {
   const [sliderSection, setSliderSection] = useState<PageSection | null>(null);
   const [trendingKeywordsSection, setTrendingKeywordsSection] = useState<PageSection | null>(null);
   const [productsSectionState, setProductsSectionState] = useState<PageSection | null>(null);
-  const [newsSectionState, setNewsSectionState] = useState<PageSection | null>(null);
-  const [videoSectionState, setVideoSectionState] = useState<PageSection | null>(null);
   const [leftSidebarSection, setLeftSidebarSection] = useState<PageSection | null>(null);
   const [rightSidebarSection, setRightSidebarSection] = useState<PageSection | null>(null);
 
   // Forms for sections with simple inputs (need controlled forms)
   const [bannerHeaderForm] = Form.useForm();
   const [searchSloganForm] = Form.useForm();
-  const [productsSectionForm] = Form.useForm();
-  const [newsSectionForm] = Form.useForm();
-  const [leftSidebarForm] = Form.useForm();
 
   // Store ORIGINAL state (snapshot when loaded from API) for comparison
   const [originalSections, setOriginalSections] = useState<{
@@ -72,8 +68,6 @@ export default function HomepageEditorPage() {
     slider?: PageSection;
     trendingKeywords?: PageSection;
     products?: PageSection;
-    news?: PageSection;
-    video?: PageSection;
     leftSidebar?: PageSection;
     rightSidebar?: PageSection;
   }>({});
@@ -123,8 +117,6 @@ export default function HomepageEditorPage() {
       hasChanged(originalSections.slider, sliderSection) ||
       hasChanged(originalSections.trendingKeywords, trendingKeywordsSection) ||
       hasChanged(originalSections.products, productsSectionState) ||
-      hasChanged(originalSections.news, newsSectionState) ||
-      hasChanged(originalSections.video, videoSectionState) ||
       hasChanged(originalSections.leftSidebar, leftSidebarSection) ||
       hasChanged(originalSections.rightSidebar, rightSidebarSection);
 
@@ -138,8 +130,6 @@ export default function HomepageEditorPage() {
     sliderSection,
     trendingKeywordsSection,
     productsSectionState,
-    newsSectionState,
-    videoSectionState,
     leftSidebarSection,
     rightSidebarSection,
   ]);
@@ -179,25 +169,13 @@ export default function HomepageEditorPage() {
 
       const products = getSection('products_section') || {
         id: '', page_identifier: 'homepage', section_identifier: 'products_section',
-        content: { title: 'Phụ tùng xe', limit: 6, mode: 'auto', filter_by: 'latest', show_price: true },
+        content: { category_ids: [] },
         sort_order: 5, is_active: true, created_at: '', updated_at: '',
-      };
-
-      const news = getSection('news_section') || {
-        id: '', page_identifier: 'homepage', section_identifier: 'news_section',
-        content: { title: 'Tin tức xe', limit: 6, mode: 'auto', display_mode: 'grid', show_thumbnail: true },
-        sort_order: 6, is_active: true, created_at: '', updated_at: '',
-      };
-
-      const video = getSection('video_section') || {
-        id: '', page_identifier: 'homepage', section_identifier: 'video_section',
-        content: { title: 'Video', videos: [], layout_mode: 'carousel' },
-        sort_order: 7, is_active: true, created_at: '', updated_at: '',
       };
 
       const leftSidebar = getSection('left_sidebar') || {
         id: '', page_identifier: 'homepage', section_identifier: 'left_sidebar',
-        content: { show_all: true, max_items: 8 }, sort_order: 8, is_active: true, created_at: '', updated_at: '',
+        content: { mode: 'auto', max_items: 8 }, sort_order: 8, is_active: true, created_at: '', updated_at: '',
       };
 
       const rightSidebar = getSection('right_sidebar') || {
@@ -212,8 +190,6 @@ export default function HomepageEditorPage() {
       setSliderSection(slider);
       setTrendingKeywordsSection(trendingKeywords);
       setProductsSectionState(products);
-      setNewsSectionState(news);
-      setVideoSectionState(video);
       setLeftSidebarSection(leftSidebar);
       setRightSidebarSection(rightSidebar);
 
@@ -225,8 +201,6 @@ export default function HomepageEditorPage() {
         slider: JSON.parse(JSON.stringify(slider)),
         trendingKeywords: JSON.parse(JSON.stringify(trendingKeywords)),
         products: JSON.parse(JSON.stringify(products)),
-        news: JSON.parse(JSON.stringify(news)),
-        video: JSON.parse(JSON.stringify(video)),
         leftSidebar: JSON.parse(JSON.stringify(leftSidebar)),
         rightSidebar: JSON.parse(JSON.stringify(rightSidebar)),
       });
@@ -236,8 +210,7 @@ export default function HomepageEditorPage() {
   // Save all changes
   const handleSaveAll = async () => {
     if (!bannerHeaderSection || !megaMenuSection || !searchSloganSection || !sliderSection ||
-        !trendingKeywordsSection || !productsSectionState || !newsSectionState ||
-        !videoSectionState || !leftSidebarSection || !rightSidebarSection) return;
+        !trendingKeywordsSection || !productsSectionState || !leftSidebarSection || !rightSidebarSection) return;
 
     try {
       message.loading({ content: 'Processing uploads...', key: 'upload', duration: 0 });
@@ -270,19 +243,6 @@ export default function HomepageEditorPage() {
         ),
       };
 
-      // Process Video Section uploads
-      const videoContent = videoSectionState.content as unknown as VideoSectionContent;
-      const processedVideos = await Promise.all(
-        (videoContent.videos || []).map(async (video) => ({
-          ...video,
-          thumbnail: await processMediaValue(video.thumbnail as MediaValue, 'homepage/video-thumbnails'),
-        }))
-      );
-      const processedVideoSection: VideoSectionContent = {
-        ...videoContent,
-        videos: processedVideos,
-      };
-
       // Process RightSidebar promotional banners
       const rightSidebarContent = rightSidebarSection.content as unknown as RightSidebarContent;
       const processedRightSidebar: RightSidebarContent = {
@@ -305,10 +265,8 @@ export default function HomepageEditorPage() {
             { sectionIdentifier: 'slider_section', content: processedSlider as unknown as Record<string, unknown>, sortOrder: 3, isActive: true },
             { sectionIdentifier: 'trending_keywords_section', content: trendingKeywordsSection.content, sortOrder: 4, isActive: true },
             { sectionIdentifier: 'products_section', content: productsSectionState.content, sortOrder: 5, isActive: true },
-            { sectionIdentifier: 'news_section', content: newsSectionState.content, sortOrder: 6, isActive: true },
-            { sectionIdentifier: 'video_section', content: processedVideoSection as unknown as Record<string, unknown>, sortOrder: 7, isActive: true },
-            { sectionIdentifier: 'left_sidebar', content: leftSidebarSection.content, sortOrder: 8, isActive: true },
-            { sectionIdentifier: 'right_sidebar', content: processedRightSidebar as unknown as Record<string, unknown>, sortOrder: 9, isActive: true },
+            { sectionIdentifier: 'left_sidebar', content: leftSidebarSection.content, sortOrder: 6, isActive: true },
+            { sectionIdentifier: 'right_sidebar', content: processedRightSidebar as unknown as Record<string, unknown>, sortOrder: 7, isActive: true },
           ],
         },
       }).unwrap();
@@ -324,8 +282,6 @@ export default function HomepageEditorPage() {
         slider: JSON.parse(JSON.stringify(sliderSection)),
         trendingKeywords: JSON.parse(JSON.stringify(trendingKeywordsSection)),
         products: JSON.parse(JSON.stringify(productsSectionState)),
-        news: JSON.parse(JSON.stringify(newsSectionState)),
-        video: JSON.parse(JSON.stringify(videoSectionState)),
         leftSidebar: JSON.parse(JSON.stringify(leftSidebarSection)),
         rightSidebar: JSON.parse(JSON.stringify(rightSidebarSection)),
       });
@@ -396,8 +352,57 @@ export default function HomepageEditorPage() {
         padding: '24px',
         boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
       }}>
+        {/* Layout Preview */}
+        <HomepageLayoutPreview
+          activeSection={(() => {
+            if (activeTab === 'layout' && activeCollapseKey[0]) {
+              return `layout-${activeCollapseKey[0]}`;
+            }
+            return activeTab;
+          })()}
+          onSectionClick={(sectionKey) => {
+            console.log('🖱️ Section clicked:', sectionKey);
+            
+            // Map section keys to tabs and collapse panels
+            const sectionMap: Record<string, { tab: string; panel?: string }> = {
+              'layout-banner-header': { tab: 'layout', panel: 'banner-header' },
+              'layout-mega-menu': { tab: 'layout', panel: 'mega-menu' },
+              'layout-search-slogan': { tab: 'layout', panel: 'search-slogan' },
+              'slider-slider': { tab: 'content', panel: 'slider' },
+              'trending-keywords': { tab: 'content', panel: 'trending-keywords' },
+              'products-section': { tab: 'content', panel: 'products' },
+              'left-sidebar': { tab: 'sidebars', panel: 'left-sidebar' },
+              'right-sidebar': { tab: 'sidebars', panel: 'right-sidebar' },
+            };
+
+            const target = sectionMap[sectionKey];
+            console.log('🎯 Target:', target);
+            
+            if (target) {
+              setActiveTab(target.tab);
+              if (target.panel) {
+                // For collapse panels, open the specific panel after tab changes
+                setTimeout(() => {
+                  setActiveCollapseKey([target.panel!]);
+                }, 50);
+              } else {
+                setActiveCollapseKey([]);
+              }
+              
+              // Scroll to the tabs section after a short delay to let state update
+              setTimeout(() => {
+                const tabsElement = document.querySelector('.ant-tabs');
+                if (tabsElement) {
+                  tabsElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+              }, 150);
+            }
+          }}
+        />
+
         <Tabs
-          defaultActiveKey="layout"
+          activeKey={activeTab}
+          onChange={setActiveTab}
           size="large"
           tabBarStyle={{
             marginBottom: '24px',
@@ -416,6 +421,8 @@ export default function HomepageEditorPage() {
               children: (
                 <Collapse
                   accordion
+                  activeKey={activeCollapseKey}
+                  onChange={(keys) => setActiveCollapseKey(Array.isArray(keys) ? keys : [keys])}
                   expandIconPosition="end"
                   style={{
                     backgroundColor: 'transparent',
@@ -534,6 +541,12 @@ export default function HomepageEditorPage() {
               children: (
                 <Collapse
                   accordion
+                  activeKey={activeTab === 'content' ? activeCollapseKey : undefined}
+                  onChange={(keys) => {
+                    if (activeTab === 'content') {
+                      setActiveCollapseKey(Array.isArray(keys) ? keys : [keys]);
+                    }
+                  }}
                   style={{ backgroundColor: '#fafafa' }}
                   items={[
                     {
@@ -586,7 +599,7 @@ export default function HomepageEditorPage() {
                         <Space>
                           <Text strong>6. Products Section</Text>
                           <Text type="secondary" style={{ fontSize: 12 }}>
-                            (Product Grid)
+                            (Product Grid - Max 3 Categories)
                           </Text>
                         </Space>
                       ),
@@ -596,52 +609,6 @@ export default function HomepageEditorPage() {
                           onChange={(newContent) => {
                             setProductsSectionState({
                               ...productsSectionState,
-                              content: newContent as unknown as Record<string, unknown>,
-                            });
-                          }}
-                          form={productsSectionForm}
-                        />
-                      ) : null,
-                    },
-                    {
-                      key: 'news',
-                      label: (
-                        <Space>
-                          <Text strong>7. News Section</Text>
-                          <Text type="secondary" style={{ fontSize: 12 }}>
-                            (News Grid/List)
-                          </Text>
-                        </Space>
-                      ),
-                      children: newsSectionState ? (
-                        <NewsSectionForm
-                          content={newsSectionState.content as unknown as NewsSectionContent}
-                          onChange={(newContent) => {
-                            setNewsSectionState({
-                              ...newsSectionState,
-                              content: newContent as unknown as Record<string, unknown>,
-                            });
-                          }}
-                          form={newsSectionForm}
-                        />
-                      ) : null,
-                    },
-                    {
-                      key: 'videos',
-                      label: (
-                        <Space>
-                          <Text strong>8. Video Section</Text>
-                          <Text type="secondary" style={{ fontSize: 12 }}>
-                            (Video Carousel/Grid)
-                          </Text>
-                        </Space>
-                      ),
-                      children: videoSectionState ? (
-                        <VideoSectionForm
-                          content={videoSectionState.content as unknown as VideoSectionContent}
-                          onChange={(newContent) => {
-                            setVideoSectionState({
-                              ...videoSectionState,
                               content: newContent as unknown as Record<string, unknown>,
                             });
                           }}
@@ -665,6 +632,12 @@ export default function HomepageEditorPage() {
               children: (
                 <Collapse
                   accordion
+                  activeKey={activeTab === 'sidebars' ? activeCollapseKey : undefined}
+                  onChange={(keys) => {
+                    if (activeTab === 'sidebars') {
+                      setActiveCollapseKey(Array.isArray(keys) ? keys : [keys]);
+                    }
+                  }}
                   style={{ backgroundColor: '#fafafa' }}
                   items={[
                     {
@@ -686,7 +659,6 @@ export default function HomepageEditorPage() {
                               content: newContent as unknown as Record<string, unknown>,
                             });
                           }}
-                          form={leftSidebarForm}
                         />
                       ) : null,
                     },

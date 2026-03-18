@@ -1,61 +1,44 @@
-import { createApi } from '@reduxjs/toolkit/query/react';
-import {
-  API_PUBLIC_PRODUCTS,
-  API_PUBLIC_PRODUCT_DETAIL,
-} from '@/constants/api';
-import { baseQueryWithoutAuth } from '../api/baseQuery';
+/**
+ * Public Product API - RTK Query
+ * For client-side and admin product fetching without requiring full auth
+ */
 
-export interface PublicProduct {
-  id: string;
-  name: string;
-  slug: string;
-  sku?: string;
-  price: number | null;
-  short_description?: string;
-  description?: string;
-  specifications?: Record<string, string>;
-  tags?: string[];
-  is_active: boolean;
-  in_stock: boolean;
-  view_count: number;
-  created_at: string;
-  updated_at: string;
-  media?: Array<{
-    id: string;
-    file_url: string;
-    media_type: string;
-    alt_text?: string;
-    sort_order: number;
-  }>;
-  categories?: Array<{
-    id: string;
-    name: string;
-    slug: string;
-  }>;
-}
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { getAuthToken } from '@/utils/auth';
+import type { Product } from '@/types/product';
 
-export interface PublicProductsResponse {
-  products: PublicProduct[];
-  total: number;
-}
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
 
 export const publicProductApi = createApi({
   reducerPath: 'publicProductApi',
-  baseQuery: baseQueryWithoutAuth,
-  tagTypes: ['PublicProducts'],
+  baseQuery: fetchBaseQuery({ 
+    baseUrl: API_URL,
+    prepareHeaders: (headers) => {
+      const token = getAuthToken();
+      if (token) headers.set('Authorization', `Bearer ${token}`);
+      return headers;
+    },
+  }),
   endpoints: (builder) => ({
-    getPublicProducts: builder.query<PublicProductsResponse, void>({
-      query: () => API_PUBLIC_PRODUCTS,
-      transformResponse: (response: { data: PublicProductsResponse }) => response.data,
-      providesTags: ['PublicProducts'],
+    // GET /admin/product - Get all products (with auth for admin usage)
+    getPublicProducts: builder.query<Product[], { limit?: number; sort?: string } | void>({
+      query: (params) => ({
+        url: '/admin/product',
+        params: params as Record<string, string | number | undefined>,
+      }),
+      transformResponse: (response: { success: boolean; data: { products: Product[] } }) => 
+        response.data.products || [],
     }),
-    getPublicProductById: builder.query<PublicProduct, string>({
-      query: (id) => API_PUBLIC_PRODUCT_DETAIL(id),
-      transformResponse: (response: { data: PublicProduct }) => response.data,
-      providesTags: (_result, _error, id) => [{ type: 'PublicProducts', id }],
+    
+    // GET /admin/product/:id - Get single product by ID
+    getPublicProductById: builder.query<Product, string>({
+      query: (id) => `/admin/product/${id}`,
+      transformResponse: (response: { success: boolean; data: Product }) => response.data,
     }),
   }),
 });
 
-export const { useGetPublicProductsQuery, useGetPublicProductByIdQuery } =
-  publicProductApi;
+export const { 
+  useGetPublicProductsQuery,
+  useGetPublicProductByIdQuery,
+} = publicProductApi;

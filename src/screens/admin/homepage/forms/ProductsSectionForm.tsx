@@ -1,127 +1,286 @@
 'use client';
 
-import { useEffect } from 'react';
-import { Form, Input, InputNumber, Radio, Select, Space, Typography } from 'antd';
+import { useState, useEffect, useMemo } from 'react';
+import { Space, Typography, TreeSelect, Alert, Card, Radio, Select, Button, List } from 'antd';
+import { PlusOutlined, DeleteOutlined, ShoppingOutlined } from '@ant-design/icons';
 import type { ProductsSectionContent } from '@/types/pageSection';
+import { useGetPublicCategoriesQuery } from '@/store/services/publicCategoryApi';
+import { useGetPublicProductsQuery } from '@/store/services/publicProductApi';
+import type { Category } from '@/types/category';
 
-const { Text, Paragraph } = Typography;
+const { Text } = Typography;
 
 interface ProductsSectionFormProps {
   content: ProductsSectionContent;
   onChange: (content: ProductsSectionContent) => void;
-  form: ReturnType<typeof Form.useForm<Record<string, unknown>>>[0];
 }
 
+interface CategoryWithChildren extends Category {
+  children: CategoryWithChildren[];
+}
+
+interface TreeNode {
+  value: string;
+  title: string;
+  children?: TreeNode[];
+}
+
+type CategoryConfig = {
+  category_id: string;
+  mode: 'auto' | 'manual';
+  product_ids?: string[];
+};
+
 /**
- * ProductsSectionForm - Inline form for Products Section configuration
+ * ProductsSectionForm - Multi-category selector (max 3) with auto/manual mode per category
  */
 export default function ProductsSectionForm({
   content,
   onChange,
-  form,
 }: ProductsSectionFormProps) {
-  
-  useEffect(() => {
-    form.setFieldsValue({
-      title: content?.title || 'Phụ tùng xe',
-      limit: content?.limit || 6,
-      mode: content?.mode || 'auto',
-      filter_by: content?.filter_by || 'latest',
-      show_price: content?.show_price ?? true,
-    });
-  }, [content, form]);
+  const [categories, setCategories] = useState<CategoryConfig[]>(content?.categories || []);
 
-  const handleValuesChange = (_: unknown, allValues: Record<string, unknown>) => {
-    const newContent: ProductsSectionContent = {
-      title: allValues.title as string || '',
-      limit: allValues.limit as number || 6,
-      mode: allValues.mode as 'auto' | 'manual' || 'auto',
-      filter_by: allValues.filter_by as 'latest' | 'most_viewed' | 'popular' | 'random',
-      show_price: allValues.show_price as boolean ?? true,
+  // Fetch data
+  const { data: categoryData = [], isLoading: categoriesLoading } = useGetPublicCategoriesQuery();
+  const { data: products = [], isLoading: productsLoading } = useGetPublicProductsQuery();
+
+  useEffect(() => {
+    setCategories(content?.categories || []);
+  }, [content]);
+
+  useEffect(() => {
+    const currentState = JSON.stringify(categories);
+    const contentState = JSON.stringify(content?.categories || []);
+    
+    if (currentState !== contentState) {
+      onChange({
+        categories: categories.length > 0 ? categories : undefined,
+      });
+    }
+  }, [categories, content?.categories, onChange]);
+
+  // Build category tree
+  const categoryTreeData = useMemo(() => {
+    const buildCategoryTree = (): TreeNode[] => {
+      if (!categoryData || categoryData.length === 0) return [];
+
+      const categoryMap = new Map<string, CategoryWithChildren>();
+      categoryData.forEach((cat) => {
+        categoryMap.set(cat.id, { ...cat, children: [] });
+      });
+
+      const roots: CategoryWithChildren[] = [];
+      categoryMap.forEach((cat) => {
+        if (cat.parent_id && categoryMap.has(cat.parent_id)) {
+          const parent = categoryMap.get(cat.parent_id);
+          if (parent) {
+            parent.children.push(cat);
+          }
+        } else {
+          roots.push(cat);
+        }
+      });
+
+      const convertToTreeNode = (cat: CategoryWithChildren): TreeNode => {
+        const node: TreeNode = {
+          value: cat.id,
+          title: cat.name,
+        };
+        if (cat.children && cat.children.length > 0) {
+          node.children = cat.children.map(convertToTreeNode);
+        }
+        return node;
+      };
+
+      return roots.map(convertToTreeNode);
     };
-    onChange(newContent);
+
+    return buildCategoryTree();
+  }, [categoryData]);
+
+  // Get available categories (not already selected)
+  const selectedCategoryIds = categories.map(c => c.category_id);
+  const availableCategories = categoryTreeData.filter(
+    node => !selectedCategoryIds.includes(node.value)
+  );
+
+  const handleAddCategory = (categoryId: string) => {
+    if (categories.length >= 3) return;
+    
+    setCategories([...categories, {
+      category_id: categoryId,
+      mode: 'auto',
+      product_ids: [],
+    }]);
   };
 
-  const mode = Form.useWatch('mode', form);
+  const handleRemoveCategory = (index: number) => {
+    const newCategories = [...categories];
+    newCategories.splice(index, 1);
+    setCategories(newCategories);
+  };
+
+  const handleModeChange = (index: number, mode: 'auto' | 'manual') => {
+    const newCategories = [...categories];
+    newCategories[index].mode = mode;
+    if (mode === 'auto') {
+      newCategories[index].product_ids = [];
+    }
+    setCategories(newCategories);
+  };
+
+  const handleProductSelect = (index: number, productIds: string[]) => {
+    const newCategories = [...categories];
+    newCategories[index].product_ids = productIds.slice(0, 6); // Max 6 products
+    setCategories(newCategories);
+  };
+
+  const getCategoryName = (categoryId: string) => {
+    const findName = (nodes: TreeNode[]): string | null => {
+      for (const node of nodes) {
+        if (node.value === categoryId) return node.title;
+        if (node.children) {
+          const found = findName(node.children);
+          if (found) return found;
+        }
+      }
+      return null;
+    };
+    return findName(categoryTreeData) || categoryId;
+  };
+
+  // Get all descendant category IDs (including the category itself)
+  const getAllDescendantCategoryIds = (categoryId: string): string[] => {
+    const result: string[] = [categoryId];
+    
+    const findDescendants = (parentId: string) => {
+      const children = categoryData.filter(cat => cat.parent_id === parentId);
+      children.forEach(child => {
+        result.push(child.id);
+        findDescendants(child.id); // Recursive
+      });
+    };
+    
+    findDescendants(categoryId);
+    return result;
+  };
 
   return (
-    <Form
-      form={form}
-      layout="vertical"
-      onValuesChange={handleValuesChange}
-    >
-      <Space direction="vertical" style={{ width: '100%' }} size="middle">
-        {/* Section Title */}
-        <Form.Item
-          name="title"
-          label={<Text strong>Section Title</Text>}
-          rules={[{ required: true, message: 'Title is required' }]}
-          style={{ marginBottom: 0 }}
-        >
-          <Input placeholder="e.g., Phụ tùng xe" />
-        </Form.Item>
+    <Space direction="vertical" style={{ width: '100%' }} size="middle">
+      <Alert
+        message="Products Section Info"
+        description="Select up to 3 categories. For each category, choose Auto mode (top 6 by views) or Manual mode (select specific products)."
+        type="info"
+        showIcon
+      />
 
-        {/* Number of Products */}
-        <Form.Item
-          name="limit"
-          label={<Text strong>Number of Products to Display</Text>}
-          rules={[{ required: true, message: 'Limit is required' }]}
-          style={{ marginBottom: 0 }}
-        >
-          <InputNumber
-            min={1}
-            max={50}
-            style={{ width: '100%' }}
-            placeholder="6"
-          />
-        </Form.Item>
+      {/* Category List */}
+      <List
+        dataSource={categories}
+        locale={{ emptyText: 'No categories selected' }}
+        renderItem={(category, index) => {
+          // Get all descendant category IDs (parent + all children/grandchildren)
+          const relevantCategoryIds = getAllDescendantCategoryIds(category.category_id);
+          
+          // Filter products that belong to this category OR any of its descendants
+          const categoryProducts = products.filter(p => 
+            p.is_active && p.categories?.some(cat => relevantCategoryIds.includes(cat.id))
+          );
 
-        {/* Display Mode */}
-        <Form.Item
-          name="mode"
-          label={<Text strong>Display Mode</Text>}
-          style={{ marginBottom: 0 }}
-        >
-          <Radio.Group>
-            <Radio value="auto">Auto (from database)</Radio>
-            <Radio value="manual" disabled>Manual selection (Coming soon)</Radio>
-          </Radio.Group>
-        </Form.Item>
+          return (
+            <List.Item key={category.category_id} style={{ padding: '0 0 16px 0' }}>
+              <Card 
+                size="small" 
+                style={{ width: '100%' }}
+                title={
+                  <Space>
+                    <Text strong>{index + 1}. {getCategoryName(category.category_id)}</Text>
+                  </Space>
+                }
+                extra={
+                  <Button 
+                    type="text" 
+                    danger 
+                    size="small"
+                    icon={<DeleteOutlined />}
+                    onClick={() => handleRemoveCategory(index)}
+                  >
+                    Remove
+                  </Button>
+                }
+              >
+                <Space direction="vertical" style={{ width: '100%' }} size="small">
+                  {/* Mode Selection */}
+                  <div>
+                    <Text type="secondary" style={{ fontSize: 12 }}>Display Mode:</Text>
+                    <Radio.Group
+                      value={category.mode}
+                      onChange={(e) => handleModeChange(index, e.target.value)}
+                      style={{ marginLeft: 8 }}
+                    >
+                      <Radio value="auto">Auto (Top 6 by views)</Radio>
+                      <Radio value="manual">Manual (Select products)</Radio>
+                    </Radio.Group>
+                  </div>
 
-        {/* Filter Options (Auto Mode) */}
-        {mode === 'auto' && (
-          <Form.Item
-            name="filter_by"
-            label={<Text strong>Filter By</Text>}
-            style={{ marginBottom: 0 }}
-          >
-            <Select>
-              <Select.Option value="latest">Latest Products</Select.Option>
-              <Select.Option value="popular">Most Popular</Select.Option>
-              <Select.Option value="featured">Featured Products</Select.Option>
-            </Select>
-          </Form.Item>
-        )}
+                  {/* Manual Mode Product Selection */}
+                  {category.mode === 'manual' && (
+                    <div>
+                      <Text type="secondary" style={{ fontSize: 12 }}>
+                        Select Products (Max 6):
+                      </Text>
+                      <Select
+                        mode="multiple"
+                        maxCount={6}
+                        placeholder="Search and select products"
+                        value={category.product_ids || []}
+                        onChange={(values) => handleProductSelect(index, values)}
+                        loading={productsLoading}
+                        style={{ width: '100%', marginTop: 4 }}
+                        showSearch
+                        filterOption={(input, option) => {
+                          const label = option?.label?.toString() || '';
+                          return label.toLowerCase().includes(input.toLowerCase());
+                        }}
+                        options={categoryProducts.map(p => ({
+                          value: p.id,
+                          label: p.name,
+                        }))}
+                      />
+                      <Text type="secondary" style={{ fontSize: 12 }}>
+                        {(category.product_ids?.length || 0)}/6 products selected
+                      </Text>
+                    </div>
+                  )}
+                </Space>
+              </Card>
+            </List.Item>
+          );
+        }}
+      />
 
-        {/* Show Price Toggle */}
-        <Form.Item
-          name="show_price"
-          label={<Text strong>Show Price</Text>}
-          valuePropName="checked"
-          style={{ marginBottom: 0 }}
-        >
-          <Radio.Group>
-            <Radio value={true}>Show</Radio>
-            <Radio value={false}>Hide</Radio>
-          </Radio.Group>
-        </Form.Item>
-
-        {mode === 'manual' && (
-          <Paragraph type="secondary" style={{ marginTop: 8 }}>
-            Manual product selection will be available in a future update.
-          </Paragraph>
-        )}
-      </Space>
-    </Form>
+      {/* Add Category Button */}
+      {categories.length < 3 && (
+        <Card size="small">
+          <Space direction="vertical" style={{ width: '100%' }}>
+            <Text strong>Add Category ({categories.length}/3)</Text>
+            <TreeSelect
+              showSearch
+              placeholder="Search and select a category"
+              value={undefined}
+              onChange={handleAddCategory}
+              loading={categoriesLoading}
+              treeData={availableCategories}
+              treeDefaultExpandAll
+              filterTreeNode={(input, node) => {
+                const title = typeof node?.title === 'string' ? node.title : '';
+                return title.toLowerCase().includes(input.toLowerCase());
+              }}
+              style={{ width: '100%' }}
+            />
+          </Space>
+        </Card>
+      )}
+    </Space>
   );
 }

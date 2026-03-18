@@ -39,7 +39,7 @@ interface ProductDetailPageProps {
 interface RelatedProductCardProps {
   id: string;
   name: string;
-  price: number | null;
+  price?: string | number | null;
   imageUrl?: string;
 }
 
@@ -48,11 +48,12 @@ const RelatedProductCard = ({ id, name, price, imageUrl }: RelatedProductCardPro
   const signedUrl = useSignedImageUrl(imageUrl || '');
   const { trackView } = useViewTracker();
 
-  const formatPrice = (price: number) => {
+  const formatPrice = (priceValue: string | number) => {
+    const numPrice = typeof priceValue === 'string' ? parseFloat(priceValue) : priceValue;
     return new Intl.NumberFormat('vi-VN', {
       style: 'currency',
       currency: 'VND',
-    }).format(price);
+    }).format(numPrice);
   };
 
   const handleClick = () => {
@@ -137,11 +138,12 @@ export default function ProductDetailPage({ productId }: ProductDetailPageProps)
     );
   }
 
-  const formatPrice = (price: number) => {
+  const formatPrice = (priceValue: string | number) => {
+    const numPrice = typeof priceValue === 'string' ? parseFloat(priceValue) : priceValue;
     return new Intl.NumberFormat('vi-VN', {
       style: 'currency',
       currency: 'VND',
-    }).format(price);
+    }).format(numPrice);
   };
 
   // Get media (images and videos)
@@ -150,8 +152,8 @@ export default function ProductDetailPage({ productId }: ProductDetailPageProps)
 
   // Get related products (same categories, exclude current product)
   const relatedProducts =
-    allProductsData?.products
-      .filter(
+    allProductsData
+      ?.filter(
         (p) =>
           p.id !== productId &&
           p.is_active &&

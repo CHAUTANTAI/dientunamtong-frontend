@@ -51,11 +51,11 @@ export interface SearchSloganContent {
 // HOMEPAGE CONTENT SECTIONS
 // ============================================
 
-// LeftSidebar Section (Categories tree - mostly auto from DB)
+// LeftSidebar Section (Categories tree)
 export interface LeftSidebarContent {
-  category_ids?: string[];         // Optional: manually select categories to show
-  max_items?: number;              // Max categories to display
-  show_all?: boolean;              // Show all categories from DB
+  mode: 'auto' | 'manual';             // auto: top 8 by views, manual: select specific categories
+  category_ids?: string[];             // For manual mode (max 8 categories)
+  max_items?: number;                  // Max categories to display (default 8)
 }
 
 // RightSidebar Section (News items + promotional banners)
@@ -105,53 +105,24 @@ export interface SliderContent {
 
 // Trending Keywords Section
 export interface TrendingKeywordsContent {
-  title?: string;
-  show_icon?: boolean;
-  limit?: number;
+  mode: 'auto' | 'manual';  // auto: top 5 categories + top 5 products by views, manual: select specific items
   keywords: Array<{
     id: string;
     text: string;
     link: string;
+    source: 'category' | 'product';  // Identify source type
+    source_id: string;  // Category ID or Product ID
     sort_order: number;
   }>;
 }
 
-// Products Section (replaces HighlightProducts for main content area)
+// Products Section
 export interface ProductsSectionContent {
-  title: string;
-  limit: number;
-  mode: 'auto' | 'manual';  // auto: fetch latest/popular, manual: select specific products
-  filter_by?: 'latest' | 'most_viewed' | 'popular' | 'random';
-  product_ids?: string[];  // Used when mode = 'manual'
-  category_filter?: string;  // Optional: filter by category_id
-  show_price?: boolean;
-  layout?: 'grid';  // Future: can add 'list', 'carousel'
-}
-
-// News Section
-export interface NewsSectionContent {
-  title: string;
-  limit: number;
-  mode: 'auto' | 'manual';
-  news_ids?: string[];  // Used when mode = 'manual'
-  display_mode?: 'grid' | 'list';
-  show_thumbnail?: boolean;
-  show_excerpt?: boolean;
-}
-
-// Video Section
-export interface VideoSectionContent {
-  title: string;
-  videos: Array<{
-    id: string;
-    title: string;
-    url: string;  // YouTube, Vimeo, or direct video URL
-    thumbnail?: string;
-    duration?: string;
-    sort_order: number;
-  }>;
-  layout_mode?: 'carousel' | 'grid';
-  videos_per_row?: number;
+  categories?: Array<{
+    category_id: string;
+    mode: 'auto' | 'manual';
+    product_ids?: string[]; // For manual mode (max 6 products)
+  }>;  // Max 3 categories
 }
 
 // Update section request
@@ -180,7 +151,5 @@ export type SectionIdentifier =
   // HomePage content sections
   | 'trending_keywords_section'
   | 'products_section'
-  | 'news_section'
-  | 'video_section'
   | 'left_sidebar'
   | 'right_sidebar';

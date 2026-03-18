@@ -35,9 +35,9 @@ interface CategoryDetailPageProps {
 interface ProductCardProps {
   id: string;
   name: string;
-  price: number | null;
+  price?: string | number | null;
   imageUrl?: string;
-  inStock: boolean;
+  inStock?: boolean;
 }
 
 const ProductCard = ({ id, name, price, imageUrl, inStock }: ProductCardProps) => {
@@ -45,11 +45,12 @@ const ProductCard = ({ id, name, price, imageUrl, inStock }: ProductCardProps) =
   const signedUrl = useSignedImageUrl(imageUrl || '');
   const { trackView } = useViewTracker();
 
-  const formatPrice = (price: number) => {
+  const formatPrice = (priceValue: string | number) => {
+    const numPrice = typeof priceValue === 'string' ? parseFloat(priceValue) : priceValue;
     return new Intl.NumberFormat('vi-VN', {
       style: 'currency',
       currency: 'VND',
-    }).format(price);
+    }).format(numPrice);
   };
 
   const handleClick = () => {
@@ -196,7 +197,7 @@ export default function CategoryDetailPage({ categoryId }: CategoryDetailPagePro
 
   // Filter products by descendant categories
   let categoryProducts =
-    allProductsData?.products.filter(
+    allProductsData?.filter(
       (product) =>
         product.is_active &&
         product.categories?.some((cat) => descendantCategoryIds.includes(cat.id))
@@ -221,16 +222,16 @@ export default function CategoryDetailPage({ categoryId }: CategoryDetailPagePro
   categoryProducts = [...categoryProducts].sort((a, b) => {
     switch (sortBy) {
       case 'price-asc':
-        return (a.price || 0) - (b.price || 0);
+        return (typeof a.price === 'number' ? a.price : parseFloat(a.price as string) || 0) - (typeof b.price === 'number' ? b.price : parseFloat(b.price as string) || 0);
       case 'price-desc':
-        return (b.price || 0) - (a.price || 0);
+        return (typeof b.price === 'number' ? b.price : parseFloat(b.price as string) || 0) - (typeof a.price === 'number' ? a.price : parseFloat(a.price as string) || 0);
       case 'name':
         return a.name.localeCompare(b.name);
       case 'popular':
-        return b.view_count - a.view_count;
+        return (b.view_count || 0) - (a.view_count || 0);
       case 'newest':
       default:
-        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+        return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime();
     }
   });
 

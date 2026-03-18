@@ -5,21 +5,25 @@ import { Typography, Spin, Empty, Collapse } from 'antd';
 import type { CollapseProps } from 'antd';
 import { FolderOutlined, FolderOpenOutlined, RightOutlined } from '@ant-design/icons';
 import { useGetPublicCategoriesQuery } from '@/store/services/publicCategoryApi';
+import { useGetActivePageSectionsQuery } from '@/store/api/pageSectionApi';
+import type { LeftSidebarContent } from '@/types/pageSection';
 import Link from 'next/link';
 
 const { Text, Title } = Typography;
 
 /**
- * LeftSidebar Component - Category tree như source Hoàng Trí
- * Hiển thị category tree với subcategories collapsible
- * 
- * TODO: Kết nối với page_sections để lấy configuration
- * - Lấy từ left_sidebar_categories trong page_sections
- * - Hoặc hiển thị tất cả categories nếu chưa config
+ * LeftSidebar Component - Category tree với auto/manual mode
+ * Auto mode: Top 8 categories by views
+ * Manual mode: Admin selected categories (max 8)
  */
 export default function LeftSidebar() {
   const { data: allCategories, isLoading } = useGetPublicCategoriesQuery();
+  const { data: sections } = useGetActivePageSectionsQuery('homepage');
   const [activeKeys, setActiveKeys] = useState<string[]>([]);
+
+  // Get left sidebar config from API
+  const leftSidebarData = sections?.find(s => s.section_identifier === 'left_sidebar');
+  const config = leftSidebarData?.content as LeftSidebarContent | undefined;
 
   if (isLoading) {
     return (
@@ -29,15 +33,35 @@ export default function LeftSidebar() {
     );
   }
 
-  // TODO: Filter parent categories (those without parent_id)
-  const parentCategories = allCategories?.filter((cat) => !cat.parent_id) || [];
+  // Determine which categories to display
+  let displayCategories = [];
+  
+  if (config?.mode === 'manual' && config.category_ids && config.category_ids.length > 0) {
+    // Manual mode: Show admin selected categories
+    displayCategories = allCategories?.filter(cat => 
+      config.category_ids?.includes(cat.id)
+    ) || [];
+    
+    // Sort by selection order
+    displayCategories.sort((a, b) => {
+      const indexA = config.category_ids?.indexOf(a.id) || 0;
+      const indexB = config.category_ids?.indexOf(b.id) || 0;
+      return indexA - indexB;
+    });
+  } else {
+    // Auto mode (default): Top 8 by views
+    const sortedCategories = [...(allCategories || [])].sort((a, b) => 
+      ((b as any).view_count || 0) - ((a as any).view_count || 0)
+    );
+    displayCategories = sortedCategories.slice(0, config?.max_items || 8);
+  }
 
-  // TODO: Get subcategories for a parent
+  // Get subcategories for a parent
   const getSubcategories = (parentId: string) => {
     return allCategories?.filter((cat) => cat.parent_id === parentId) || [];
   };
 
-  if (!parentCategories || parentCategories.length === 0) {
+  if (!displayCategories || displayCategories.length === 0) {
     return (
       <div style={{ padding: '20px' }}>
         <Empty description="Chưa có danh mục" image={Empty.PRESENTED_IMAGE_SIMPLE} />
@@ -46,7 +70,7 @@ export default function LeftSidebar() {
   }
 
   // Build items for Collapse component
-  const collapseItems: CollapseProps['items'] = parentCategories.map((category) => {
+  const collapseItems: CollapseProps['items'] = displayCategories.map((category) => {
     const subcategories = getSubcategories(category.id);
     const hasSubcategories = subcategories.length > 0;
 
@@ -166,7 +190,7 @@ export default function LeftSidebar() {
         }}
       />
 
-      {/* TODO: Add promotional banner at bottom like source */}
+      {/* Promotional Banner */}
       <div
         style={{
           padding: '16px',

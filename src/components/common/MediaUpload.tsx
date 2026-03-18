@@ -22,6 +22,15 @@ interface MediaUploadProps {
   label?: string;
   accept?: string;
   maxSizeMB?: number;
+  previewHeight?: number; // Custom preview height (default: 120px)
+  previewAspectRatio?: 'auto' | 'cover' | 'contain'; // How image fits in preview
+  helperText?: string; // Additional helper text (e.g., recommended dimensions)
+  minWidth?: number; // Minimum width validation
+  minHeight?: number; // Minimum height validation
+  maxWidth?: number; // Maximum width validation
+  maxHeight?: number; // Maximum height validation
+  aspectRatio?: number; // Expected aspect ratio (width/height)
+  aspectRatioTolerance?: number; // Tolerance for aspect ratio (default: 0.1)
 }
 
 /**
@@ -37,6 +46,15 @@ export default function MediaUpload({
   label = 'Upload Image',
   accept = 'image/*',
   maxSizeMB = 5,
+  previewHeight = 120,
+  previewAspectRatio = 'contain',
+  helperText,
+  minWidth,
+  minHeight,
+  maxWidth,
+  maxHeight,
+  aspectRatio,
+  aspectRatioTolerance = 0.1,
 }: MediaUploadProps) {
   const [previewVisible, setPreviewVisible] = useState(false);
   const { message } = App.useApp();
@@ -70,17 +88,73 @@ export default function MediaUpload({
       return false;
     }
 
-    // Create object URL for preview
+    // Validate image dimensions using Image API
+    const img = new window.Image();
     const objectUrl = URL.createObjectURL(file);
     
-    // Store file and preview URL
-    const pendingUpload: PendingUpload = {
-      file,
-      previewUrl: objectUrl,
-    };
+    img.onload = () => {
+      const width = img.naturalWidth;
+      const height = img.naturalHeight;
+      const imgAspectRatio = width / height;
+      
+      // Validation checks
+      const errors: string[] = [];
+      
+      if (minWidth && width < minWidth) {
+        errors.push(`Width must be at least ${minWidth}px (current: ${width}px)`);
+      }
+      if (minHeight && height < minHeight) {
+        errors.push(`Height must be at least ${minHeight}px (current: ${height}px)`);
+      }
+      if (maxWidth && width > maxWidth) {
+        errors.push(`Width must be at most ${maxWidth}px (current: ${width}px)`);
+      }
+      if (maxHeight && height > maxHeight) {
+        errors.push(`Height must be at most ${maxHeight}px (current: ${height}px)`);
+      }
+      if (aspectRatio) {
+        const diff = Math.abs(imgAspectRatio - aspectRatio);
+        const tolerance = aspectRatio * aspectRatioTolerance;
+        if (diff > tolerance) {
+          const expectedRatio = `${aspectRatio.toFixed(2)}:1`;
+          const currentRatio = `${imgAspectRatio.toFixed(2)}:1`;
+          errors.push(`Aspect ratio should be approximately ${expectedRatio} (current: ${currentRatio})`);
+        }
+      }
+      
+      // If validation fails, show errors and cleanup
+      if (errors.length > 0) {
+        URL.revokeObjectURL(objectUrl);
+        message.error({
+          content: (
+            <div>
+              <div style={{ fontWeight: 'bold', marginBottom: 8 }}>Image validation failed:</div>
+              {errors.map((error, index) => (
+                <div key={index}>• {error}</div>
+              ))}
+            </div>
+          ),
+          duration: 6,
+        });
+        return;
+      }
+      
+      // Validation passed - store file and preview URL
+      const pendingUpload: PendingUpload = {
+        file,
+        previewUrl: objectUrl,
+      };
 
-    onChange?.(pendingUpload);
-    message.success('Image selected. Click "Save All Changes" to upload.');
+      onChange?.(pendingUpload);
+      message.success(`Image selected (${width}×${height}px). Click "Save All Changes" to upload.`);
+    };
+    
+    img.onerror = () => {
+      URL.revokeObjectURL(objectUrl);
+      message.error('Failed to load image. Please try another file.');
+    };
+    
+    img.src = objectUrl;
     
     return false; // Prevent default upload behavior
   };
@@ -103,6 +177,11 @@ export default function MediaUpload({
   return (
     <Space direction="vertical" style={{ width: '100%' }}>
       {label && <Text strong>{label}</Text>}
+      {helperText && (
+        <Text type="secondary" style={{ fontSize: 12, display: 'block', marginTop: -8, marginBottom: 8 }}>
+          💡 {helperText}
+        </Text>
+      )}
       
       {!value ? (
         // Upload button when no image
@@ -130,7 +209,7 @@ export default function MediaUpload({
             {/* Image Preview */}
             <div style={{ 
               width: '100%', 
-              height: '120px', 
+              height: `${previewHeight}px`, 
               display: 'flex', 
               alignItems: 'center', 
               justifyContent: 'center',
@@ -147,7 +226,9 @@ export default function MediaUpload({
                   style={{ 
                     maxWidth: '100%', 
                     maxHeight: '100%',
-                    objectFit: 'contain',
+                    objectFit: previewAspectRatio === 'auto' ? 'contain' : previewAspectRatio,
+                    width: previewAspectRatio === 'cover' ? '100%' : 'auto',
+                    height: previewAspectRatio === 'cover' ? '100%' : 'auto',
                   }}
                 />
               ) : (

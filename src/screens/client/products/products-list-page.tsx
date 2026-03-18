@@ -18,9 +18,9 @@ const { Title, Text } = Typography;
 interface ProductCardProps {
   id: string;
   name: string;
-  price: number | null;
+  price?: string | number | null;
   imageUrl?: string;
-  inStock: boolean;
+  inStock?: boolean;
 }
 
 const ProductCard = ({ id, name, price, imageUrl, inStock }: ProductCardProps) => {
@@ -28,11 +28,12 @@ const ProductCard = ({ id, name, price, imageUrl, inStock }: ProductCardProps) =
   const signedUrl = useSignedImageUrl(imageUrl || '');
   const { trackView } = useViewTracker();
 
-  const formatPrice = (price: number) => {
+  const formatPrice = (priceValue: string | number) => {
+    const numPrice = typeof priceValue === 'string' ? parseFloat(priceValue) : priceValue;
     return new Intl.NumberFormat('vi-VN', {
       style: 'currency',
       currency: 'VND',
-    }).format(price);
+    }).format(numPrice);
   };
 
   const handleClick = () => {
@@ -131,7 +132,7 @@ export default function ProductsListPage() {
     );
   }
 
-  if (!data || !data.products || data.products.length === 0) {
+  if (!data || data.length === 0) {
     return (
       <div>
         <Title level={2}>{t('navigation.products')}</Title>
@@ -141,7 +142,7 @@ export default function ProductsListPage() {
   }
 
   // Filter products
-  let filteredProducts = data.products.filter((product) => product.is_active);
+  let filteredProducts = data.filter((product) => product.is_active);
 
   // Search filter
   if (searchTerm) {
@@ -160,23 +161,24 @@ export default function ProductsListPage() {
   // Price range filter
   filteredProducts = filteredProducts.filter((product) => {
     if (!product.price) return true; // Include "contact for price" products
-    return product.price >= priceRange[0] && product.price <= priceRange[1];
+    const numPrice = typeof product.price === 'string' ? parseFloat(product.price) : product.price;
+    return numPrice >= priceRange[0] && numPrice <= priceRange[1];
   });
 
   // Sort products
   filteredProducts = [...filteredProducts].sort((a, b) => {
     switch (sortBy) {
       case 'price-asc':
-        return (a.price || 0) - (b.price || 0);
+        return (typeof a.price === 'number' ? a.price : parseFloat(a.price as string) || 0) - (typeof b.price === 'number' ? b.price : parseFloat(b.price as string) || 0);
       case 'price-desc':
-        return (b.price || 0) - (a.price || 0);
+        return (typeof b.price === 'number' ? b.price : parseFloat(b.price as string) || 0) - (typeof a.price === 'number' ? a.price : parseFloat(a.price as string) || 0);
       case 'name':
         return a.name.localeCompare(b.name);
       case 'popular':
-        return b.view_count - a.view_count;
+        return (b.view_count || 0) - (a.view_count || 0);
       case 'newest':
       default:
-        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+        return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime();
     }
   });
 

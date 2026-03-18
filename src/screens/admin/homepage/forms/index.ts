@@ -11,7 +11,5 @@ export { default as SearchSloganForm } from './SearchSloganForm';
 export { default as SliderForm } from './SliderForm';
 export { default as TrendingKeywordsForm } from './TrendingKeywordsForm';
 export { default as ProductsSectionForm } from './ProductsSectionForm';
-export { default as NewsSectionForm } from './NewsSectionForm';
-export { default as VideoSectionForm } from './VideoSectionForm';
 export { default as LeftSidebarForm } from './LeftSidebarForm';
 export { default as RightSidebarForm } from './RightSidebarForm';

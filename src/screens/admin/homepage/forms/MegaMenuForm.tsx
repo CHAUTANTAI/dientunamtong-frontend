@@ -1,10 +1,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Form, Input, Button, List, Space, Typography, Card } from 'antd';
-import { PlusOutlined, DeleteOutlined, ArrowUpOutlined, ArrowDownOutlined, EditOutlined } from '@ant-design/icons';
+import { Form, Input, Button, List, Space, Typography, Card, Radio, TreeSelect, Divider } from 'antd';
+import { PlusOutlined, DeleteOutlined, ArrowUpOutlined, ArrowDownOutlined, EditOutlined, LinkOutlined, AppstoreOutlined } from '@ant-design/icons';
 import type { MegaMenuContent } from '@/types/pageSection';
 import { v4 as uuidv4 } from 'uuid';
+import { useGetPublicCategoriesQuery } from '@/store/services/publicCategoryApi';
 
 const { Text } = Typography;
 
@@ -18,17 +19,75 @@ interface MenuItem {
   label: string;
   href: string;
   sort_order: number;
+  source?: 'manual' | 'category'; // Track source type
+  category_id?: string; // Store category ID if from category
 }
 
 /**
  * MegaMenuForm - Inline form for managing Mega Menu items
- * No modal wrapper - used directly in Collapse panel
+ * Supports 2 methods: Manual entry or selecting from categories
  */
 export default function MegaMenuForm({ content, onChange }: MegaMenuFormProps) {
   const [items, setItems] = useState<MenuItem[]>([]);
   const [editingItem, setEditingItem] = useState<MenuItem | null>(null);
   const [itemFormVisible, setItemFormVisible] = useState(false);
+  const [addMethod, setAddMethod] = useState<'manual' | 'category'>('category'); // Default to category
   const [form] = Form.useForm();
+
+  // Fetch categories for selection
+  const { data: categories, isLoading: categoriesLoading } = useGetPublicCategoriesQuery();
+
+  // Convert flat categories to tree structure for TreeSelect
+  const buildCategoryTree = () => {
+    if (!categories) return [];
+
+    interface TreeNode {
+      value: string;
+      title: string;
+      children?: TreeNode[];
+    }
+
+    // Build tree structure
+    const categoryMap = new Map<string, TreeNode>();
+    const rootCategories: TreeNode[] = [];
+
+    // First pass: create nodes
+    categories.forEach(cat => {
+      categoryMap.set(cat.id, {
+        value: cat.id,
+        title: cat.name,
+        children: [],
+      });
+    });
+
+    // Second pass: build hierarchy
+    categories.forEach(cat => {
+      const node = categoryMap.get(cat.id);
+      if (node && cat.parent_id) {
+        const parent = categoryMap.get(cat.parent_id);
+        if (parent) {
+          if (!parent.children) parent.children = [];
+          parent.children.push(node);
+        } else {
+          rootCategories.push(node);
+        }
+      } else if (node) {
+        rootCategories.push(node);
+      }
+    });
+
+    // Remove empty children arrays
+    const cleanTree = (nodes: TreeNode[]): TreeNode[] => {
+      return nodes.map(node => ({
+        ...node,
+        children: node.children && node.children.length > 0 ? cleanTree(node.children) : undefined,
+      }));
+    };
+
+    return cleanTree(rootCategories);
+  };
+
+  const categoryTreeData = buildCategoryTree();
 
   useEffect(() => {
     setItems(content?.static_items || []);
@@ -46,14 +105,32 @@ export default function MegaMenuForm({ content, onChange }: MegaMenuFormProps) {
 
   const handleAddItem = () => {
     form.validateFields().then((values) => {
-      const newItem: MenuItem = {
-        id: uuidv4(),
-        label: values.label,
-        href: values.href,
-        sort_order: items.length,
-      };
+      if (addMethod === 'category' && values.category_id) {
+        // Find category info
+        const category = categories?.find(c => c.id === values.category_id);
+        if (category) {
+          const newItem: MenuItem = {
+            id: uuidv4(),
+            label: category.name,
+            href: `/categories/${category.id}`,
+            sort_order: items.length,
+            source: 'category',
+            category_id: category.id,
+          };
+          setItems([...items, newItem]);
+        }
+      } else {
+        // Manual entry
+        const newItem: MenuItem = {
+          id: uuidv4(),
+          label: values.label,
+          href: values.href || '#',
+          sort_order: items.length,
+          source: 'manual',
+        };
+        setItems([...items, newItem]);
+      }
 
-      setItems([...items, newItem]);
       form.resetFields();
       setItemFormVisible(false);
     });
@@ -61,10 +138,19 @@ export default function MegaMenuForm({ content, onChange }: MegaMenuFormProps) {
 
   const handleEditItem = (item: MenuItem) => {
     setEditingItem(item);
-    form.setFieldsValue({
-      label: item.label,
-      href: item.href,
-    });
+    setAddMethod(item.source || 'manual');
+    
+    if (item.source === 'category') {
+      form.setFieldsValue({
+        category_id: item.category_id,
+      });
+    } else {
+      form.setFieldsValue({
+        label: item.label,
+        href: item.href,
+      });
+    }
+    
     setItemFormVisible(true);
   };
 
@@ -72,10 +158,33 @@ export default function MegaMenuForm({ content, onChange }: MegaMenuFormProps) {
     if (!editingItem) return;
 
     form.validateFields().then((values) => {
+      let updatedItem: MenuItem;
+      
+      if (addMethod === 'category' && values.category_id) {
+        const category = categories?.find(c => c.id === values.category_id);
+        if (category) {
+          updatedItem = {
+            ...editingItem,
+            label: category.name,
+            href: `/categories/${category.id}`,
+            source: 'category',
+            category_id: category.id,
+          };
+        } else {
+          return;
+        }
+      } else {
+        updatedItem = {
+          ...editingItem,
+          label: values.label,
+          href: values.href || '#',
+          source: 'manual',
+          category_id: undefined,
+        };
+      }
+
       const updatedItems = items.map(item =>
-        item.id === editingItem.id
-          ? { ...item, label: values.label, href: values.href }
-          : item
+        item.id === editingItem.id ? updatedItem : item
       );
       setItems(updatedItems);
       form.resetFields();
@@ -118,23 +227,70 @@ export default function MegaMenuForm({ content, onChange }: MegaMenuFormProps) {
       {itemFormVisible ? (
         <Card size="small" style={{ backgroundColor: '#f5f5f5' }}>
           <Form form={form} layout="vertical">
-            <Form.Item
-              name="label"
-              label="Menu Label"
-              rules={[{ required: true, message: 'Please enter menu label' }]}
-              style={{ marginBottom: 12 }}
-            >
-              <Input placeholder="e.g., Bảng giá" />
-            </Form.Item>
+            {/* Method Selection (only show when adding new item) */}
+            {!editingItem && (
+              <Form.Item label="Add Method" style={{ marginBottom: 16 }}>
+                <Radio.Group 
+                  value={addMethod} 
+                  onChange={(e) => {
+                    setAddMethod(e.target.value);
+                    form.resetFields();
+                  }}
+                >
+                  <Radio.Button value="category">
+                    <AppstoreOutlined /> From Category
+                  </Radio.Button>
+                  <Radio.Button value="manual">
+                    <LinkOutlined /> Manual Entry
+                  </Radio.Button>
+                </Radio.Group>
+              </Form.Item>
+            )}
 
-            <Form.Item
-              name="href"
-              label="Link (href)"
-              rules={[{ required: true, message: 'Please enter link' }]}
-              style={{ marginBottom: 12 }}
-            >
-              <Input placeholder="e.g., /bang-gia" />
-            </Form.Item>
+            <Divider style={{ margin: '12px 0' }} />
+
+            {addMethod === 'category' ? (
+              // Category Selection Method
+              <Form.Item
+                name="category_id"
+                label="Select Category"
+                rules={[{ required: true, message: 'Please select a category' }]}
+                style={{ marginBottom: 12 }}
+              >
+                <TreeSelect
+                  showSearch
+                  placeholder="Search and select a category"
+                  loading={categoriesLoading}
+                  treeData={categoryTreeData}
+                  treeDefaultExpandAll
+                  filterTreeNode={(input, node) => {
+                    const title = typeof node?.title === 'string' ? node.title : '';
+                    return title.toLowerCase().includes(input.toLowerCase());
+                  }}
+                  dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
+                />
+              </Form.Item>
+            ) : (
+              // Manual Entry Method
+              <>
+                <Form.Item
+                  name="label"
+                  label="Menu Label"
+                  rules={[{ required: true, message: 'Please enter menu label' }]}
+                  style={{ marginBottom: 12 }}
+                >
+                  <Input placeholder="e.g., Bảng giá" />
+                </Form.Item>
+
+                <Form.Item
+                  name="href"
+                  label="Link (href) - Optional"
+                  style={{ marginBottom: 12 }}
+                >
+                  <Input placeholder="e.g., /bang-gia or leave empty for #" />
+                </Form.Item>
+              </>
+            )}
 
             <Space>
               <Button 
@@ -199,7 +355,16 @@ export default function MegaMenuForm({ content, onChange }: MegaMenuFormProps) {
             ]}
           >
             <List.Item.Meta
-              title={<Text strong>{item.label}</Text>}
+              title={
+                <Space>
+                  <Text strong>{item.label}</Text>
+                  {item.source === 'category' && (
+                    <Text type="secondary" style={{ fontSize: 12 }}>
+                      (Category)
+                    </Text>
+                  )}
+                </Space>
+              }
               description={<Text type="secondary">{item.href}</Text>}
             />
           </List.Item>

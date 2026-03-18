@@ -1,11 +1,15 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { Form, Input, Switch, Button, Space, Typography, List, Card } from 'antd';
-import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
+import { useState, useEffect, useMemo } from 'react';
+import { Switch, Button, Space, Typography, List, Card, Select, Radio, Tag, TreeSelect } from 'antd';
+import { PlusOutlined, DeleteOutlined, AppstoreOutlined, ShoppingOutlined } from '@ant-design/icons';
 import type { TrendingKeywordsContent } from '@/types/pageSection';
+import { useGetPublicCategoriesQuery } from '@/store/services/publicCategoryApi';
+import { useGetPublicProductsQuery } from '@/store/services/publicProductApi';
+import { useDebounce } from '@/hooks/useDebounce';
+import type { Category } from '@/types/category';
 
-const { Text } = Typography;
+const { Text, Title } = Typography;
 
 interface TrendingKeywordsFormProps {
   content: TrendingKeywordsContent;
@@ -16,56 +20,97 @@ interface Keyword {
   id: string;
   text: string;
   link: string;
+  source: 'category' | 'product';
+  source_id: string;
   sort_order: number;
 }
 
 /**
  * TrendingKeywordsForm - Inline form for Trending Keywords
+ * Features:
+ * - Fixed title: "Xu hướng tìm kiếm:" (no editing)
+ * - Icon always shown (no toggle)
+ * - Auto mode: Top 5 categories + Top 5 products by views
+ * - Manual mode: Select categories or products
  */
 export default function TrendingKeywordsForm({ content, onChange }: TrendingKeywordsFormProps) {
-  const [title, setTitle] = useState('Xu hướng tìm kiếm:');
-  const [showIcon, setShowIcon] = useState(true);
-  const [keywords, setKeywords] = useState<Keyword[]>([]);
-  const [newKeywordText, setNewKeywordText] = useState('');
-  const [newKeywordLink, setNewKeywordLink] = useState('');
+  const [mode, setMode] = useState<'auto' | 'manual'>(content?.mode || 'manual');
+  const [keywords, setKeywords] = useState<Keyword[]>(content?.keywords || []);
+  const [selectedSource, setSelectedSource] = useState<'category' | 'product'>('category');
+  const [selectedId, setSelectedId] = useState<string>('');
+  const [categorySearchValue, setCategorySearchValue] = useState<string>('');
+  const [productSearchValue, setProductSearchValue] = useState<string>('');
+
+  // Fetch categories and products
+  const { data: categories = [], isLoading: categoriesLoading } = useGetPublicCategoriesQuery();
+  const { data: products = [], isLoading: productsLoading } = useGetPublicProductsQuery();
+
+  // Debounce search values
+  const debouncedCategorySearch = useDebounce(categorySearchValue, 300);
+  const debouncedProductSearch = useDebounce(productSearchValue, 300);
 
   useEffect(() => {
-    setTitle(content?.title || 'Xu hướng tìm kiếm:');
-    setShowIcon(content?.show_icon ?? true);
+    setMode(content?.mode || 'manual');
     setKeywords(content?.keywords || []);
   }, [content]);
 
   useEffect(() => {
     // Avoid infinite loop with deep comparison
-    const currentState = JSON.stringify({ title, showIcon, keywords });
+    const currentState = JSON.stringify({ mode, keywords });
     const contentState = JSON.stringify({
-      title: content?.title || 'Xu hướng tìm kiếm:',
-      showIcon: content?.show_icon ?? true,
+      mode: content?.mode || 'manual',
       keywords: content?.keywords || [],
     });
     
     if (currentState !== contentState) {
       onChange({
-        title,
-        show_icon: showIcon,
+        mode,
         keywords,
       });
     }
-  }, [title, showIcon, keywords, onChange]);
+  }, [mode, keywords, content?.mode, content?.keywords, onChange]);
+
+  const handleModeChange = (newMode: 'auto' | 'manual') => {
+    setMode(newMode);
+    if (newMode === 'auto') {
+      setKeywords([]); // Clear manual keywords when switching to auto
+    }
+  };
 
   const handleAddKeyword = () => {
-    if (!newKeywordText.trim()) return;
+    if (!selectedId) return;
+
+    // Check if already exists
+    if (keywords.some(k => k.source_id === selectedId)) {
+      return;
+    }
+
+    let text = '';
+    let link = '';
+
+    if (selectedSource === 'category') {
+      const category = categories.find(c => c.id === selectedId);
+      if (!category) return;
+      text = category.name;
+      link = `/categories/${category.id}`;
+    } else {
+      const product = products.find(p => p.id === selectedId);
+      if (!product) return;
+      text = product.name;
+      link = `/products/${product.id}`;
+    }
 
     const newKeyword: Keyword = {
       id: `keyword_${Date.now()}`,
-      text: newKeywordText.trim(),
-      link: newKeywordLink.trim() || '#',
+      text,
+      link,
+      source: selectedSource,
+      source_id: selectedId,
       sort_order: keywords.length,
     };
 
     setKeywords([...keywords, newKeyword]);
-    setNewKeywordText('');
-    setNewKeywordLink('');
+    setSelectedId('');
   };
 
   const handleDeleteKeyword = (id: string) => {
@@ -74,92 +119,219 @@ export default function TrendingKeywordsForm({ content, onChange }: TrendingKeyw
     setKeywords(reordered);
   };
 
+  // Build category tree for TreeSelect
+  interface TreeNode {
+    value: string;
+    title: string;
+    children?: TreeNode[];
+  }
+
+  interface CategoryWithChildren extends Category {
+    children: CategoryWithChildren[];
+  }
+
+  const categoryTreeData = useMemo(() => {
+    const buildCategoryTree = (): TreeNode[] => {
+      if (!categories || categories.length === 0) return [];
+
+      // Create a map of categories by ID
+      const categoryMap = new Map<string, CategoryWithChildren>();
+      categories.forEach((cat) => {
+        categoryMap.set(cat.id, { ...cat, children: [] });
+      });
+
+      // Build parent-child relationships
+      const roots: CategoryWithChildren[] = [];
+      categoryMap.forEach((cat) => {
+        if (cat.parent_id && categoryMap.has(cat.parent_id)) {
+          const parent = categoryMap.get(cat.parent_id);
+          if (parent) {
+            parent.children.push(cat);
+          }
+        } else {
+          roots.push(cat);
+        }
+      });
+
+      // Convert to TreeNode format
+      const convertToTreeNode = (cat: CategoryWithChildren): TreeNode => {
+        const node: TreeNode = {
+          value: cat.id,
+          title: cat.name,
+        };
+        if (cat.children && cat.children.length > 0) {
+          node.children = cat.children.map(convertToTreeNode);
+        }
+        return node;
+      };
+
+      return roots.map(convertToTreeNode);
+    };
+
+    return buildCategoryTree();
+  }, [categories]);
+
   return (
     <Space direction="vertical" style={{ width: '100%' }} size="middle">
-      {/* Section Title */}
+      {/* Mode Selection */}
       <div>
-        <Text strong>Section Title</Text>
-        <Input
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          placeholder="e.g., Xu hướng tìm kiếm:"
-          style={{ marginTop: 8 }}
-        />
+        <Text strong>Keywords Mode</Text>
+        <Radio.Group
+          value={mode}
+          onChange={(e) => handleModeChange(e.target.value)}
+          style={{ marginTop: 8, display: 'block' }}
+        >
+          <Space direction="vertical">
+            <Radio value="auto">
+              <Space>
+                <Text>Auto</Text>
+                <Text type="secondary" style={{ fontSize: 12 }}>
+                  (Top 5 categories + Top 5 products by views)
+                </Text>
+              </Space>
+            </Radio>
+            <Radio value="manual">
+              <Space>
+                <Text>Manual</Text>
+                <Text type="secondary" style={{ fontSize: 12 }}>
+                  (Select specific categories or products)
+                </Text>
+              </Space>
+            </Radio>
+          </Space>
+        </Radio.Group>
       </div>
 
-      {/* Show Icon */}
-      <div>
-        <Space>
-          <Text strong>Show Icon</Text>
-          <Switch
-            checked={showIcon}
-            onChange={setShowIcon}
-          />
-        </Space>
-      </div>
-
-      {/* Add Keyword Form */}
-      <Card size="small" title="Add New Keyword">
-        <Space direction="vertical" style={{ width: '100%' }}>
-          <Input
-            placeholder="Keyword text (e.g., Đèn LED)"
-            value={newKeywordText}
-            onChange={(e) => setNewKeywordText(e.target.value)}
-            onPressEnter={handleAddKeyword}
-          />
-          <Input
-            placeholder="Link URL (optional, default: #)"
-            value={newKeywordLink}
-            onChange={(e) => setNewKeywordLink(e.target.value)}
-            onPressEnter={handleAddKeyword}
-          />
-          <Button
-            type="primary"
-            icon={<PlusOutlined />}
-            onClick={handleAddKeyword}
-            disabled={!newKeywordText.trim()}
-            block
-          >
-            Add Keyword
-          </Button>
-        </Space>
-      </Card>
-
-      {/* Keywords List */}
-      <div>
-        <Text strong>Keywords ({keywords.length})</Text>
-        {keywords.length === 0 ? (
-          <div style={{ padding: '16px', textAlign: 'center', backgroundColor: '#fafafa', marginTop: 8, borderRadius: 4 }}>
-            <Text type="secondary">No keywords. Add some keywords above.</Text>
-          </div>
-        ) : (
-          <List
-            dataSource={keywords}
-            renderItem={(keyword) => (
-              <List.Item
-                actions={[
-                  <Button
-                    key="delete"
-                    type="text"
-                    size="small"
-                    danger
-                    icon={<DeleteOutlined />}
-                    onClick={() => handleDeleteKeyword(keyword.id)}
-                  />,
-                ]}
-                style={{ padding: '8px 0' }}
+      {/* Manual Mode: Add Keyword Form */}
+      {mode === 'manual' && (
+        <Card size="small" title="Add New Keyword">
+          <Space direction="vertical" style={{ width: '100%' }}>
+            {/* Select Source Type */}
+            <div>
+              <Text type="secondary" style={{ fontSize: 12 }}>Select Type</Text>
+              <Radio.Group
+                value={selectedSource}
+                onChange={(e) => {
+                  setSelectedSource(e.target.value);
+                  setSelectedId('');
+                }}
+                style={{ marginTop: 4, display: 'block' }}
               >
-                <List.Item.Meta
-                  title={<Text>{keyword.text}</Text>}
-                  description={<Text type="secondary" style={{ fontSize: 12 }}>{keyword.link}</Text>}
+                <Radio value="category">
+                  <AppstoreOutlined /> Category
+                </Radio>
+                <Radio value="product">
+                  <ShoppingOutlined /> Product
+                </Radio>
+              </Radio.Group>
+            </div>
+
+            {/* Select Category or Product */}
+            <div>
+              <Text type="secondary" style={{ fontSize: 12 }}>
+                Select {selectedSource === 'category' ? 'Category' : 'Product'}
+              </Text>
+              {selectedSource === 'category' ? (
+                <TreeSelect
+                  showSearch
+                  placeholder="Search and select a category"
+                  value={selectedId || undefined}
+                  onChange={setSelectedId}
+                  onSearch={setCategorySearchValue}
+                  searchValue={categorySearchValue}
+                  loading={categoriesLoading}
+                  treeData={categoryTreeData}
+                  treeDefaultExpandAll={!debouncedCategorySearch}
+                  filterTreeNode={(input, node) => {
+                    // Use debounced search value for filtering
+                    const searchTerm = debouncedCategorySearch.toLowerCase();
+                    if (!searchTerm) return true;
+                    const title = typeof node?.title === 'string' ? node.title : '';
+                    return title.toLowerCase().includes(searchTerm);
+                  }}
+                  dropdownStyle={{ maxHeight: 400 }}
+                  style={{ width: '100%', marginTop: 4 }}
                 />
-              </List.Item>
-            )}
-            style={{ marginTop: 8 }}
-            bordered
-          />
-        )}
-      </div>
+              ) : (
+                <Select
+                  showSearch
+                  placeholder="Search and select a product"
+                  value={selectedId || undefined}
+                  onChange={setSelectedId}
+                  onSearch={setProductSearchValue}
+                  searchValue={productSearchValue}
+                  loading={productsLoading}
+                  style={{ width: '100%', marginTop: 4 }}
+                  filterOption={(input, option) => {
+                    // Use debounced search value for filtering
+                    const searchTerm = debouncedProductSearch.toLowerCase();
+                    if (!searchTerm) return true;
+                    return (option?.label?.toString() ?? '').toLowerCase().includes(searchTerm);
+                  }}
+                  options={products.map(p => ({ label: p.name, value: p.id }))}
+                />
+              )}
+            </div>
+
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              onClick={handleAddKeyword}
+              disabled={!selectedId}
+              block
+            >
+              Add Keyword
+            </Button>
+          </Space>
+        </Card>
+      )}
+
+      {/* Manual Mode: Keywords List */}
+      {mode === 'manual' && (
+        <div>
+          <Text strong>Selected Keywords ({keywords.length})</Text>
+          {keywords.length === 0 ? (
+            <div style={{ padding: '16px', textAlign: 'center', backgroundColor: '#fafafa', marginTop: 8, borderRadius: 4 }}>
+              <Text type="secondary">No keywords selected. Add keywords above.</Text>
+            </div>
+          ) : (
+            <List
+              dataSource={keywords}
+              renderItem={(keyword) => (
+                <List.Item
+                  actions={[
+                    <Button
+                      key="delete"
+                      type="text"
+                      size="small"
+                      danger
+                      icon={<DeleteOutlined />}
+                      onClick={() => handleDeleteKeyword(keyword.id)}
+                    />,
+                  ]}
+                  style={{ padding: '8px 16px' }}
+                >
+                  <List.Item.Meta
+                    title={
+                      <Space>
+                        <Text>{keyword.text}</Text>
+                        <Tag color={keyword.source === 'category' ? 'blue' : 'green'}>
+                          {keyword.source === 'category' ? <AppstoreOutlined /> : <ShoppingOutlined />}
+                          {' '}
+                          {keyword.source}
+                        </Tag>
+                      </Space>
+                    }
+                    description={<Text type="secondary" style={{ fontSize: 12 }}>{keyword.link}</Text>}
+                  />
+                </List.Item>
+              )}
+              style={{ marginTop: 8 }}
+              bordered
+            />
+          )}
+        </div>
+      )}
     </Space>
   );
 }

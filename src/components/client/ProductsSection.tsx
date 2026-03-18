@@ -5,6 +5,7 @@ import { RightOutlined } from '@ant-design/icons';
 import Link from 'next/link';
 import { ROUTES } from '@/constants/routes';
 import { useGetPublicProductsQuery } from '@/store/services/publicProductApi';
+import { useGetPublicCategoriesQuery } from '@/store/services/publicCategoryApi';
 import { useGetActivePageSectionsQuery } from '@/store/api/pageSectionApi';
 import { useSignedImageUrl } from '@/hooks/useSignedImageUrl';
 import { useViewTracker } from '@/hooks/useViewTracker';
@@ -15,13 +16,12 @@ const { Title, Text } = Typography;
 
 /**
  * ProductCard Component - Single product card
- * Separated to avoid hook violations in map loop
  */
 interface ProductCardProps {
   product: {
     id: string;
     name: string;
-    price: number | null;
+    price?: string | number | null;
     media?: Array<{
       media_type: string;
       file_url: string;
@@ -127,7 +127,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
               display: 'block',
             }}
           >
-            {product.price ? formatPrice(product.price) : 'Liên hệ'}
+            {product.price ? formatPrice(typeof product.price === 'string' ? parseFloat(product.price) : product.price) : 'Liên hệ'}
           </Text>
         </div>
       </Card>
@@ -136,10 +136,8 @@ const ProductCard = ({ product }: ProductCardProps) => {
 };
 
 /**
- * ProductsSection Component - Grid products
- * Hiển thị products trong grid layout
- * 
- * Config from page_sections API (products_section)
+ * ProductsSection Component - Grid products with multi-category support
+ * Each category can be auto (top 6 by views) or manual (admin selected products)
  */
 interface ProductsSectionProps {
   title?: string;
@@ -149,20 +147,87 @@ interface ProductsSectionProps {
 export default function ProductsSection({ title: propTitle, limit: propLimit }: ProductsSectionProps) {
   const { data, isLoading } = useGetPublicProductsQuery();
   const { data: sections } = useGetActivePageSectionsQuery('homepage');
+  const { data: categoryData = [] } = useGetPublicCategoriesQuery();
 
   // Get products section config from API
   const productsSectionData = sections?.find(s => s.section_identifier === 'products_section');
   const config = productsSectionData?.content as ProductsSectionContent | undefined;
 
-  // Fallback chain: Props > API > Defaults
-  const title = propTitle || config?.title || 'Phụ tùng xe';
-  const limit = propLimit || config?.limit || 6;
-  const showPrice = config?.show_price ?? true;
+  // Fixed values
+  const title = 'Sản phẩm';
 
-  // Filter active products
-  const products = data?.products
-    ?.filter((product) => product.is_active)
-    .slice(0, limit) || [];
+  const categoryConfigs = config?.categories || [];
+
+  // Helper: Get all descendant category IDs (including parent itself)
+  const getAllDescendantCategoryIds = (categoryId: string): string[] => {
+    const result: string[] = [categoryId];
+    
+    const findDescendants = (parentId: string) => {
+      const children = categoryData.filter(cat => cat.parent_id === parentId);
+      children.forEach(child => {
+        result.push(child.id);
+        findDescendants(child.id); // Recursive
+      });
+    };
+    
+    findDescendants(categoryId);
+    return result;
+  };
+
+  // Get products based on category configs
+  let products: any[] = [];
+  
+  if (categoryConfigs.length > 0) {
+    const allProducts: any[] = [];
+    
+    categoryConfigs.forEach(categoryConfig => {
+      let categoryProducts: any[] = [];
+      
+      // Get all relevant category IDs (parent + descendants)
+      const relevantCategoryIds = getAllDescendantCategoryIds(categoryConfig.category_id);
+      
+      if (categoryConfig.mode === 'auto') {
+        // Auto mode: top 6 by view_count from this category and all descendants
+        categoryProducts = data
+          ?.filter((product) => 
+            product.is_active && 
+            product.categories?.some(cat => relevantCategoryIds.includes(cat.id))
+          )
+          .sort((a, b) => ((b as any).view_count || 0) - ((a as any).view_count || 0))
+          .slice(0, 6) || [];
+      } else {
+        // Manual mode: admin selected products
+        const selectedIds = categoryConfig.product_ids || [];
+        categoryProducts = data
+          ?.filter((product) => 
+            product.is_active && 
+            selectedIds.includes(product.id)
+          ) || [];
+        
+        // Sort by selection order
+        categoryProducts.sort((a, b) => {
+          const indexA = selectedIds.indexOf(a.id);
+          const indexB = selectedIds.indexOf(b.id);
+          return indexA - indexB;
+        });
+      }
+      
+      allProducts.push(...categoryProducts);
+    });
+    
+    // Remove duplicates (keep first occurrence)
+    const uniqueProducts = Array.from(
+      new Map(allProducts.map(p => [p.id, p])).values()
+    );
+    
+    products = uniqueProducts;
+  } else {
+    // No categories selected: show top 6 globally
+    products = data
+      ?.filter((product) => product.is_active)
+      .sort((a, b) => ((b as any).view_count || 0) - ((a as any).view_count || 0))
+      .slice(0, 6) || [];
+  }
 
   return (
     <div

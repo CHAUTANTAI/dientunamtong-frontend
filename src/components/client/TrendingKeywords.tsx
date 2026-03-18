@@ -3,8 +3,9 @@
 import { Tag } from 'antd';
 import { FireOutlined } from '@ant-design/icons';
 import Link from 'next/link';
-import { ROUTES } from '@/constants/routes';
 import { useGetActivePageSectionsQuery } from '@/store/api/pageSectionApi';
+import { useGetPublicCategoriesQuery } from '@/store/services/publicCategoryApi';
+import { useGetPublicProductsQuery } from '@/store/services/publicProductApi';
 import type { TrendingKeywordsContent } from '@/types/pageSection';
 
 export interface KeywordItem {
@@ -12,62 +13,67 @@ export interface KeywordItem {
   link: string;
 }
 
-interface TrendingKeywordsProps {
-  keywords?: KeywordItem[];
-  title?: string;
-  limit?: number;
-  showIcon?: boolean;
-}
-
 /**
  * TrendingKeywords Component - Xu hướng tìm kiếm
- * Hiển thị các keywords/tags phổ biến
+ * Fixed title: "Xu hướng tìm kiếm:"
+ * Icon: Always shown 🔥
  * 
- * Fetches keywords from page_sections API (trending_keywords_section)
+ * Supports:
+ * - Auto mode: Top 5 categories + Top 5 products by views
+ * - Manual mode: Admin-selected categories/products
  */
-export default function TrendingKeywords({
-  keywords: propKeywords,
-  title: propTitle,
-  limit: propLimit,
-  showIcon: propShowIcon,
-}: TrendingKeywordsProps = {}) {
+export default function TrendingKeywords() {
   // Fetch trending keywords section from API
   const { data: sections } = useGetActivePageSectionsQuery('homepage');
   const keywordsSection = sections?.find(s => s.section_identifier === 'trending_keywords_section');
   const keywordsContent = keywordsSection?.content as unknown as TrendingKeywordsContent;
 
-  // Default fallback data
-  const defaultKeywords: KeywordItem[] = [
-    { text: 'Sơn xe cũ thành xe mới', link: '#' },
-    { text: 'Tân trang xe máy', link: '#' },
-    { text: 'PCX 160', link: `${ROUTES.PRODUCTS}?search=PCX+160` },
-    { text: 'ADV 160', link: `${ROUTES.PRODUCTS}?search=ADV+160` },
-    { text: 'Airblade 160', link: `${ROUTES.PRODUCTS}?search=Airblade+160` },
-    { text: 'Khung bảo vệ ADV 160', link: '#' },
-    { text: 'Chống trộm smartkey', link: '#' },
-    { text: 'SH 2020', link: '#' },
-    { text: 'Dán decal đổi màu xe', link: '#' },
-    { text: 'Đồ chơi xe ADV 150', link: '#' },
-    { text: 'Baga nhôm đúc ADV 150', link: '#' },
-    { text: 'SH Mode 2020', link: '#' },
-    { text: 'Vario 160', link: '#' },
-    { text: 'LED Audi i8 PCX 160', link: '#' },
-    { text: 'Wave độ', link: '#' },
-  ];
+  // Fetch categories and products for auto mode
+  const { data: categories = [] } = useGetPublicCategoriesQuery();
+  const { data: products = [] } = useGetPublicProductsQuery();
 
-  // Transform API data to component props format
-  const apiKeywords: KeywordItem[] = keywordsContent?.keywords?.map(kw => ({
-    text: kw.text,
-    link: kw.link,
-  })) || [];
+  const mode = keywordsContent?.mode || 'manual';
+  
+  let keywords: KeywordItem[] = [];
 
-  // Use props > API > defaults
-  const keywords = propKeywords || (apiKeywords.length > 0 ? apiKeywords : defaultKeywords);
-  const title = propTitle || keywordsContent?.title || 'Xu hướng tìm kiếm:';
-  const showIcon = propShowIcon ?? keywordsContent?.show_icon ?? true;
-  const limit = propLimit || keywordsContent?.limit;
+  if (mode === 'auto') {
+    // Auto mode: Top 5 categories + Top 5 products by views
+    // Sort by view_count (if available in the data)
+    const topCategories = [...categories]
+      .sort((a, b) => ((b as any).view_count || 0) - ((a as any).view_count || 0))
+      .slice(0, 5)
+      .map(c => ({
+        text: c.name,
+        link: `/categories/${c.id}`,
+      }));
 
-  const displayKeywords = limit ? keywords.slice(0, limit) : keywords;
+    const topProducts = [...products]
+      .sort((a, b) => ((b as any).view_count || 0) - ((a as any).view_count || 0))
+      .slice(0, 5)
+      .map(p => ({
+        text: p.name,
+        link: `/products/${p.id}`,
+      }));
+
+    keywords = [...topCategories, ...topProducts];
+  } else {
+    // Manual mode: Use admin-selected keywords
+    keywords = keywordsContent?.keywords?.map(kw => ({
+      text: kw.text,
+      link: kw.link,
+    })) || [];
+  }
+
+  // Fallback if no keywords
+  if (keywords.length === 0) {
+    keywords = [
+      { text: 'Sơn xe cũ thành xe mới', link: '#' },
+      { text: 'Tân trang xe máy', link: '#' },
+      { text: 'PCX 160', link: '#' },
+      { text: 'ADV 160', link: '#' },
+      { text: 'Airblade 160', link: '#' },
+    ];
+  }
 
   return (
     <div
@@ -88,7 +94,7 @@ export default function TrendingKeywords({
           marginBottom: '12px',
         }}
       >
-        {showIcon && <FireOutlined style={{ fontSize: 18, color: '#ff4d4f' }} />}
+        <FireOutlined style={{ fontSize: 18, color: '#ff4d4f' }} />
         <span
           style={{
             fontSize: 15,
@@ -96,7 +102,7 @@ export default function TrendingKeywords({
             color: '#262626',
           }}
         >
-          {title}
+          Xu hướng tìm kiếm:
         </span>
       </div>
 
@@ -107,7 +113,7 @@ export default function TrendingKeywords({
           gap: '10px',
         }}
       >
-          {displayKeywords.map((keyword, index) => (
+        {keywords.map((keyword, index) => (
           <Link key={index} href={keyword.link} style={{ textDecoration: 'none' }}>
             <Tag
               style={{

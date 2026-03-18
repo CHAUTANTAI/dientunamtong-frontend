@@ -7,6 +7,7 @@ import type { RightSidebarContent } from '@/types/pageSection';
 import { v4 as uuidv4 } from 'uuid';
 import dayjs from 'dayjs';
 import MediaUpload, { type MediaValue } from '@/components/common/MediaUpload';
+import { useDebounce } from '@/hooks/useDebounce';
 
 const { Text, Title } = Typography;
 
@@ -41,6 +42,10 @@ export default function RightSidebarForm({ content, onChange }: RightSidebarForm
   const [itemFormVisible, setItemFormVisible] = useState(false);
   const [form] = Form.useForm();
 
+  // Debounce to avoid rapid onChange calls
+  const debouncedNewsItems = useDebounce(newsItems, 500);
+  const debouncedPromotionalBanners = useDebounce(promotionalBanners, 500);
+
   useEffect(() => {
     setNewsItems(content?.news_items || []);
     setPromotionalBanners(content?.promotional_banners || []);
@@ -48,7 +53,7 @@ export default function RightSidebarForm({ content, onChange }: RightSidebarForm
 
   useEffect(() => {
     // Avoid infinite loop with deep comparison
-    const currentState = JSON.stringify({ newsItems, promotionalBanners });
+    const currentState = JSON.stringify({ newsItems: debouncedNewsItems, promotionalBanners: debouncedPromotionalBanners });
     const contentState = JSON.stringify({
       newsItems: content?.news_items || [],
       promotionalBanners: content?.promotional_banners || [],
@@ -56,11 +61,11 @@ export default function RightSidebarForm({ content, onChange }: RightSidebarForm
     
     if (currentState !== contentState) {
       onChange({
-        news_items: newsItems,
-        promotional_banners: promotionalBanners as unknown as RightSidebarContent['promotional_banners'],
+        news_items: debouncedNewsItems,
+        promotional_banners: debouncedPromotionalBanners as unknown as RightSidebarContent['promotional_banners'],
       });
     }
-  }, [newsItems, promotionalBanners, onChange]);
+  }, [debouncedNewsItems, debouncedPromotionalBanners, onChange]);
 
   const handleAddItem = () => {
     form.validateFields().then((values) => {

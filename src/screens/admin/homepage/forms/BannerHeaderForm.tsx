@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { Form, Input, Typography, Space } from 'antd';
 import type { BannerHeaderContentDraft } from '@/types/pageSection';
 import MediaUpload, { type MediaValue } from '@/components/common/MediaUpload';
+import { useDebounce } from '@/hooks/useDebounce';
 
 const { Text } = Typography;
 
@@ -31,23 +32,41 @@ export default function BannerHeaderForm({
     });
   }, [content, form]);
 
-  // Handle form value changes
-  const handleValuesChange = (_: unknown, allValues: Record<string, string>) => {
-    const newContent: BannerHeaderContentDraft = {
-      logo_media_id: content?.logo_media_id, // Keep existing
-      banner_media_id: content?.banner_media_id, // Keep existing
-      primary_hotline: allValues.primary_hotline || undefined,
-      secondary_hotline: allValues.secondary_hotline || undefined,
-    };
-    onChange(newContent);
-  };
+  // Get current form values with debounce
+  const formValues = Form.useWatch([], form) || {};
+  const debouncedFormValues = useDebounce(formValues, 500);
+
+  // Handle debounced form value changes (avoid infinite loop with deep comparison)
+  useEffect(() => {
+    if (Object.keys(debouncedFormValues).length > 0) {
+      const newContent: BannerHeaderContentDraft = {
+        logo_media_id: content?.logo_media_id,
+        banner_media_id: content?.banner_media_id,
+        primary_hotline: debouncedFormValues.primary_hotline || undefined,
+        secondary_hotline: debouncedFormValues.secondary_hotline || undefined,
+      };
+      
+      // Only call onChange if values actually changed
+      const currentContentStr = JSON.stringify({
+        primary_hotline: content?.primary_hotline,
+        secondary_hotline: content?.secondary_hotline,
+      });
+      const newContentStr = JSON.stringify({
+        primary_hotline: newContent.primary_hotline,
+        secondary_hotline: newContent.secondary_hotline,
+      });
+      
+      if (currentContentStr !== newContentStr) {
+        onChange(newContent);
+      }
+    }
+  }, [debouncedFormValues, content?.logo_media_id, content?.banner_media_id, content?.primary_hotline, content?.secondary_hotline, onChange]);
 
   return (
     <Form
       form={form}
       layout="vertical"
       autoComplete="off"
-      onValuesChange={handleValuesChange}
     >
       <Space direction="vertical" style={{ width: '100%' }} size="middle">
         {/* Logo Section */}
@@ -65,6 +84,8 @@ export default function BannerHeaderForm({
             label="Company Logo"
             accept="image/png,image/jpeg,image/svg+xml"
             maxSizeMB={2}
+            previewHeight={110}
+            previewAspectRatio="contain"
           />
         </div>
 
@@ -83,6 +104,15 @@ export default function BannerHeaderForm({
             label="Header Banner Image"
             accept="image/*"
             maxSizeMB={5}
+            previewHeight={150}
+            previewAspectRatio="contain"
+            helperText="Recommended: 1200×110px (aspect ratio ~10.9:1) for best display on homepage banner"
+            minWidth={800}
+            minHeight={80}
+            maxWidth={2400}
+            maxHeight={300}
+            aspectRatio={10.9}
+            aspectRatioTolerance={0.15}
           />
         </div>
 

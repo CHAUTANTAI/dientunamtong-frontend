@@ -5,8 +5,6 @@ import LeftSidebar from '@/components/client/LeftSidebar';
 import RightSidebar from '@/components/client/RightSidebar';
 import TrendingKeywords from '@/components/client/TrendingKeywords';
 import ProductsSection from '@/components/client/ProductsSection';
-import NewsSection from '@/components/client/NewsSection';
-import VideoSection from '@/components/client/VideoSection';
 
 /**
  * HomePage - Main page với layout 3 cột như source Hoàng Trí
@@ -14,14 +12,7 @@ import VideoSection from '@/components/client/VideoSection';
  * 
  * Sections order:
  * 1. Trending Keywords (full width trong main)
- * 2. Products Section
- * 3. News Section  
- * 4. Video Section
- * 
- * TODO: Add more sections:
- * - Stickers/Tem section
- * - Media/Press section
- * - Customer reviews
+ * 2. Products Section (supports up to 3 categories)
  */
 export default function HomePage() {
   return (
@@ -46,18 +37,6 @@ export default function HomePage() {
 
           {/* Products Section */}
           <ProductsSection title="Phụ tùng xe" limit={6} />
-
-          {/* News Section - Hidden on mobile (show on web only) */}
-          <div className="news-section-desktop">
-            <NewsSection title="Tin tức xe" limit={6} />
-          </div>
-
-          {/* Video Section */}
-          <VideoSection />
-
-          {/* TODO: Add more sections */}
-          {/* <StickersSection /> */}
-          {/* <MediaSection /> */}
         </Col>
 
         {/* Right Sidebar - 25% */}
