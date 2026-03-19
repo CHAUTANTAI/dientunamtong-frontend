@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Tabs, Collapse, Button, Space, Typography, App, Spin, Form, Badge } from 'antd';
 import { SaveOutlined, CheckCircleOutlined } from '@ant-design/icons';
 import { useTranslations } from 'next-intl';
@@ -71,6 +71,39 @@ export default function HomepageEditorPage() {
     leftSidebar?: PageSection;
     rightSidebar?: PageSection;
   }>({});
+
+  // Memoize onChange callbacks to prevent infinite loops
+  const handleBannerHeaderChange = useCallback((newContent: unknown) => {
+    setBannerHeaderSection(prev => prev ? { ...prev, content: newContent as Record<string, unknown> } : null);
+  }, []);
+
+  const handleMegaMenuChange = useCallback((newContent: unknown) => {
+    setMegaMenuSection(prev => prev ? { ...prev, content: newContent as Record<string, unknown> } : null);
+  }, []);
+
+  const handleSearchSloganChange = useCallback((newContent: unknown) => {
+    setSearchSloganSection(prev => prev ? { ...prev, content: newContent as Record<string, unknown> } : null);
+  }, []);
+
+  const handleSliderChange = useCallback((newContent: unknown) => {
+    setSliderSection(prev => prev ? { ...prev, content: newContent as Record<string, unknown> } : null);
+  }, []);
+
+  const handleTrendingKeywordsChange = useCallback((newContent: unknown) => {
+    setTrendingKeywordsSection(prev => prev ? { ...prev, content: newContent as Record<string, unknown> } : null);
+  }, []);
+
+  const handleProductsChange = useCallback((newContent: unknown) => {
+    setProductsSectionState(prev => prev ? { ...prev, content: newContent as Record<string, unknown> } : null);
+  }, []);
+
+  const handleLeftSidebarChange = useCallback((newContent: unknown) => {
+    setLeftSidebarSection(prev => prev ? { ...prev, content: newContent as Record<string, unknown> } : null);
+  }, []);
+
+  const handleRightSidebarChange = useCallback((newContent: unknown) => {
+    setRightSidebarSection(prev => prev ? { ...prev, content: newContent as Record<string, unknown> } : null);
+  }, []);
 
   // Check if there are any changes (compare CURRENT state vs ORIGINAL snapshot)
   const hasChanges = useMemo(() => {
@@ -443,15 +476,7 @@ export default function HomepageEditorPage() {
                         <div style={{ padding: '16px', backgroundColor: '#fafafa', borderRadius: '4px' }}>
                           <BannerHeaderForm
                             content={bannerHeaderSection.content as unknown as BannerHeaderContentDraft}
-                            onChange={(newContent) => {
-                              console.log('🔄 BannerHeader onChange called:', newContent);
-                              const updatedSection = {
-                                ...bannerHeaderSection,
-                                content: newContent as unknown as Record<string, unknown>,
-                              };
-                              console.log('📦 Setting bannerHeaderSection to:', updatedSection);
-                              setBannerHeaderSection(updatedSection);
-                            }}
+                            onChange={handleBannerHeaderChange}
                             form={bannerHeaderForm}
                           />
                         </div>
@@ -477,12 +502,7 @@ export default function HomepageEditorPage() {
                         <div style={{ padding: '16px', backgroundColor: '#fafafa', borderRadius: '4px' }}>
                           <MegaMenuForm
                             content={megaMenuSection.content as unknown as MegaMenuContent}
-                            onChange={(newContent) => {
-                              setMegaMenuSection({
-                                ...megaMenuSection,
-                                content: newContent as unknown as Record<string, unknown>,
-                              });
-                            }}
+                            onChange={handleMegaMenuChange}
                           />
                         </div>
                       ) : null,
@@ -507,12 +527,7 @@ export default function HomepageEditorPage() {
                         <div style={{ padding: '16px', backgroundColor: '#fafafa', borderRadius: '4px' }}>
                           <SearchSloganForm
                             content={searchSloganSection.content as unknown as SearchSloganContent}
-                            onChange={(newContent) => {
-                              setSearchSloganSection({
-                                ...searchSloganSection,
-                                content: newContent as unknown as Record<string, unknown>,
-                              });
-                            }}
+                            onChange={handleSearchSloganChange}
                             form={searchSloganForm}
                           />
                         </div>
@@ -562,12 +577,7 @@ export default function HomepageEditorPage() {
                       children: sliderSection ? (
                         <SliderForm
                           content={sliderSection.content as unknown as SliderContent}
-                          onChange={(newContent) => {
-                            setSliderSection({
-                              ...sliderSection,
-                              content: newContent as unknown as Record<string, unknown>,
-                            });
-                          }}
+                          onChange={handleSliderChange}
                         />
                       ) : null,
                     },
@@ -584,12 +594,7 @@ export default function HomepageEditorPage() {
                       children: trendingKeywordsSection ? (
                         <TrendingKeywordsForm
                           content={trendingKeywordsSection.content as unknown as TrendingKeywordsContent}
-                          onChange={(newContent) => {
-                            setTrendingKeywordsSection({
-                              ...trendingKeywordsSection,
-                              content: newContent as unknown as Record<string, unknown>,
-                            });
-                          }}
+                          onChange={handleTrendingKeywordsChange}
                         />
                       ) : null,
                     },
@@ -606,12 +611,7 @@ export default function HomepageEditorPage() {
                       children: productsSectionState ? (
                         <ProductsSectionForm
                           content={productsSectionState.content as unknown as ProductsSectionContent}
-                          onChange={(newContent) => {
-                            setProductsSectionState({
-                              ...productsSectionState,
-                              content: newContent as unknown as Record<string, unknown>,
-                            });
-                          }}
+                          onChange={handleProductsChange}
                         />
                       ) : null,
                     },
@@ -653,12 +653,7 @@ export default function HomepageEditorPage() {
                       children: leftSidebarSection ? (
                         <LeftSidebarForm
                           content={leftSidebarSection.content as unknown as LeftSidebarContent}
-                          onChange={(newContent) => {
-                            setLeftSidebarSection({
-                              ...leftSidebarSection,
-                              content: newContent as unknown as Record<string, unknown>,
-                            });
-                          }}
+                          onChange={handleLeftSidebarChange}
                         />
                       ) : null,
                     },
@@ -675,12 +670,7 @@ export default function HomepageEditorPage() {
                       children: rightSidebarSection ? (
                         <RightSidebarForm
                           content={rightSidebarSection.content as unknown as RightSidebarContent}
-                          onChange={(newContent) => {
-                            setRightSidebarSection({
-                              ...rightSidebarSection,
-                              content: newContent as unknown as Record<string, unknown>,
-                            });
-                          }}
+                          onChange={handleRightSidebarChange}
                         />
                       ) : null,
                     },

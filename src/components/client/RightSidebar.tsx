@@ -1,59 +1,40 @@
 'use client';
 
-import { List, Typography, Spin } from 'antd';
+import { List, Typography, Spin, Empty } from 'antd';
 import { RightOutlined } from '@ant-design/icons';
 import Link from 'next/link';
+import { useSignedImageUrl } from '@/hooks/useSignedImageUrl';
+import type { RightSidebarContent } from '@/types/pageSection';
+import Image from 'next/image';
 
 const { Text, Title } = Typography;
 
 /**
- * RightSidebar Component - Simple news list như source
- * Hiển thị danh sách tin tức đơn giản
- * 
- * TODO: Kết nối API để lấy:
- * - Latest news/posts từ CMS hoặc page_sections
- * - Hoặc trending products
+ * RightSidebar Component - News list + promotional banners
+ * Fetches news_items and promotional_banners from API via props
  */
-export default function RightSidebar() {
-  // TODO: Replace with API data - Get latest news/posts
+export default function RightSidebar({ content }: { content?: RightSidebarContent }) {
   const isLoading = false;
-  const newsItems = [
-    {
-      id: 1,
-      title: 'ADV 160 nâng cấp màn hình Chigee AIO 5 Play - Combo tiện ích đáng tiền',
-      link: '#',
-    },
-    {
-      id: 2,
-      title: 'Tổng hợp phụ kiện đồ chơi trang trí xe GPX Demon',
-      link: '#',
-    },
-    {
-      id: 3,
-      title: 'PCX 160 nâng cấp 3 món cơ bản nhưng cực kỳ khác biệt',
-      link: '#',
-    },
-    {
-      id: 4,
-      title: 'Chỉ với 2 phụ kiện trang trí Stylo 160 đã trở nên khác biệt',
-      link: '#',
-    },
-    {
-      id: 5,
-      title: 'NVX V2 phong cách touring hầm hố với bộ 3 thùng Givi',
-      link: '#',
-    },
-    {
-      id: 6,
-      title: 'Khai trương đầu năm - Shop chính thức hoạt động trở lại',
-      link: '#',
-    },
-    {
-      id: 7,
-      title: 'Hành trình 2025 chính thức khép lại tại Shop',
-      link: '#',
-    },
-  ];
+  
+  // Use content from props, fallback to empty arrays
+  const newsItems = content?.news_items || [];
+  const banners = content?.promotional_banners || [];
+
+  if (!newsItems.length && !banners.length) {
+    return (
+      <div
+        style={{
+          backgroundColor: '#fff',
+          borderRadius: 8,
+          border: '1px solid #f0f0f0',
+          padding: '24px',
+          textAlign: 'center',
+        }}
+      >
+        <Empty description="Chưa có dữ liệu" image={Empty.PRESENTED_IMAGE_SIMPLE} />
+      </div>
+    );
+  }
 
   return (
     <div
@@ -91,7 +72,7 @@ export default function RightSidebar() {
         <div style={{ textAlign: 'center', padding: '40px 0' }}>
           <Spin />
         </div>
-      ) : (
+      ) : newsItems.length > 0 ? (
         <List
           dataSource={newsItems}
           renderItem={(item) => (
@@ -111,7 +92,7 @@ export default function RightSidebar() {
               }}
             >
               <Link
-                href={item.link}
+                href={item.link || '#'}
                 style={{
                   textDecoration: 'none',
                   display: 'flex',
@@ -128,63 +109,114 @@ export default function RightSidebar() {
                     flexShrink: 0,
                   }}
                 />
-                <Text
-                  style={{
-                    fontSize: 13,
-                    color: '#595959',
-                    lineHeight: 1.6,
-                    display: '-webkit-box',
-                    WebkitLineClamp: 2,
-                    WebkitBoxOrient: 'vertical',
-                    overflow: 'hidden',
-                  }}
-                >
-                  {item.title}
-                </Text>
+                <div style={{ flex: 1 }}>
+                  <Text
+                    style={{
+                      fontSize: 13,
+                      color: '#595959',
+                      lineHeight: 1.6,
+                      display: '-webkit-box',
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: 'vertical',
+                      overflow: 'hidden',
+                    }}
+                  >
+                    {item.title}
+                  </Text>
+                  {item.date && (
+                    <Text type="secondary" style={{ fontSize: 11, display: 'block', marginTop: '4px' }}>
+                      {new Date(item.date).toLocaleDateString('vi-VN')}
+                    </Text>
+                  )}
+                </div>
               </Link>
             </List.Item>
           )}
         />
-      )}
+      ) : null}
 
-      {/* TODO: Add promotional banners at bottom like source */}
-      <div
-        style={{
-          padding: '16px',
-          backgroundColor: '#fafafa',
-          borderTop: '1px solid #f0f0f0',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '12px',
-        }}
-      >
-        {[1, 2, 3].map((index) => (
-          <div
-            key={index}
-            style={{
-              width: '100%',
-              height: '100px',
-              backgroundColor: '#e0e0e0',
-              borderRadius: 8,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              cursor: 'pointer',
-              transition: 'all 0.3s',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'scale(1.02)';
-              e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'scale(1)';
-              e.currentTarget.style.boxShadow = 'none';
-            }}
-          >
-            <Text type="secondary">Banner {index}</Text>
-          </div>
-        ))}
-      </div>
+      {/* Promotional Banners */}
+      {banners && banners.length > 0 && (
+        <div
+          style={{
+            padding: '16px',
+            backgroundColor: '#fafafa',
+            borderTop: '1px solid #f0f0f0',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '12px',
+          }}
+        >
+          {banners.slice(0, 3).map((banner) => (
+            <BannerItem key={banner.id} banner={banner} />
+          ))}
+        </div>
+      )}
     </div>
   );
+}
+
+/**
+ * BannerItem - Single promotional banner image
+ */
+interface BannerItemProps {
+  banner: {
+    id: string;
+    media_id: string;
+    link?: string;
+    alt?: string;
+    sort_order: number;
+  };
+}
+
+function BannerItem({ banner }: BannerItemProps) {
+  const signedUrl = useSignedImageUrl(banner.media_id);
+
+  const content = (
+    <div
+      style={{
+        width: '100%',
+        height: '100px',
+        backgroundColor: '#e0e0e0',
+        borderRadius: 8,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        cursor: 'pointer',
+        transition: 'all 0.3s',
+        overflow: 'hidden',
+        position: 'relative',
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.transform = 'scale(1.02)';
+        e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)';
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.transform = 'scale(1)';
+        e.currentTarget.style.boxShadow = 'none';
+      }}
+    >
+      {signedUrl ? (
+        <Image
+          src={signedUrl}
+          alt={banner.alt || 'Banner'}
+          fill
+          style={{ objectFit: 'cover' }}
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 300px"
+        />
+      ) : (
+        <Text type="secondary">Loading...</Text>
+      )}
+    </div>
+  );
+
+  if (banner.link) {
+    return (
+      <Link href={banner.link} style={{ textDecoration: 'none' }}>
+        {content}
+      </Link>
+    );
+  }
+
+  return content;
 }

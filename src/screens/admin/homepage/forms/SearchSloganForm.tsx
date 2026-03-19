@@ -42,7 +42,7 @@ export default function SearchSloganForm({
         onChange({ slogan_text: newSloganText });
       }
     }
-  }, [debouncedFormValues, content?.slogan_text, onChange]);
+  }, [debouncedFormValues, content?.slogan_text]);
 
   const charCount = form.getFieldValue('slogan_text')?.length || 0;
 

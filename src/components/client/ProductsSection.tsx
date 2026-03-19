@@ -6,7 +6,6 @@ import Link from 'next/link';
 import { ROUTES } from '@/constants/routes';
 import { useGetPublicProductsQuery } from '@/store/services/publicProductApi';
 import { useGetPublicCategoriesQuery } from '@/store/services/publicCategoryApi';
-import { useGetActivePageSectionsQuery } from '@/store/api/pageSectionApi';
 import { useSignedImageUrl } from '@/hooks/useSignedImageUrl';
 import { useViewTracker } from '@/hooks/useViewTracker';
 import type { ProductsSectionContent } from '@/types/pageSection';
@@ -14,6 +13,7 @@ import Image from 'next/image';
 
 const { Title, Text } = Typography;
 
+// ... (ProductCard component remains the same)
 /**
  * ProductCard Component - Single product card
  */
@@ -135,23 +135,21 @@ const ProductCard = ({ product }: ProductCardProps) => {
   );
 };
 
+
 /**
  * ProductsSection Component - Grid products with multi-category support
  * Each category can be auto (top 6 by views) or manual (admin selected products)
  */
 interface ProductsSectionProps {
-  title?: string;
-  limit?: number;
+  content?: ProductsSectionContent;
 }
 
-export default function ProductsSection({ title: propTitle, limit: propLimit }: ProductsSectionProps) {
+export default function ProductsSection({ content }: ProductsSectionProps) {
   const { data, isLoading } = useGetPublicProductsQuery();
-  const { data: sections } = useGetActivePageSectionsQuery('homepage');
   const { data: categoryData = [] } = useGetPublicCategoriesQuery();
 
-  // Get products section config from API
-  const productsSectionData = sections?.find(s => s.section_identifier === 'products_section');
-  const config = productsSectionData?.content as ProductsSectionContent | undefined;
+  // Get products section config from props
+  const config = content;
 
   // Fixed values
   const title = 'Sản phẩm';

@@ -5,7 +5,6 @@ import { Input, Button } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import { useRouter } from 'next/navigation';
 import { ROUTES } from '@/constants/routes';
-import { useGetActivePageSectionsQuery } from '@/store/api/pageSectionApi';
 import type { SearchSloganContent } from '@/types/pageSection';
 
 const { Search } = Input;
@@ -14,16 +13,18 @@ const { Search } = Input;
  * SearchSlogan Component - Search bar + Marquee slogan
  * Layout: [Search Box] [Slogan chạy]
  * 
- * Config slogan text from page_sections API (search_slogan section)
+ * Config slogan text from the `content` prop.
  */
-export default function SearchSlogan() {
+interface SearchSloganProps {
+  content?: SearchSloganContent;
+}
+
+export default function SearchSlogan({ content }: SearchSloganProps) {
   const router = useRouter();
   const [searchValue, setSearchValue] = useState('');
-  const { data: sections } = useGetActivePageSectionsQuery('homepage');
 
-  // Get search slogan config from API
-  const searchSloganSection = sections?.find(s => s.section_identifier === 'search_slogan');
-  const config = searchSloganSection?.content as SearchSloganContent | undefined;
+  // Get search slogan config from props
+  const config = content;
 
   // Fallback to default slogan if not configured
   const sloganText = config?.slogan_text || 

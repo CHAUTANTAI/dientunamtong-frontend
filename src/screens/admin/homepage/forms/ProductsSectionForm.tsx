@@ -44,20 +44,17 @@ export default function ProductsSectionForm({
   const { data: categoryData = [], isLoading: categoriesLoading } = useGetPublicCategoriesQuery();
   const { data: products = [], isLoading: productsLoading } = useGetPublicProductsQuery();
 
+  // Sync from props on mount/when content changes
   useEffect(() => {
     setCategories(content?.categories || []);
-  }, [content]);
+  }, [content?.categories]);
 
+  // Notify parent of changes - only include categories in dependency to avoid infinite loop
   useEffect(() => {
-    const currentState = JSON.stringify(categories);
-    const contentState = JSON.stringify(content?.categories || []);
-    
-    if (currentState !== contentState) {
-      onChange({
-        categories: categories.length > 0 ? categories : undefined,
-      });
-    }
-  }, [categories, content?.categories, onChange]);
+    onChange({
+      categories: categories.length > 0 ? categories : undefined,
+    });
+  }, [categories]);
 
   // Build category tree
   const categoryTreeData = useMemo(() => {
@@ -135,19 +132,21 @@ export default function ProductsSectionForm({
     setCategories(newCategories);
   };
 
-  const getCategoryName = (categoryId: string) => {
-    const findName = (nodes: TreeNode[]): string | null => {
-      for (const node of nodes) {
-        if (node.value === categoryId) return node.title;
-        if (node.children) {
-          const found = findName(node.children);
-          if (found) return found;
+  const getCategoryName = useMemo(() => {
+    return (categoryId: string) => {
+      const findName = (nodes: TreeNode[]): string | null => {
+        for (const node of nodes) {
+          if (node.value === categoryId) return node.title;
+          if (node.children) {
+            const found = findName(node.children);
+            if (found) return found;
+          }
         }
-      }
-      return null;
+        return null;
+      };
+      return findName(categoryTreeData) || categoryId;
     };
-    return findName(categoryTreeData) || categoryId;
-  };
+  }, [categoryTreeData]);
 
   // Get all descendant category IDs (including the category itself)
   const getAllDescendantCategoryIds = (categoryId: string): string[] => {

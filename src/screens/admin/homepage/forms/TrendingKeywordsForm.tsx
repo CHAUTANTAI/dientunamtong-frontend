@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { Switch, Button, Space, Typography, List, Card, Select, Radio, Tag, TreeSelect } from 'antd';
 import { PlusOutlined, DeleteOutlined, AppstoreOutlined, ShoppingOutlined } from '@ant-design/icons';
 import type { TrendingKeywordsContent } from '@/types/pageSection';
@@ -40,6 +40,7 @@ export default function TrendingKeywordsForm({ content, onChange }: TrendingKeyw
   const [selectedId, setSelectedId] = useState<string>('');
   const [categorySearchValue, setCategorySearchValue] = useState<string>('');
   const [productSearchValue, setProductSearchValue] = useState<string>('');
+  const isInitializingRef = useRef(true);
 
   // Fetch categories and products
   const { data: categories = [], isLoading: categoriesLoading } = useGetPublicCategoriesQuery();
@@ -49,26 +50,36 @@ export default function TrendingKeywordsForm({ content, onChange }: TrendingKeyw
   const debouncedCategorySearch = useDebounce(categorySearchValue, 300);
   const debouncedProductSearch = useDebounce(productSearchValue, 300);
 
+  // Sync from props on mount/when mode or keywords change
   useEffect(() => {
-    setMode(content?.mode || 'manual');
-    setKeywords(content?.keywords || []);
-  }, [content]);
-
-  useEffect(() => {
-    // Avoid infinite loop with deep comparison
-    const currentState = JSON.stringify({ mode, keywords });
-    const contentState = JSON.stringify({
-      mode: content?.mode || 'manual',
-      keywords: content?.keywords || [],
-    });
+    const newMode = content?.mode || 'manual';
+    const newKeywords = content?.keywords || [];
     
-    if (currentState !== contentState) {
-      onChange({
-        mode,
-        keywords,
-      });
+    const modeChanged = mode !== newMode;
+    const keywordsChanged = JSON.stringify(keywords) !== JSON.stringify(newKeywords);
+    
+    if (modeChanged || keywordsChanged) {
+      console.log('🔄 TrendingKeywordsForm sync from props - mode:', newMode, 'keywords:', newKeywords.length);
+      setMode(newMode);
+      setKeywords(newKeywords);
+      isInitializingRef.current = true;
     }
-  }, [mode, keywords, content?.mode, content?.keywords, onChange]);
+  }, [content?.mode, content?.keywords]);
+
+  // Call onChange only after content is synced and not initializing
+  useEffect(() => {
+    if (isInitializingRef.current) {
+      console.log('⏳ TrendingKeywordsForm initializing, skipping onChange call');
+      isInitializingRef.current = false;
+      return;
+    }
+
+    console.log('📤 TrendingKeywordsForm calling onChange - mode:', mode, 'keywords:', keywords.length);
+    onChange({
+      mode,
+      keywords,
+    });
+  }, [mode, keywords]);
 
   const handleModeChange = (newMode: 'auto' | 'manual') => {
     setMode(newMode);
@@ -249,7 +260,11 @@ export default function TrendingKeywordsForm({ content, onChange }: TrendingKeyw
                     const title = typeof node?.title === 'string' ? node.title : '';
                     return title.toLowerCase().includes(searchTerm);
                   }}
-                  dropdownStyle={{ maxHeight: 400 }}
+                  styles={{
+                    popup: {
+                      root: { maxHeight: 400 }
+                    }
+                  }}
                   style={{ width: '100%', marginTop: 4 }}
                 />
               ) : (

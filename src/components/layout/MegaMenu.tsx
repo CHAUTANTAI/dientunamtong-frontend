@@ -6,23 +6,24 @@ import { DownOutlined } from '@ant-design/icons';
 import Link from 'next/link';
 import { ROUTES } from '@/constants/routes';
 import { useGetPublicCategoriesQuery } from '@/store/services/publicCategoryApi';
-import { useGetActivePageSectionsQuery } from '@/store/api/pageSectionApi';
 import type { MegaMenuContent } from '@/types/pageSection';
 
 /**
  * MegaMenu Component - Menu dropdown lớn với categories
  * Hiển thị categories với subcategories trong dropdown
  * 
- * Config static menu items from page_sections API (mega_menu section)
+ * Config static menu items from the `content` prop.
  */
-export default function MegaMenu() {
+interface MegaMenuProps {
+  content?: MegaMenuContent;
+}
+
+export default function MegaMenu({ content }: MegaMenuProps) {
   const { data: categories, isLoading } = useGetPublicCategoriesQuery();
-  const { data: sections } = useGetActivePageSectionsQuery('homepage');
   const [hoveredKey, setHoveredKey] = useState<string | null>(null);
 
-  // Get mega menu config from API
-  const megaMenuSection = sections?.find(s => s.section_identifier === 'mega_menu');
-  const config = megaMenuSection?.content as MegaMenuContent | undefined;
+  // Get mega menu config from props
+  const config = content;
 
   // Filter only parent categories (those without parent_id)
   const parentCategories = categories?.filter((cat) => !cat.parent_id) || [];
@@ -32,9 +33,9 @@ export default function MegaMenu() {
     return categories?.filter((cat) => cat.parent_id === parentId) || [];
   };
 
-  // Get static menu items from API config with fallback
+  // Get static menu items from API config (via props) with fallback
   const staticMenuItems = config?.static_items?.length 
-    ? config.static_items.sort((a, b) => a.sort_order - b.sort_order).map(item => ({
+    ? [...config.static_items].sort((a, b) => a.sort_order - b.sort_order).map(item => ({
         key: item.id,
         label: item.label,
         href: item.href,

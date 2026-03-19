@@ -1,8 +1,11 @@
 'use client';
 
+import { useMemo } from 'react';
 import { Carousel } from 'antd';
 import { LeftOutlined, RightOutlined } from '@ant-design/icons';
 import Link from 'next/link';
+import Image from 'next/image';
+import { useSignedImageUrl } from '@/hooks/useSignedImageUrl';
 
 export interface SliderItem {
   id: string | number;
@@ -60,7 +63,15 @@ export default function MainSlider({
   autoplay = true,
   autoplaySpeed = 5000,
 }: MainSliderProps) {
-  if (!slides || slides.length === 0) {
+  // Transform slides to include signed URLs
+  const processedSlides = useMemo(() => {
+    return slides.map(slide => ({
+      ...slide,
+      signedUrl: slide.url, // Will be converted by SlideImage component
+    }));
+  }, [slides]);
+
+  if (!processedSlides || processedSlides.length === 0) {
     return (
       <div
         style={{
@@ -98,39 +109,8 @@ export default function MainSlider({
         dotPosition="bottom"
         style={{ height }}
       >
-        {slides.map((slide) => (
-          <div key={slide.id}>
-            <Link href={slide.link}>
-              <div
-                style={{
-                  width: '100%',
-                  height,
-                  position: 'relative',
-                  backgroundColor: '#e0e0e0',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  cursor: 'pointer',
-                }}
-              >
-                {/* TODO: Replace placeholder with actual Image component when connected to API */}
-                <div
-                  style={{
-                    background: `linear-gradient(135deg, #667eea 0%, #764ba2 100%)`,
-                    width: '100%',
-                    height: '100%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
-                >
-                  <span style={{ color: '#fff', fontSize: 32, fontWeight: 'bold' }}>
-                    {slide.alt}
-                  </span>
-                </div>
-              </div>
-            </Link>
-          </div>
+        {processedSlides.map((slide) => (
+          <SlideImage key={slide.id} slide={slide} height={height} />
         ))}
       </Carousel>
 
@@ -150,5 +130,58 @@ export default function MainSlider({
         }
       `}</style>
     </div>
+  );
+}
+/**
+ * SlideImage Component - Display individual slide with signed URL
+ */
+interface SlideImageProps {
+  slide: SliderItem & { signedUrl: string };
+  height: number;
+}
+
+function SlideImage({ slide, height }: SlideImageProps) {
+  const signedUrl = useSignedImageUrl(slide.url);
+
+  return (
+    <Link href={slide.link} style={{ textDecoration: 'none' }}>
+      <div
+        style={{
+          width: '100%',
+          height,
+          position: 'relative',
+          backgroundColor: '#e0e0e0',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          cursor: 'pointer',
+          overflow: 'hidden',
+        }}
+      >
+        {signedUrl ? (
+          <Image
+            src={signedUrl}
+            alt={slide.alt || 'Slide'}
+            fill
+            style={{ objectFit: 'cover' }}
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 80vw, 1000px"
+            priority
+          />
+        ) : (
+          <div
+            style={{
+              background: `linear-gradient(135deg, #667eea 0%, #764ba2 100%)`,
+              width: '100%',
+              height: '100%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <span style={{ color: '#fff', fontSize: 18 }}>Loading...</span>
+          </div>
+        )}
+      </div>
+    </Link>
   );
 }

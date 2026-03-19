@@ -3,7 +3,6 @@
 import { Tag } from 'antd';
 import { FireOutlined } from '@ant-design/icons';
 import Link from 'next/link';
-import { useGetActivePageSectionsQuery } from '@/store/api/pageSectionApi';
 import { useGetPublicCategoriesQuery } from '@/store/services/publicCategoryApi';
 import { useGetPublicProductsQuery } from '@/store/services/publicProductApi';
 import type { TrendingKeywordsContent } from '@/types/pageSection';
@@ -15,18 +14,15 @@ export interface KeywordItem {
 
 /**
  * TrendingKeywords Component - Xu hướng tìm kiếm
- * Fixed title: "Xu hướng tìm kiếm:"
- * Icon: Always shown 🔥
+ * Receives content from props.
  * 
  * Supports:
  * - Auto mode: Top 5 categories + Top 5 products by views
  * - Manual mode: Admin-selected categories/products
  */
-export default function TrendingKeywords() {
-  // Fetch trending keywords section from API
-  const { data: sections } = useGetActivePageSectionsQuery('homepage');
-  const keywordsSection = sections?.find(s => s.section_identifier === 'trending_keywords_section');
-  const keywordsContent = keywordsSection?.content as unknown as TrendingKeywordsContent;
+export default function TrendingKeywords({ content }: { content?: TrendingKeywordsContent }) {
+  // Use content from props
+  const keywordsContent = content;
 
   // Fetch categories and products for auto mode
   const { data: categories = [] } = useGetPublicCategoriesQuery();
@@ -38,7 +34,6 @@ export default function TrendingKeywords() {
 
   if (mode === 'auto') {
     // Auto mode: Top 5 categories + Top 5 products by views
-    // Sort by view_count (if available in the data)
     const topCategories = [...categories]
       .sort((a, b) => ((b as any).view_count || 0) - ((a as any).view_count || 0))
       .slice(0, 5)
@@ -57,7 +52,7 @@ export default function TrendingKeywords() {
 
     keywords = [...topCategories, ...topProducts];
   } else {
-    // Manual mode: Use admin-selected keywords
+    // Manual mode: Use admin-selected keywords from props
     keywords = keywordsContent?.keywords?.map(kw => ({
       text: kw.text,
       link: kw.link,
@@ -74,6 +69,8 @@ export default function TrendingKeywords() {
       { text: 'Airblade 160', link: '#' },
     ];
   }
+
+  const title = 'Xu hướng tìm kiếm:';
 
   return (
     <div
@@ -102,7 +99,7 @@ export default function TrendingKeywords() {
             color: '#262626',
           }}
         >
-          Xu hướng tìm kiếm:
+          {title}
         </span>
       </div>
 

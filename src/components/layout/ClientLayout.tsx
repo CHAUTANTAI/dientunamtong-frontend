@@ -13,6 +13,7 @@ import DynamicFavicon from '@/components/common/DynamicFavicon';
 import FloatingContactButton from '@/components/client/FloatingContactButton';
 import { useGetSystemInfoQuery } from '@/store/services/publicSystemInfoApi';
 import { useSignedImageUrl } from '@/hooks/useSignedImageUrl';
+import { usePageSections } from '@/hooks/usePageSections';
 
 const { Content } = Layout;
 
@@ -36,6 +37,9 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
   const { data: systemInfo } = useGetSystemInfoQuery();
   const faviconUrl = useSignedImageUrl(systemInfo?.company_logo || '');
 
+  // Fetch all homepage sections' content
+  const { bannerHeader, megaMenu, searchSlogan, slider } = usePageSections('homepage');
+
   // Only show slider on homepage
   const showSlider = pathname === '/';
 
@@ -54,16 +58,16 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
       <TopBar />
       
       {/* Banner Header */}
-      <BannerHeader />
+      <BannerHeader content={bannerHeader} />
       
       {/* Mega Menu */}
-      <MegaMenu />
+      <MegaMenu content={megaMenu} />
       
       {/* Search + Slogan */}
-      <SearchSlogan />
+      <SearchSlogan content={searchSlogan} />
       
       {/* Slider Area - Only show on homepage */}
-      {showSlider && <SliderArea />}
+      {showSlider && <SliderArea content={slider} />}
       
       {/* Main Content */}
       <Content

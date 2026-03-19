@@ -1,6 +1,6 @@
 'use client';
 
-import { useGetActivePageSectionsQuery } from '@/store/api/pageSectionApi';
+import { useMemo } from 'react';
 import type { SliderContent } from '@/types/pageSection';
 import MainSlider, { type SliderItem } from './slider/MainSlider';
 import MiniAdsColumn, { type MiniAdItem } from './slider/MiniAdsColumn';
@@ -9,30 +9,15 @@ import MiniAdsColumn, { type MiniAdItem } from './slider/MiniAdsColumn';
  * SliderArea Component - Main carousel + Mini ads
  * Layout: [Main Slider 70%] [Mini Ads 30%]
  * 
- * Fetches slider configuration from page_sections API (slider_section)
+ * Receives slider configuration from the `content` prop.
  */
-
 interface SliderAreaProps {
-  slides?: SliderItem[];
-  miniAds?: MiniAdItem[];
-  sliderHeight?: number;
-  miniAdHeight?: number;
-  autoplay?: boolean;
-  autoplaySpeed?: number;
+  content?: SliderContent;
 }
 
-export default function SliderArea({
-  slides: propSlides,
-  miniAds: propMiniAds,
-  sliderHeight: propSliderHeight,
-  miniAdHeight: propMiniAdHeight,
-  autoplay: propAutoplay,
-  autoplaySpeed: propAutoplaySpeed,
-}: SliderAreaProps = {}) {
-  // Fetch slider section from API
-  const { data: sections } = useGetActivePageSectionsQuery('homepage');
-  const sliderSection = sections?.find(s => s.section_identifier === 'slider_section');
-  const sliderContent = sliderSection?.content as unknown as SliderContent;
+export default function SliderArea({ content }: SliderAreaProps) {
+  // Use content from props
+  const sliderContent = content;
 
   // Default fallback data
   const defaultSlides: SliderItem[] = [
@@ -71,29 +56,41 @@ export default function SliderArea({
     },
   ];
 
-  // Transform API data to component props format
-  const apiSlides: SliderItem[] = sliderContent?.slides?.map(slide => ({
-    id: slide.id,
-    url: slide.media_id, // TODO: Transform media_id to actual URL
-    alt: slide.alt || '',
-    link: slide.link || '#',
-  })) || [];
+  // Transform API data (from props) to component props format with signed URLs
+  const apiSlides: SliderItem[] = useMemo(() => {
+    if (!sliderContent?.slides?.length) return [];
+    return sliderContent.slides.map(slide => {
+      // Hook must be outside the map for proper usage
+      // We'll handle signed URL in the MainSlider component instead
+      return {
+        id: slide.id,
+        url: slide.media_id, // Pass media_id, MainSlider will convert to signed URL
+        alt: slide.alt || '',
+        link: slide.link || '#',
+      };
+    });
+  }, [sliderContent?.slides]);
 
-  const apiMiniAds: MiniAdItem[] = sliderContent?.mini_ads?.map(ad => ({
-    id: ad.id,
-    url: ad.media_id, // TODO: Transform media_id to actual URL
-    alt: ad.alt || '',
-    link: ad.link || '#',
-  })) || [];
+  const apiMiniAds: MiniAdItem[] = useMemo(() => {
+    if (!sliderContent?.mini_ads?.length) return [];
+    return sliderContent.mini_ads.map(ad => {
+      return {
+        id: ad.id,
+        url: ad.media_id, // Pass media_id, MiniAdsColumn will convert to signed URL
+        alt: ad.alt || '',
+        link: ad.link || '#',
+      };
+    });
+  }, [sliderContent?.mini_ads]);
 
-  // Use props > API > defaults
-  const slides = propSlides || (apiSlides.length > 0 ? apiSlides : defaultSlides);
-  const miniAds = propMiniAds || (apiMiniAds.length > 0 ? apiMiniAds : defaultMiniAds);
+  // Use API data (from props) > defaults
+  const slides = apiSlides.length > 0 ? apiSlides : defaultSlides;
+  const miniAds = apiMiniAds.length > 0 ? apiMiniAds : defaultMiniAds;
   
-  const sliderHeight = propSliderHeight || sliderContent?.slider_settings?.height || 300;
-  const miniAdHeight = propMiniAdHeight || sliderContent?.mini_ad_settings?.height || 149;
-  const autoplay = propAutoplay ?? sliderContent?.slider_settings?.autoplay ?? true;
-  const autoplaySpeed = propAutoplaySpeed || sliderContent?.slider_settings?.autoplay_speed || 5000;
+  const sliderHeight = sliderContent?.slider_settings?.height || 300;
+  const miniAdHeight = sliderContent?.mini_ad_settings?.height || 149;
+  const autoplay = sliderContent?.slider_settings?.autoplay ?? true;
+  const autoplaySpeed = sliderContent?.slider_settings?.autoplay_speed || 5000;
 
   return (
     <div

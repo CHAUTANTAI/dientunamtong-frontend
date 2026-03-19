@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Form, Input, Button, List, Space, Typography, Card, Radio, TreeSelect, Divider } from 'antd';
 import { PlusOutlined, DeleteOutlined, ArrowUpOutlined, ArrowDownOutlined, EditOutlined, LinkOutlined, AppstoreOutlined } from '@ant-design/icons';
 import type { MegaMenuContent } from '@/types/pageSection';
@@ -33,6 +33,7 @@ export default function MegaMenuForm({ content, onChange }: MegaMenuFormProps) {
   const [itemFormVisible, setItemFormVisible] = useState(false);
   const [addMethod, setAddMethod] = useState<'manual' | 'category'>('category'); // Default to category
   const [form] = Form.useForm();
+  const isInitializingRef = useRef(true);
 
   // Fetch categories for selection
   const { data: categories, isLoading: categoriesLoading } = useGetPublicCategoriesQuery();
@@ -89,19 +90,29 @@ export default function MegaMenuForm({ content, onChange }: MegaMenuFormProps) {
 
   const categoryTreeData = buildCategoryTree();
 
+  // Sync from props on mount/when static_items change - use deep comparison
   useEffect(() => {
-    setItems(content?.static_items || []);
-  }, [content]);
-
-  // Update parent whenever items change (avoid infinite loop by comparing stringified values)
-  useEffect(() => {
-    const currentItemsStr = JSON.stringify(items);
-    const contentItemsStr = JSON.stringify(content?.static_items || []);
-    
-    if (currentItemsStr !== contentItemsStr) {
-      onChange({ static_items: items });
+    const newItems = content?.static_items || [];
+    // Only update if content actually changed (not just reference)
+    const itemsChanged = JSON.stringify(items) !== JSON.stringify(newItems);
+    if (itemsChanged) {
+      console.log('🔄 MegaMenuForm sync from props - items:', newItems.length);
+      setItems(newItems);
+      isInitializingRef.current = true;
     }
-  }, [items, onChange]);
+  }, [content?.static_items]);
+
+  // Notify parent of changes - skip during initialization
+  useEffect(() => {
+    if (isInitializingRef.current) {
+      console.log('⏳ MegaMenuForm initializing, skipping onChange call');
+      isInitializingRef.current = false;
+      return;
+    }
+
+    console.log('📤 MegaMenuForm calling onChange - items:', items.length);
+    onChange({ static_items: items });
+  }, [items]);
 
   const handleAddItem = () => {
     form.validateFields().then((values) => {
@@ -267,7 +278,11 @@ export default function MegaMenuForm({ content, onChange }: MegaMenuFormProps) {
                     const title = typeof node?.title === 'string' ? node.title : '';
                     return title.toLowerCase().includes(input.toLowerCase());
                   }}
-                  dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
+                  styles={{
+                    popup: {
+                      root: { maxHeight: 400, overflow: 'auto' }
+                    }
+                  }}
                 />
               </Form.Item>
             ) : (

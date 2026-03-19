@@ -6,27 +6,28 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { ROUTES } from '@/constants/routes';
 import { useGetSystemInfoQuery } from '@/store/services/publicSystemInfoApi';
-import { useGetActivePageSectionsQuery } from '@/store/api/pageSectionApi';
 import { useSignedImageUrl } from '@/hooks/useSignedImageUrl';
 import type { BannerHeaderContent } from '@/types/pageSection';
 
 const { Text } = Typography;
 
 /**
- * BannerHeader Component - Header với logo, banner, hotline
+ * BannerHeader Component - Header with logo, banner, hotline
  * Layout: [Logo 110x110] [Banner Image Large] [Hotline]
  * 
- * Config from page_sections API (banner_header section)
+ * Config from the `content` prop.
  */
-export default function BannerHeader() {
-  const { data: systemInfo } = useGetSystemInfoQuery();
-  const { data: sections } = useGetActivePageSectionsQuery('homepage');
-  
-  // Get banner header config from API
-  const bannerHeaderSection = sections?.find(s => s.section_identifier === 'banner_header');
-  const config = bannerHeaderSection?.content as BannerHeaderContent | undefined;
+interface BannerHeaderProps {
+  content?: BannerHeaderContent;
+}
 
-  // Fallback chain: API config > system_info > defaults
+export default function BannerHeader({ content }: BannerHeaderProps) {
+  const { data: systemInfo } = useGetSystemInfoQuery();
+  
+  // Get banner header config from props
+  const config = content;
+
+  // Fallback chain: API config (from prop) > system_info > defaults
   const logoMediaId = config?.logo_media_id || systemInfo?.company_logo || '';
   const bannerMediaId = config?.banner_media_id || '';
   const primaryHotline = config?.primary_hotline || systemInfo?.phone || '(0286) 271 3025';

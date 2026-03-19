@@ -5,7 +5,6 @@ import { Typography, Spin, Empty, Collapse } from 'antd';
 import type { CollapseProps } from 'antd';
 import { FolderOutlined, FolderOpenOutlined, RightOutlined } from '@ant-design/icons';
 import { useGetPublicCategoriesQuery } from '@/store/services/publicCategoryApi';
-import { useGetActivePageSectionsQuery } from '@/store/api/pageSectionApi';
 import type { LeftSidebarContent } from '@/types/pageSection';
 import Link from 'next/link';
 
@@ -16,14 +15,12 @@ const { Text, Title } = Typography;
  * Auto mode: Top 8 categories by views
  * Manual mode: Admin selected categories (max 8)
  */
-export default function LeftSidebar() {
+export default function LeftSidebar({ content }: { content?: LeftSidebarContent }) {
   const { data: allCategories, isLoading } = useGetPublicCategoriesQuery();
-  const { data: sections } = useGetActivePageSectionsQuery('homepage');
   const [activeKeys, setActiveKeys] = useState<string[]>([]);
 
-  // Get left sidebar config from API
-  const leftSidebarData = sections?.find(s => s.section_identifier === 'left_sidebar');
-  const config = leftSidebarData?.content as LeftSidebarContent | undefined;
+  // Get left sidebar config from props
+  const config = content;
 
   if (isLoading) {
     return (

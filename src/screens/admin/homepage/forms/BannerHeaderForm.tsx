@@ -60,7 +60,7 @@ export default function BannerHeaderForm({
         onChange(newContent);
       }
     }
-  }, [debouncedFormValues, content?.logo_media_id, content?.banner_media_id, content?.primary_hotline, content?.secondary_hotline, onChange]);
+  }, [debouncedFormValues, content?.logo_media_id, content?.banner_media_id, content?.primary_hotline, content?.secondary_hotline]);
 
   return (
     <Form
