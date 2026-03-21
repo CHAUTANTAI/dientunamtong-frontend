@@ -2,7 +2,7 @@
 
 import { Layout, Row, Col, Space, Typography } from 'antd';
 import { PhoneOutlined, MailOutlined, EnvironmentOutlined, FacebookOutlined, YoutubeOutlined } from '@ant-design/icons';
-import { useTranslations } from 'next-intl';
+// import { useTranslations } from 'next-intl'; // Unused - remove to fix lint warning
 import Link from 'next/link';
 import { useGetSystemInfoQuery } from '@/store/services/publicSystemInfoApi';
 import { ROUTES } from '@/constants/routes';

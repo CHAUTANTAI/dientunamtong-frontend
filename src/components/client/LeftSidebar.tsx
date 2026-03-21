@@ -7,6 +7,7 @@ import { FolderOutlined, FolderOpenOutlined, RightOutlined } from '@ant-design/i
 import { useGetPublicCategoriesQuery } from '@/store/services/publicCategoryApi';
 import type { LeftSidebarContent } from '@/types/pageSection';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 
 const { Text, Title } = Typography;
 
@@ -16,6 +17,7 @@ const { Text, Title } = Typography;
  * Manual mode: Admin selected categories (max 8)
  */
 export default function LeftSidebar({ content }: { content?: LeftSidebarContent }) {
+  const t = useTranslations('homepage.leftSidebar');
   const { data: allCategories, isLoading } = useGetPublicCategoriesQuery();
   const [activeKeys, setActiveKeys] = useState<string[]>([]);
 
@@ -61,7 +63,7 @@ export default function LeftSidebar({ content }: { content?: LeftSidebarContent 
   if (!displayCategories || displayCategories.length === 0) {
     return (
       <div style={{ padding: '20px' }}>
-        <Empty description="Chưa có danh mục" image={Empty.PRESENTED_IMAGE_SIMPLE} />
+        <Empty description={t('empty')} image={Empty.PRESENTED_IMAGE_SIMPLE} />
       </div>
     );
   }
@@ -164,7 +166,7 @@ export default function LeftSidebar({ content }: { content?: LeftSidebarContent 
             fontWeight: 600,
           }}
         >
-          Danh mục
+          {t('title')}
         </Title>
       </div>
 
@@ -216,7 +218,7 @@ export default function LeftSidebar({ content }: { content?: LeftSidebarContent 
             e.currentTarget.style.boxShadow = 'none';
           }}
         >
-          <Text type="secondary">Promotional Banner</Text>
+          <Text type="secondary">{t('promoPlaceholder')}</Text>
         </div>
       </div>
     </div>

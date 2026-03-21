@@ -12,6 +12,14 @@ export interface MiniAdItem {
   link: string;
 }
 
+import { useTranslations } from 'next-intl';
+
+interface MiniAdsColumnProps {
+  ads: MiniAdItem[];
+  height?: number;
+  gap?: number;
+}
+
 interface MiniAdsColumnProps {
   ads: MiniAdItem[];
   height?: number;
@@ -23,6 +31,7 @@ export default function MiniAdsColumn({
   height = 149,
   gap = 2,
 }: MiniAdsColumnProps) {
+  const t = useTranslations('common');
   // Memoize processed ads
   const processedAds = useMemo(() => {
     return ads.map(ad => ({
@@ -83,6 +92,7 @@ interface MiniAdItemProps {
 }
 
 function MiniAdItem({ ad, height, index }: MiniAdItemProps) {
+  const t = useTranslations('common');
   const signedUrl = useSignedImageUrl(ad.url);
 
   return (
@@ -130,7 +140,7 @@ function MiniAdItem({ ad, height, index }: MiniAdItemProps) {
               justifyContent: 'center',
             }}
           >
-            <span style={{ color: '#fff', fontSize: 12 }}>Loading...</span>
+            <span style={{ color: '#fff', fontSize: 12 }}>{t('loading')}</span>
           </div>
         )}
       </div>

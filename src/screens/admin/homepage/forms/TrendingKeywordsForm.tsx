@@ -8,6 +8,7 @@ import { useGetPublicCategoriesQuery } from '@/store/services/publicCategoryApi'
 import { useGetPublicProductsQuery } from '@/store/services/publicProductApi';
 import { useDebounce } from '@/hooks/useDebounce';
 import type { Category } from '@/types/category';
+import { useTranslations } from 'next-intl';
 
 const { Text } = Typography;
 
@@ -34,6 +35,7 @@ interface Keyword {
  * - Manual mode: Select categories or products
  */
 export default function TrendingKeywordsForm({ content, onChange }: TrendingKeywordsFormProps) {
+  const t = useTranslations('homepageEditor.forms.trendingKeywords');
   const [mode, setMode] = useState<'auto' | 'manual'>(content?.mode || 'manual');
   const [keywords, setKeywords] = useState<Keyword[]>(content?.keywords || []);
   const [selectedSource, setSelectedSource] = useState<'category' | 'product'>('category');
@@ -186,7 +188,7 @@ export default function TrendingKeywordsForm({ content, onChange }: TrendingKeyw
     <Space direction="vertical" style={{ width: '100%' }} size="middle">
       {/* Mode Selection */}
       <div>
-        <Text strong>Keywords Mode</Text>
+        <Text strong>{t('modeLabel')}</Text>
         <Radio.Group
           value={mode}
           onChange={(e) => handleModeChange(e.target.value)}
@@ -195,15 +197,15 @@ export default function TrendingKeywordsForm({ content, onChange }: TrendingKeyw
           <Space direction="vertical">
             <Radio value="auto">
               <Space>
-                <Text>Auto</Text>
+                <Text>{t('autoMode')}</Text>
                 <Text type="secondary" style={{ fontSize: 12 }}>
-                  (Top 5 categories + Top 5 products by views)
+                  ({t('autoDescription')})
                 </Text>
               </Space>
             </Radio>
             <Radio value="manual">
               <Space>
-                <Text>Manual</Text>
+                <Text>{t('manualMode')}</Text>
                 <Text type="secondary" style={{ fontSize: 12 }}>
                   (Select specific categories or products)
                 </Text>
@@ -215,11 +217,11 @@ export default function TrendingKeywordsForm({ content, onChange }: TrendingKeyw
 
       {/* Manual Mode: Add Keyword Form */}
       {mode === 'manual' && (
-        <Card size="small" title="Add New Keyword">
+        <Card size="small" title={t('addKeywordTitle')}>
           <Space direction="vertical" style={{ width: '100%' }}>
             {/* Select Source Type */}
             <div>
-              <Text type="secondary" style={{ fontSize: 12 }}>Select Type</Text>
+              <Text type="secondary" style={{ fontSize: 12 }}>{t('selectType')}</Text>
               <Radio.Group
                 value={selectedSource}
                 onChange={(e) => {
@@ -229,10 +231,10 @@ export default function TrendingKeywordsForm({ content, onChange }: TrendingKeyw
                 style={{ marginTop: 4, display: 'block' }}
               >
                 <Radio value="category">
-                  <AppstoreOutlined /> Category
+                  <AppstoreOutlined /> {t('categoryOption')}
                 </Radio>
                 <Radio value="product">
-                  <ShoppingOutlined /> Product
+                  <ShoppingOutlined /> {t('productOption')}
                 </Radio>
               </Radio.Group>
             </div>
@@ -245,7 +247,7 @@ export default function TrendingKeywordsForm({ content, onChange }: TrendingKeyw
               {selectedSource === 'category' ? (
                 <TreeSelect
                   showSearch
-                  placeholder="Search and select a category"
+                  placeholder={t('searchCategoryPlaceholder')}
                   value={selectedId || undefined}
                   onChange={setSelectedId}
                   onSearch={setCategorySearchValue}
@@ -270,7 +272,7 @@ export default function TrendingKeywordsForm({ content, onChange }: TrendingKeyw
               ) : (
                 <Select
                   showSearch
-                  placeholder="Search and select a product"
+                  placeholder={t('searchProductPlaceholder')}
                   value={selectedId || undefined}
                   onChange={setSelectedId}
                   onSearch={setProductSearchValue}
@@ -295,7 +297,7 @@ export default function TrendingKeywordsForm({ content, onChange }: TrendingKeyw
               disabled={!selectedId}
               block
             >
-              Add Keyword
+              {t('addButton')} Keyword
             </Button>
           </Space>
         </Card>
@@ -307,7 +309,7 @@ export default function TrendingKeywordsForm({ content, onChange }: TrendingKeyw
           <Text strong>Selected Keywords ({keywords.length})</Text>
           {keywords.length === 0 ? (
             <div style={{ padding: '16px', textAlign: 'center', backgroundColor: '#fafafa', marginTop: 8, borderRadius: 4 }}>
-              <Text type="secondary">No keywords selected. Add keywords above.</Text>
+              <Text type="secondary">{t('noKeywords')}</Text>
             </div>
           ) : (
             <List

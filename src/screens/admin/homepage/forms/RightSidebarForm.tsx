@@ -8,6 +8,7 @@ import { v4 as uuidv4 } from 'uuid';
 import dayjs from 'dayjs';
 import MediaUpload, { type MediaValue } from '@/components/common/MediaUpload';
 import { useDebounce } from '@/hooks/useDebounce';
+import { useTranslations } from 'next-intl';
 
 const { Text, Title } = Typography;
 
@@ -36,6 +37,7 @@ interface PromotionalBanner {
  * RightSidebarForm - Inline form for Right Sidebar news items
  */
 export default function RightSidebarForm({ content, onChange }: RightSidebarFormProps) {
+  const t = useTranslations('homepageEditor.forms.rightSidebar');
   const [newsItems, setNewsItems] = useState<NewsItem[]>([]);
   const [promotionalBanners, setPromotionalBanners] = useState<PromotionalBanner[]>([]);
   const [editingItem, setEditingItem] = useState<NewsItem | null>(null);
@@ -151,7 +153,7 @@ export default function RightSidebarForm({ content, onChange }: RightSidebarForm
             <Form.Item
               name="title"
               label="News Title"
-              rules={[{ required: true, message: 'Title is required' }]}
+              rules={[{ required: true, message: t('newsTextRequired') }]}
               style={{ marginBottom: 12 }}
             >
               <Input placeholder="e.g., ADV 160 nâng cấp màn hình..." />
@@ -159,8 +161,8 @@ export default function RightSidebarForm({ content, onChange }: RightSidebarForm
 
             <Form.Item
               name="link"
-              label="Link URL"
-              rules={[{ required: true, message: 'Link is required' }]}
+              label={t('newsLinkLabel')}
+              rules={[{ required: true, message: t('newsLinkPlaceholder') }]}
               style={{ marginBottom: 12 }}
             >
               <Input placeholder="/news/article-slug or https://..." />
@@ -179,9 +181,9 @@ export default function RightSidebarForm({ content, onChange }: RightSidebarForm
                 type="primary" 
                 onClick={editingItem ? handleUpdateItem : handleAddItem}
               >
-                {editingItem ? 'Update' : 'Add'}
+                {editingItem ? t('updateButton') : t('addButton')}
               </Button>
-              <Button onClick={handleCancelForm}>Cancel</Button>
+              <Button onClick={handleCancelForm}>{t('cancelButton')}</Button>
             </Space>
           </Form>
         </Card>
@@ -192,16 +194,16 @@ export default function RightSidebarForm({ content, onChange }: RightSidebarForm
           onClick={() => setItemFormVisible(true)}
           block
         >
-          Add News Item
+          {t('addNews')}
         </Button>
       )}
 
       {/* News Items List */}
       <div>
-        <Text strong>News Items ({newsItems.length})</Text>
+        <Text strong>{t('newsTitle')} ({newsItems.length})</Text>
         <List
           dataSource={newsItems}
-          locale={{ emptyText: 'No news items. Click "Add News Item" to create one.' }}
+          locale={{ emptyText: t('noNews') }}
           renderItem={(item, index) => (
             <List.Item
               actions={[
@@ -257,7 +259,7 @@ export default function RightSidebarForm({ content, onChange }: RightSidebarForm
       {/* TODO: Promotional Banners */}
       <div>
         <Space style={{ marginBottom: 12 }}>
-          <Title level={5} style={{ margin: 0 }}>Promotional Banners</Title>
+          <Title level={5} style={{ margin: 0 }}>{t('bannersTitle')}</Title>
           <Button
             type="dashed"
             size="small"
@@ -275,12 +277,12 @@ export default function RightSidebarForm({ content, onChange }: RightSidebarForm
               ]);
             }}
           >
-            Add Banner
+            {t('addBanner')}
           </Button>
         </Space>
 
         {promotionalBanners.length === 0 ? (
-          <Text type="secondary">No banners yet. Click &quot;Add Banner&quot; to create one.</Text>
+          <Text type="secondary">{t('noBanners')}</Text>
         ) : (
           <Space direction="vertical" style={{ width: '100%' }}>
             {promotionalBanners.map((banner, index) => (
@@ -305,7 +307,7 @@ export default function RightSidebarForm({ content, onChange }: RightSidebarForm
                       disabled
                     />
                     <Input
-                      placeholder="Link URL"
+                      placeholder={t('bannerLinkPlaceholder')}
                       value={banner.link}
                       onChange={(e) => {
                         const updated = [...promotionalBanners];
@@ -363,7 +365,7 @@ export default function RightSidebarForm({ content, onChange }: RightSidebarForm
                         setPromotionalBanners(reordered);
                       }}
                     >
-                      Remove
+                      {t('remove')}
                     </Button>
                   </Space>
                 </Space>

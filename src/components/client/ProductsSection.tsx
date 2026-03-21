@@ -11,6 +11,7 @@ import { useViewTracker } from '@/hooks/useViewTracker';
 import type { ProductsSectionContent } from '@/types/pageSection';
 import type { Product } from '@/types/product';
 import Image from 'next/image';
+import { useTranslations } from 'next-intl';
 
 const { Title, Text } = Typography;
 
@@ -31,6 +32,7 @@ interface ProductCardProps {
 }
 
 const ProductCard = ({ product }: ProductCardProps) => {
+  const t = useTranslations('homepage.products');
   const firstImage = product.media?.find((m) => m.media_type === 'image');
   const signedUrl = useSignedImageUrl(firstImage?.file_url || '');
   const { trackView } = useViewTracker();
@@ -98,7 +100,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
                 justifyContent: 'center',
               }}
             >
-              <Text type="secondary">No Image</Text>
+              <Text type="secondary">{t('noImage')}</Text>
             </div>
           )}
         </div>
@@ -128,7 +130,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
               display: 'block',
             }}
           >
-            {product.price ? formatPrice(typeof product.price === 'string' ? parseFloat(product.price) : product.price) : 'Liên hệ'}
+            {product.price ? formatPrice(typeof product.price === 'string' ? parseFloat(product.price) : product.price) : t('contactForPrice')}
           </Text>
         </div>
       </Card>
@@ -146,6 +148,7 @@ interface ProductsSectionProps {
 }
 
 export default function ProductsSection({ content }: ProductsSectionProps) {
+  const t = useTranslations('homepage.products');
   const { data } = useGetPublicProductsQuery();
   const { data: categoryData = [] } = useGetPublicCategoriesQuery();
 
@@ -153,7 +156,7 @@ export default function ProductsSection({ content }: ProductsSectionProps) {
   const config = content;
 
   // Fixed values
-  const title = 'Sản phẩm';
+  const title = t('title');
 
   const categoryConfigs = config?.categories || [];
 
@@ -255,7 +258,7 @@ export default function ProductsSection({ content }: ProductsSectionProps) {
         </Title>
         <Link href={ROUTES.PRODUCTS}>
           <Button type="link" icon={<RightOutlined />} iconPosition="end" style={{ padding: 0 }}>
-            Xem tất cả
+            {t('viewAll')}
           </Button>
         </Link>
       </div>

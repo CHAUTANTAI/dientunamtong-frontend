@@ -6,6 +6,7 @@ import { DeleteOutlined } from '@ant-design/icons';
 import type { LeftSidebarContent } from '@/types/pageSection';
 import { useGetPublicCategoriesQuery } from '@/store/services/publicCategoryApi';
 import type { Category } from '@/types/category';
+import { useTranslations } from 'next-intl';
 
 const { Text } = Typography;
 
@@ -33,6 +34,7 @@ export default function LeftSidebarForm({
   content,
   onChange,
 }: LeftSidebarFormProps) {
+  const t = useTranslations('homepageEditor.forms.leftSidebar');
   const [mode, setMode] = useState<'auto' | 'manual'>(content?.mode || 'auto');
   const [categoryIds, setCategoryIds] = useState<string[]>(content?.category_ids || []);
 
@@ -147,14 +149,14 @@ export default function LeftSidebarForm({
 
       {/* Mode Selection */}
       <div>
-        <Text strong>Display Mode:</Text>
+        <Text strong>{t('modeLabel')}:</Text>
         <Radio.Group
           value={mode}
           onChange={(e) => handleModeChange(e.target.value)}
           style={{ marginLeft: 8 }}
         >
-          <Radio value="auto">Auto (Top 8 by views)</Radio>
-          <Radio value="manual">Manual (Select categories)</Radio>
+          <Radio value="auto">{t('autoMode')} (Top 8 by views)</Radio>
+          <Radio value="manual">{t('manualMode')} (Select categories)</Radio>
         </Radio.Group>
       </div>
 
@@ -163,7 +165,7 @@ export default function LeftSidebarForm({
         <>
           <Alert
             message="Manual Mode Active"
-            description={`Select up to 8 categories. Each category is selected independently - selecting a parent does NOT auto-select its children.`}
+            description={t('manualDescription')}
             type="success"
             showIcon
           />
@@ -171,7 +173,7 @@ export default function LeftSidebarForm({
           {/* Selected Categories List */}
           {categoryIds.length > 0 && (
             <div>
-              <Text strong>Selected Categories ({categoryIds.length}/8):</Text>
+              <Text strong>{t('selectedCategories', { count: categoryIds.length })}:</Text>
               <List
                 size="small"
                 bordered
@@ -205,7 +207,7 @@ export default function LeftSidebarForm({
               <Text strong>Add Category ({categoryIds.length}/8):</Text>
               <TreeSelect
                 showSearch
-                placeholder="Search and select a category"
+                placeholder={t('searchPlaceholder')}
                 value={undefined}
                 onChange={handleAddCategory}
                 loading={isLoading}
@@ -229,7 +231,7 @@ export default function LeftSidebarForm({
       {mode === 'auto' && (
         <Alert
           message="Auto Mode Active"
-          description="The system will automatically display the top 8 categories with the highest view counts."
+          description={t('autoDescription')}
           type="success"
           showIcon
         />

@@ -6,6 +6,7 @@ import { PlusOutlined, DeleteOutlined, ArrowUpOutlined, ArrowDownOutlined, EditO
 import type { MegaMenuContent } from '@/types/pageSection';
 import { v4 as uuidv4 } from 'uuid';
 import { useGetPublicCategoriesQuery } from '@/store/services/publicCategoryApi';
+import { useTranslations } from 'next-intl';
 
 const { Text } = Typography;
 
@@ -28,6 +29,7 @@ interface MenuItem {
  * Supports 2 methods: Manual entry or selecting from categories
  */
 export default function MegaMenuForm({ content, onChange }: MegaMenuFormProps) {
+  const t = useTranslations('homepageEditor.forms.megaMenu');
   const [items, setItems] = useState<MenuItem[]>([]);
   const [editingItem, setEditingItem] = useState<MenuItem | null>(null);
   const [itemFormVisible, setItemFormVisible] = useState(false);
@@ -240,7 +242,7 @@ export default function MegaMenuForm({ content, onChange }: MegaMenuFormProps) {
           <Form form={form} layout="vertical">
             {/* Method Selection (only show when adding new item) */}
             {!editingItem && (
-              <Form.Item label="Add Method" style={{ marginBottom: 16 }}>
+              <Form.Item label={t('addMethod')} style={{ marginBottom: 16 }}>
                 <Radio.Group 
                   value={addMethod} 
                   onChange={(e) => {
@@ -249,10 +251,10 @@ export default function MegaMenuForm({ content, onChange }: MegaMenuFormProps) {
                   }}
                 >
                   <Radio.Button value="category">
-                    <AppstoreOutlined /> From Category
+                    <AppstoreOutlined /> {t('fromCategory')}
                   </Radio.Button>
                   <Radio.Button value="manual">
-                    <LinkOutlined /> Manual Entry
+                    <LinkOutlined /> {t('manualEntry')}
                   </Radio.Button>
                 </Radio.Group>
               </Form.Item>
@@ -264,13 +266,13 @@ export default function MegaMenuForm({ content, onChange }: MegaMenuFormProps) {
               // Category Selection Method
               <Form.Item
                 name="category_id"
-                label="Select Category"
-                rules={[{ required: true, message: 'Please select a category' }]}
+                label={t('selectCategory')}
+                rules={[{ required: true, message: t('selectCategoryRequired') }]}
                 style={{ marginBottom: 12 }}
               >
                 <TreeSelect
                   showSearch
-                  placeholder="Search and select a category"
+                  placeholder={t('searchCategory')}
                   loading={categoriesLoading}
                   treeData={categoryTreeData}
                   treeDefaultExpandAll
@@ -290,19 +292,19 @@ export default function MegaMenuForm({ content, onChange }: MegaMenuFormProps) {
               <>
                 <Form.Item
                   name="label"
-                  label="Menu Label"
-                  rules={[{ required: true, message: 'Please enter menu label' }]}
+                  label={t('menuLabel')}
+                  rules={[{ required: true, message: t('menuLabelRequired') }]}
                   style={{ marginBottom: 12 }}
                 >
-                  <Input placeholder="e.g., Bảng giá" />
+                  <Input placeholder={t('menuLabelPlaceholder')} />
                 </Form.Item>
 
                 <Form.Item
                   name="href"
-                  label="Link (href) - Optional"
+                  label={t('linkLabel')}
                   style={{ marginBottom: 12 }}
                 >
-                  <Input placeholder="e.g., /bang-gia or leave empty for #" />
+                  <Input placeholder={t('linkPlaceholder')} />
                 </Form.Item>
               </>
             )}
@@ -312,9 +314,9 @@ export default function MegaMenuForm({ content, onChange }: MegaMenuFormProps) {
                 type="primary" 
                 onClick={editingItem ? handleUpdateItem : handleAddItem}
               >
-                {editingItem ? 'Update' : 'Add'}
+                {editingItem ? t('updateButton') : t('addButton')}
               </Button>
-              <Button onClick={handleCancelForm}>Cancel</Button>
+              <Button onClick={handleCancelForm}>{t('cancelButton')}</Button>
             </Space>
           </Form>
         </Card>
@@ -325,14 +327,14 @@ export default function MegaMenuForm({ content, onChange }: MegaMenuFormProps) {
           onClick={() => setItemFormVisible(true)}
           block
         >
-          Add Menu Item
+          {t('addMenuItem')}
         </Button>
       )}
 
       {/* Items List */}
       <List
         dataSource={items}
-        locale={{ emptyText: 'No menu items. Click "Add Menu Item" to create one.' }}
+        locale={{ emptyText: t('emptyText') }}
         renderItem={(item, index) => (
           <List.Item
             actions={[
@@ -375,7 +377,7 @@ export default function MegaMenuForm({ content, onChange }: MegaMenuFormProps) {
                   <Text strong>{item.label}</Text>
                   {item.source === 'category' && (
                     <Text type="secondary" style={{ fontSize: 12 }}>
-                      (Category)
+                      {t('categoryBadge')}
                     </Text>
                   )}
                 </Space>

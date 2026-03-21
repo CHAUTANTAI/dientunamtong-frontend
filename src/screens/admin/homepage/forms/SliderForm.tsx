@@ -6,6 +6,7 @@ import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
 import type { SliderContent } from '@/types/pageSection';
 import MediaUpload, { type MediaValue } from '@/components/common/MediaUpload';
 import { useDebounce } from '@/hooks/useDebounce';
+import { useTranslations } from 'next-intl';
 
 const { Text, Title } = Typography;
 
@@ -33,6 +34,7 @@ interface MiniAdItem {
  * Only image and link - no technical settings
  */
 export default function SliderForm({ content, onChange }: SliderFormProps) {
+  const t = useTranslations('homepageEditor.forms.slider');
   const [slides, setSlides] = useState<SlideItem[]>([]);
   const [miniAds, setMiniAds] = useState<MiniAdItem[]>([]);
   const isInitializingRef = useRef(true);
@@ -108,12 +110,12 @@ export default function SliderForm({ content, onChange }: SliderFormProps) {
         <Space style={{ marginBottom: 12 }}>
           <Title level={5} style={{ margin: 0 }}>Slides</Title>
           <Button type="dashed" size="small" icon={<PlusOutlined />} onClick={addSlide}>
-            Add Slide
+            {t('addSlide')}
           </Button>
         </Space>
         
         {slides.length === 0 ? (
-          <Text type="secondary">No slides. Click &quot;Add Slide&quot; to create one.</Text>
+          <Text type="secondary">{t('noSlides')}</Text>
         ) : (
           <Space direction="vertical" style={{ width: '100%' }}>
             {slides.map((slide, index) => (
@@ -135,10 +137,10 @@ export default function SliderForm({ content, onChange }: SliderFormProps) {
                   </Space.Compact>
                   <Space.Compact style={{ display: 'flex', width: '100%', gap: 0 }}>
                     <div style={{ display: 'flex', alignItems: 'center', paddingLeft: '12px', backgroundColor: '#fafafa', border: '1px solid #d9d9d9', borderRadius: '4px 0 0 4px' }}>
-                      <span style={{ fontSize: '14px', color: '#595959' }}>Link</span>
+                      <span style={{ fontSize: '14px', color: '#595959' }}>{t('linkLabel')}</span>
                     </div>
                     <Input
-                      placeholder="Link URL (optional)"
+                      placeholder={t('linkPlaceholder')}
                       value={slide.link}
                       onChange={(e) => {
                         const updated = [...slides];
@@ -154,7 +156,7 @@ export default function SliderForm({ content, onChange }: SliderFormProps) {
                     icon={<DeleteOutlined />}
                     onClick={() => setSlides(slides.filter((_, i) => i !== index))}
                   >
-                    Remove Slide
+                    {t('remove')}
                   </Button>
                 </Space>
               </Card>
@@ -174,12 +176,12 @@ export default function SliderForm({ content, onChange }: SliderFormProps) {
             onClick={addMiniAd}
             disabled={miniAds.length >= 2}
           >
-            Add Mini Ad
+            {t('addMiniAd')}
           </Button>
         </Space>
 
         {miniAds.length === 0 ? (
-          <Text type="secondary">No mini ads. Click &quot;Add Mini Ad&quot; to create one.</Text>
+          <Text type="secondary">{t('noMiniAds')}</Text>
         ) : (
           <Space direction="vertical" style={{ width: '100%' }}>
             {miniAds.map((ad, index) => (
@@ -199,10 +201,10 @@ export default function SliderForm({ content, onChange }: SliderFormProps) {
                   />
                   <Space.Compact style={{ display: 'flex', width: '100%', gap: 0 }}>
                     <div style={{ display: 'flex', alignItems: 'center', paddingLeft: '12px', backgroundColor: '#fafafa', border: '1px solid #d9d9d9', borderRadius: '4px 0 0 4px' }}>
-                      <span style={{ fontSize: '14px', color: '#595959' }}>Link</span>
+                      <span style={{ fontSize: '14px', color: '#595959' }}>{t('linkLabel')}</span>
                     </div>
                     <Input
-                      placeholder="Link URL (optional)"
+                      placeholder={t('linkPlaceholder')}
                       value={ad.link}
                       onChange={(e) => {
                         const updated = [...miniAds];
@@ -218,7 +220,7 @@ export default function SliderForm({ content, onChange }: SliderFormProps) {
                     icon={<DeleteOutlined />}
                     onClick={() => setMiniAds(miniAds.filter((_, i) => i !== index))}
                   >
-                    Remove Ad
+                    {t('remove')}
                   </Button>
                 </Space>
               </Card>

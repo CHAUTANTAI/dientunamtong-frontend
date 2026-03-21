@@ -7,6 +7,7 @@ import type { ProductsSectionContent } from '@/types/pageSection';
 import { useGetPublicCategoriesQuery } from '@/store/services/publicCategoryApi';
 import { useGetPublicProductsQuery } from '@/store/services/publicProductApi';
 import type { Category } from '@/types/category';
+import { useTranslations } from 'next-intl';
 
 const { Text } = Typography;
 
@@ -38,6 +39,7 @@ export default function ProductsSectionForm({
   content,
   onChange,
 }: ProductsSectionFormProps) {
+  const t = useTranslations('homepageEditor.forms.products');
   const [categories, setCategories] = useState<CategoryConfig[]>(content?.categories || []);
 
   // Fetch data
@@ -167,8 +169,8 @@ export default function ProductsSectionForm({
   return (
     <Space direction="vertical" style={{ width: '100%' }} size="middle">
       <Alert
-        message="Products Section Info"
-        description="Select up to 3 categories. For each category, choose Auto mode (top 6 by views) or Manual mode (select specific products)."
+        message={t('infoMessage')}
+        description={t('infoDescription')}
         type="info"
         showIcon
       />
@@ -204,21 +206,21 @@ export default function ProductsSectionForm({
                     icon={<DeleteOutlined />}
                     onClick={() => handleRemoveCategory(index)}
                   >
-                    Remove
+                    {t('remove')}
                   </Button>
                 }
               >
                 <Space direction="vertical" style={{ width: '100%' }} size="small">
                   {/* Mode Selection */}
                   <div>
-                    <Text type="secondary" style={{ fontSize: 12 }}>Display Mode:</Text>
+                    <Text type="secondary" style={{ fontSize: 12 }}>{t('displayMode')}</Text>
                     <Radio.Group
                       value={category.mode}
                       onChange={(e) => handleModeChange(index, e.target.value)}
                       style={{ marginLeft: 8 }}
                     >
-                      <Radio value="auto">Auto (Top 6 by views)</Radio>
-                      <Radio value="manual">Manual (Select products)</Radio>
+                      <Radio value="auto">{t('autoMode')}</Radio>
+                      <Radio value="manual">{t('manualMode')}</Radio>
                     </Radio.Group>
                   </div>
 
@@ -226,12 +228,12 @@ export default function ProductsSectionForm({
                   {category.mode === 'manual' && (
                     <div>
                       <Text type="secondary" style={{ fontSize: 12 }}>
-                        Select Products (Max 6):
+                        {t('selectProducts')} (Max 6):
                       </Text>
                       <Select
                         mode="multiple"
                         maxCount={6}
-                        placeholder="Search and select products"
+                        placeholder={t('searchProductsPlaceholder')}
                         value={category.product_ids || []}
                         onChange={(values) => handleProductSelect(index, values)}
                         loading={productsLoading}
@@ -262,10 +264,10 @@ export default function ProductsSectionForm({
       {categories.length < 3 && (
         <Card size="small">
           <Space direction="vertical" style={{ width: '100%' }}>
-            <Text strong>Add Category ({categories.length}/3)</Text>
+            <Text strong>{t('addCategory', { count: categories.length })}</Text>
             <TreeSelect
               showSearch
-              placeholder="Search and select a category"
+              placeholder={t('searchCategoryPlaceholder')}
               value={undefined}
               onChange={handleAddCategory}
               loading={categoriesLoading}

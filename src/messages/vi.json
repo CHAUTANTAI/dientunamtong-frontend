@@ -52,6 +52,28 @@
       "sunday": "Chủ Nhật"
     }
   },
+  "homepage": {
+    "leftSidebar": {
+      "title": "Danh mục",
+      "empty": "Chưa có danh mục",
+      "promoPlaceholder": "Banner Quảng Cáo"
+    },
+    "rightSidebar": {
+      "title": "Tin tức mới",
+      "empty": "Chưa có dữ liệu",
+      "loading": "Đang tải...",
+      "bannerAlt": "Banner"
+    },
+    "trendingKeywords": {
+      "title": "Xu hướng tìm kiếm:"
+    },
+    "products": {
+      "title": "Sản phẩm",
+      "noImage": "Không có ảnh",
+      "contactForPrice": "Liên hệ",
+      "viewAll": "Xem tất cả"
+    }
+  },
   "navigation": {
     "home": "Trang chủ",
     "dashboard": "Bảng điều khiển",
@@ -515,6 +537,179 @@
     "saving": "Đang lưu...",
     "saveSuccess": "Cập nhật trang chủ thành công",
     "saveFailed": "Cập nhật trang chủ thất bại",
+    "preview": {
+      "title": "Xem Trước Bố Cục Trang Chủ",
+      "clickHint": "Nhấp vào bất kỳ phần nào ở trên để chuyển đến trình chỉnh sửa bên dưới",
+      "bannerHeader": "Banner Header (Logo + Banner + Hotlines)",
+      "megaMenu": "Mega Menu",
+      "searchSlogan": "Search + Slogan (Marquee Text)",
+      "mainSlider": "Main Slider",
+      "miniAd1": "Mini Ad 1",
+      "miniAd2": "Mini Ad 2",
+      "leftSidebar": "Left Sidebar (Categories)",
+      "trendingKeywords": "Trending Keywords",
+      "productsSection": "Products Section (Max 3 Categories)",
+      "rightSidebar": "Right Sidebar (News + Banners)"
+    },
+    "page": {
+      "title": "Homepage Editor",
+      "description": "Quản lý bố cục và nội dung các phần trên trang chủ",
+      "loadingEditor": "Đang tải trình chỉnh sửa trang chủ...",
+      "unsavedChanges": "Chưa lưu thay đổi",
+      "saveAllChanges": "Lưu Tất Cả Thay Đổi",
+      "processingUploads": "Đang xử lý uploads...",
+      "savingChanges": "Đang lưu thay đổi..."
+    },
+    "tabs": {
+      "layout": "Layout Sections",
+      "content": "Homepage Content",
+      "sidebars": "Sidebars"
+    },
+    "sections": {
+      "bannerHeader": {
+        "title": "Banner Header",
+        "description": "Logo, Banner, Hotlines"
+      },
+      "megaMenu": {
+        "title": "Mega Menu",
+        "description": "Static Menu Items"
+      },
+      "searchSlogan": {
+        "title": "Search Slogan",
+        "description": "Marquee Text"
+      },
+      "slider": {
+        "title": "Slider Section",
+        "description": "Main Slider + Mini Ads"
+      },
+      "trendingKeywords": {
+        "title": "Trending Keywords",
+        "description": "Search Suggestions"
+      },
+      "products": {
+        "title": "Products Section",
+        "description": "Product Grid - Max 3 Categories"
+      },
+      "leftSidebar": {
+        "title": "Left Sidebar",
+        "description": "Categories Menu"
+      },
+      "rightSidebar": {
+        "title": "Right Sidebar",
+        "description": "News + Promotional Banners"
+      }
+    },
+    "forms": {
+      "searchSlogan": {
+        "title": "Marquee Slogan Text",
+        "description": "Văn bản này sẽ cuộn liên tục trong khu vực thanh tìm kiếm",
+        "placeholder": "Nhập văn bản slogan của bạn tại đây...",
+        "required": "Văn bản slogan là bắt buộc",
+        "maxLength": "Tối đa 500 ký tự",
+        "charCount": "{count}/500 ký tự",
+        "preview": "Xem trước:"
+      },
+      "bannerHeader": {
+        "logoLabel": "Logo Công Ty",
+        "bannerLabel": "Ảnh Banner Tiêu Đề",
+        "bannerHelper": "Khuyến nghị: 1200×110px (tỉ lệ ~10.9:1) để hiển thị tốt nhất trên banner trang chủ",
+        "hotlinesTitle": "Số Hotline",
+        "primaryHotline": "Hotline Chính",
+        "secondaryHotline": "Hotline Phụ",
+        "hotlinePlaceholder1": "VD: (0286) 271 3025",
+        "hotlinePlaceholder2": "VD: 0909 60 30 25",
+        "invalidPhone": "Vui lòng nhập số điện thoại hợp lệ"
+      },
+      "megaMenu": {
+        "addMethod": "Phương Thức Thêm",
+        "fromCategory": "Từ Danh Mục",
+        "manualEntry": "Nhập Thủ Công",
+        "selectCategory": "Chọn Danh Mục",
+        "selectCategoryRequired": "Vui lòng chọn một danh mục",
+        "searchCategory": "Tìm kiếm và chọn danh mục",
+        "menuLabel": "Nhãn Menu",
+        "menuLabelRequired": "Vui lòng nhập nhãn menu",
+        "menuLabelPlaceholder": "VD: Bảng giá",
+        "linkLabel": "Liên Kết (href) - Tùy Chọn",
+        "linkPlaceholder": "VD: /bang-gia hoặc để trống cho #",
+        "addButton": "Thêm",
+        "updateButton": "Cập Nhật",
+        "cancelButton": "Hủy",
+        "addMenuItem": "Thêm Mục Menu",
+        "emptyText": "Không có mục menu. Nhấp \"Thêm Mục Menu\" để tạo mới.",
+        "categoryBadge": "(Danh mục)"
+      },
+      "slider": {
+        "noSlides": "Không có slide. Nhấp \"Thêm Slide\" để tạo mới.",
+        "addSlide": "Thêm Slide",
+        "noMiniAds": "Không có mini ad. Nhấp \"Thêm Mini Ad\" để tạo mới.",
+        "addMiniAd": "Thêm Mini Ad",
+        "linkLabel": "Liên Kết",
+        "linkPlaceholder": "Link URL (tùy chọn)",
+        "uploadImage": "Tải Ảnh Lên",
+        "remove": "Xóa"
+      },
+      "trendingKeywords": {
+        "modeLabel": "Chế Độ Hiển Thị",
+        "autoMode": "Tự Động",
+        "manualMode": "Thủ Công",
+        "autoDescription": "Tự động hiển thị top 5 danh mục và top 5 sản phẩm theo lượt xem",
+        "addKeywordTitle": "Thêm Từ Khóa Mới",
+        "selectType": "Chọn Loại",
+        "categoryOption": "Danh Mục",
+        "productOption": "Sản Phẩm",
+        "selectLabel": "Chọn {type}",
+        "searchCategoryPlaceholder": "Tìm kiếm và chọn danh mục",
+        "searchProductPlaceholder": "Tìm kiếm và chọn sản phẩm",
+        "addButton": "Thêm",
+        "noKeywords": "Không có từ khóa nào. Thêm từ khóa ở trên.",
+        "remove": "Xóa"
+      },
+      "products": {
+        "infoMessage": "Thông Tin Phần Sản Phẩm",
+        "infoDescription": "Chọn tối đa 3 danh mục. Với mỗi danh mục, chọn chế độ Tự động (top 6 theo lượt xem) hoặc Thủ công (chọn sản phẩm cụ thể).",
+        "addCategory": "Thêm Danh Mục ({count}/3)",
+        "searchCategoryPlaceholder": "Tìm kiếm và chọn danh mục",
+        "displayMode": "Chế Độ Hiển Thị:",
+        "autoMode": "Tự Động (Top 6 theo lượt xem)",
+        "manualMode": "Thủ Công (Chọn sản phẩm)",
+        "selectProducts": "Chọn Sản Phẩm",
+        "searchProductsPlaceholder": "Tìm kiếm và chọn sản phẩm",
+        "maxProductsWarning": "Tối đa 6 sản phẩm mỗi danh mục",
+        "remove": "Xóa Danh Mục"
+      },
+      "leftSidebar": {
+        "modeLabel": "Chế Độ Hiển Thị",
+        "autoMode": "Tự Động",
+        "manualMode": "Thủ Công",
+        "autoDescription": "Tự động hiển thị top 8 danh mục theo lượt xem",
+        "manualDescription": "Chọn thủ công tối đa 8 danh mục",
+        "selectCategories": "Chọn Danh Mục (Tối Đa 8)",
+        "searchPlaceholder": "Tìm kiếm và chọn danh mục",
+        "maxCategoriesWarning": "Bạn có thể chọn tối đa 8 danh mục",
+        "selectedCategories": "Danh Mục Đã Chọn: {count}/8"
+      },
+      "rightSidebar": {
+        "newsTitle": "Tin Tức",
+        "addNews": "Thêm Tin Tức",
+        "noNews": "Không có tin tức. Nhấp \"Thêm Tin Tức\" để tạo mới.",
+        "newsTextLabel": "Nội Dung Tin Tức",
+        "newsTextPlaceholder": "Nhập nội dung tin tức",
+        "newsTextRequired": "Nội dung tin tức là bắt buộc",
+        "newsLinkLabel": "Liên Kết",
+        "newsLinkPlaceholder": "Link URL",
+        "addButton": "Thêm",
+        "updateButton": "Cập Nhật",
+        "cancelButton": "Hủy",
+        "remove": "Xóa",
+        "bannersTitle": "Banner Quảng Cáo",
+        "addBanner": "Thêm Banner",
+        "noBanners": "Không có banner. Nhấp \"Thêm Banner\" để tạo mới.",
+        "bannerLinkLabel": "Liên Kết",
+        "bannerLinkPlaceholder": "Link URL",
+        "uploadImage": "Tải Ảnh Lên"
+      }
+    },
     "sidebar": {
       "intro": "Giới thiệu",
       "banner": "Banner",

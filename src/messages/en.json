@@ -52,6 +52,28 @@
       "sunday": "Sunday"
     }
   },
+  "homepage": {
+    "leftSidebar": {
+      "title": "Categories",
+      "empty": "No categories available",
+      "promoPlaceholder": "Promotional Banner"
+    },
+    "rightSidebar": {
+      "title": "Latest News",
+      "empty": "No data available",
+      "loading": "Loading...",
+      "bannerAlt": "Banner"
+    },
+    "trendingKeywords": {
+      "title": "Trending searches:"
+    },
+    "products": {
+      "title": "Products",
+      "noImage": "No Image",
+      "contactForPrice": "Contact",
+      "viewAll": "View All"
+    }
+  },
   "navigation": {
     "home": "Home",
     "dashboard": "Dashboard",
@@ -516,6 +538,179 @@
     "saving": "Saving...",
     "saveSuccess": "Homepage updated successfully",
     "saveFailed": "Failed to update homepage",
+    "preview": {
+      "title": "Homepage Layout Preview",
+      "clickHint": "Click on any section above to jump to its editor below",
+      "bannerHeader": "Banner Header (Logo + Banner + Hotlines)",
+      "megaMenu": "Mega Menu",
+      "searchSlogan": "Search + Slogan (Marquee Text)",
+      "mainSlider": "Main Slider",
+      "miniAd1": "Mini Ad 1",
+      "miniAd2": "Mini Ad 2",
+      "leftSidebar": "Left Sidebar (Categories)",
+      "trendingKeywords": "Trending Keywords",
+      "productsSection": "Products Section (Max 3 Categories)",
+      "rightSidebar": "Right Sidebar (News + Banners)"
+    },
+    "page": {
+      "title": "Homepage Editor",
+      "description": "Manage your homepage layout and content sections",
+      "loadingEditor": "Loading homepage editor...",
+      "unsavedChanges": "Unsaved changes",
+      "saveAllChanges": "Save All Changes",
+      "processingUploads": "Processing uploads...",
+      "savingChanges": "Saving changes..."
+    },
+    "tabs": {
+      "layout": "Layout Sections",
+      "content": "Homepage Content",
+      "sidebars": "Sidebars"
+    },
+    "sections": {
+      "bannerHeader": {
+        "title": "Banner Header",
+        "description": "Logo, Banner, Hotlines"
+      },
+      "megaMenu": {
+        "title": "Mega Menu",
+        "description": "Static Menu Items"
+      },
+      "searchSlogan": {
+        "title": "Search Slogan",
+        "description": "Marquee Text"
+      },
+      "slider": {
+        "title": "Slider Section",
+        "description": "Main Slider + Mini Ads"
+      },
+      "trendingKeywords": {
+        "title": "Trending Keywords",
+        "description": "Search Suggestions"
+      },
+      "products": {
+        "title": "Products Section",
+        "description": "Product Grid - Max 3 Categories"
+      },
+      "leftSidebar": {
+        "title": "Left Sidebar",
+        "description": "Categories Menu"
+      },
+      "rightSidebar": {
+        "title": "Right Sidebar",
+        "description": "News + Promotional Banners"
+      }
+    },
+    "forms": {
+      "searchSlogan": {
+        "title": "Marquee Slogan Text",
+        "description": "This text will scroll continuously in the search bar area",
+        "placeholder": "Enter your slogan text here...",
+        "required": "Slogan text is required",
+        "maxLength": "Maximum 500 characters",
+        "charCount": "{count}/500 characters",
+        "preview": "Preview:"
+      },
+      "bannerHeader": {
+        "logoLabel": "Company Logo",
+        "bannerLabel": "Header Banner Image",
+        "bannerHelper": "Recommended: 1200×110px (aspect ratio ~10.9:1) for best display on homepage banner",
+        "hotlinesTitle": "Hotline Numbers",
+        "primaryHotline": "Primary Hotline",
+        "secondaryHotline": "Secondary Hotline",
+        "hotlinePlaceholder1": "e.g., (0286) 271 3025",
+        "hotlinePlaceholder2": "e.g., 0909 60 30 25",
+        "invalidPhone": "Please enter a valid phone number"
+      },
+      "megaMenu": {
+        "addMethod": "Add Method",
+        "fromCategory": "From Category",
+        "manualEntry": "Manual Entry",
+        "selectCategory": "Select Category",
+        "selectCategoryRequired": "Please select a category",
+        "searchCategory": "Search and select a category",
+        "menuLabel": "Menu Label",
+        "menuLabelRequired": "Please enter menu label",
+        "menuLabelPlaceholder": "e.g., Bảng giá",
+        "linkLabel": "Link (href) - Optional",
+        "linkPlaceholder": "e.g., /bang-gia or leave empty for #",
+        "addButton": "Add",
+        "updateButton": "Update",
+        "cancelButton": "Cancel",
+        "addMenuItem": "Add Menu Item",
+        "emptyText": "No menu items. Click \"Add Menu Item\" to create one.",
+        "categoryBadge": "(Category)"
+      },
+      "slider": {
+        "noSlides": "No slides. Click \"Add Slide\" to create one.",
+        "addSlide": "Add Slide",
+        "noMiniAds": "No mini ads. Click \"Add Mini Ad\" to create one.",
+        "addMiniAd": "Add Mini Ad",
+        "linkLabel": "Link",
+        "linkPlaceholder": "Link URL (optional)",
+        "uploadImage": "Upload Image",
+        "remove": "Remove"
+      },
+      "trendingKeywords": {
+        "modeLabel": "Display Mode",
+        "autoMode": "Auto",
+        "manualMode": "Manual",
+        "autoDescription": "Automatically show top 5 categories and top 5 products by views",
+        "addKeywordTitle": "Add New Keyword",
+        "selectType": "Select Type",
+        "categoryOption": "Category",
+        "productOption": "Product",
+        "selectLabel": "Select {type}",
+        "searchCategoryPlaceholder": "Search and select a category",
+        "searchProductPlaceholder": "Search and select a product",
+        "addButton": "Add",
+        "noKeywords": "No keywords selected. Add keywords above.",
+        "remove": "Remove"
+      },
+      "products": {
+        "infoMessage": "Products Section Info",
+        "infoDescription": "Select up to 3 categories. For each category, choose Auto mode (top 6 by views) or Manual mode (select specific products).",
+        "addCategory": "Add Category ({count}/3)",
+        "searchCategoryPlaceholder": "Search and select a category",
+        "displayMode": "Display Mode:",
+        "autoMode": "Auto (Top 6 by views)",
+        "manualMode": "Manual (Select products)",
+        "selectProducts": "Select Products",
+        "searchProductsPlaceholder": "Search and select products",
+        "maxProductsWarning": "Maximum 6 products per category",
+        "remove": "Remove Category"
+      },
+      "leftSidebar": {
+        "modeLabel": "Display Mode",
+        "autoMode": "Auto",
+        "manualMode": "Manual",
+        "autoDescription": "Automatically show top 8 categories by views",
+        "manualDescription": "Manually select up to 8 categories",
+        "selectCategories": "Select Categories (Max 8)",
+        "searchPlaceholder": "Search and select categories",
+        "maxCategoriesWarning": "You can select up to 8 categories",
+        "selectedCategories": "Selected Categories: {count}/8"
+      },
+      "rightSidebar": {
+        "newsTitle": "News Items",
+        "addNews": "Add News Item",
+        "noNews": "No news items. Click \"Add News Item\" to create one.",
+        "newsTextLabel": "News Text",
+        "newsTextPlaceholder": "Enter news text",
+        "newsTextRequired": "News text is required",
+        "newsLinkLabel": "Link",
+        "newsLinkPlaceholder": "Link URL",
+        "addButton": "Add",
+        "updateButton": "Update",
+        "cancelButton": "Cancel",
+        "remove": "Remove",
+        "bannersTitle": "Promotional Banners",
+        "addBanner": "Add Banner",
+        "noBanners": "No banners. Click \"Add Banner\" to create one.",
+        "bannerLinkLabel": "Link",
+        "bannerLinkPlaceholder": "Link URL",
+        "uploadImage": "Upload Image"
+      }
+    },
     "sidebar": {
       "intro": "Introduction",
       "banner": "Banners",

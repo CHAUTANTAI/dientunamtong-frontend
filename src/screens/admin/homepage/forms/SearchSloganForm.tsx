@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { Form, Input, Typography } from 'antd';
 import type { SearchSloganContent } from '@/types/pageSection';
 import { useDebounce } from '@/hooks/useDebounce';
+import { useTranslations } from 'next-intl';
 
 const { Text, Paragraph } = Typography;
 
@@ -21,6 +22,7 @@ export default function SearchSloganForm({
   onChange,
   form,
 }: SearchSloganFormProps) {
+  const t = useTranslations('homepageEditor.forms.searchSlogan');
   
   useEffect(() => {
     form.setFieldsValue({
@@ -51,25 +53,25 @@ export default function SearchSloganForm({
       form={form}
       layout="vertical"
     >
-      <Text strong>Marquee Slogan Text</Text>
+      <Text strong>{t('title')}</Text>
       <Paragraph type="secondary" style={{ marginTop: 4, marginBottom: 8 }}>
-        This text will scroll continuously in the search bar area
+        {t('description')}
       </Paragraph>
       
       <Form.Item
         name="slogan_text"
         rules={[
-          { required: true, message: 'Slogan text is required' },
-          { max: 500, message: 'Maximum 500 characters' }
+          { required: true, message: t('required') },
+          { max: 500, message: t('maxLength') }
         ]}
         style={{ marginBottom: 8 }}
       >
         <Input.TextArea
-          placeholder="Enter your slogan text here..."
+          placeholder={t('placeholder')}
           rows={3}
           maxLength={500}
           showCount={{
-            formatter: ({ count }) => `${count}/500 characters`
+            formatter: ({ count }) => t('charCount', { count })
           }}
         />
       </Form.Item>
@@ -83,7 +85,7 @@ export default function SearchSloganForm({
           borderRadius: 4,
           overflow: 'hidden'
         }}>
-          <Text type="secondary" style={{ fontSize: 12 }}>Preview:</Text>
+          <Text type="secondary" style={{ fontSize: 12 }}>{t('preview')}</Text>
           <div style={{ 
             marginTop: 4,
             whiteSpace: 'nowrap',

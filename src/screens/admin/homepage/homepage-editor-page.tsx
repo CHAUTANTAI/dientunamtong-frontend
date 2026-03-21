@@ -245,7 +245,7 @@ export default function HomepageEditorPage() {
         !trendingKeywordsSection || !productsSectionState || !leftSidebarSection || !rightSidebarSection) return;
 
     try {
-      message.loading({ content: 'Processing uploads...', key: 'upload', duration: 0 });
+      message.loading({ content: t('page.processingUploads'), key: 'upload', duration: 0 });
 
       // Process BannerHeader uploads
       const bannerHeaderContent = bannerHeaderSection.content as unknown as BannerHeaderContentDraft;
@@ -285,7 +285,7 @@ export default function HomepageEditorPage() {
         ),
       };
 
-      message.loading({ content: 'Saving changes...', key: 'upload' });
+      message.loading({ content: t('page.savingChanges'), key: 'upload' });
 
       await updateSections({
         pageIdentifier: 'homepage',
@@ -331,7 +331,7 @@ export default function HomepageEditorPage() {
   if (isLoading) {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
-        <Spin size="large" tip="Loading homepage editor...">
+        <Spin size="large" tip={t('page.loadingEditor')}>
           <div style={{ padding: 50 }} />
         </Spin>
       </div>
@@ -353,16 +353,16 @@ export default function HomepageEditorPage() {
       }}>
         <div>
           <Title level={2} style={{ margin: 0 }}>
-            Homepage Editor
+            {t('page.title')}
           </Title>
           <Text type="secondary">
-            Manage your homepage layout and content sections
+            {t('page.description')}
           </Text>
         </div>
 
         <Space>
           {hasChanges && (
-            <Badge status="warning" text="Unsaved changes" />
+            <Badge status="warning" text={t('page.unsavedChanges')} />
           )}
           <Button
             type="primary"
@@ -372,7 +372,7 @@ export default function HomepageEditorPage() {
             loading={isSaving}
             disabled={!hasChanges}
           >
-            Save All Changes
+            {t('page.saveAllChanges')}
           </Button>
         </Space>
       </div>
@@ -447,7 +447,7 @@ export default function HomepageEditorPage() {
               label: (
                 <span style={{ fontSize: '15px', fontWeight: 500 }}>
                   <span style={{ fontSize: '18px', marginRight: '8px' }}>📐</span>
-                  Layout Sections
+                  {t('tabs.layout')}
                 </span>
               ),
               children: (
@@ -465,9 +465,9 @@ export default function HomepageEditorPage() {
                       key: 'banner-header',
                       label: (
                         <Space>
-                          <Text strong style={{ fontSize: 15 }}>1. Banner Header</Text>
+                          <Text strong style={{ fontSize: 15 }}>1. {t('sections.bannerHeader.title')}</Text>
                           <Text type="secondary" style={{ fontSize: 12 }}>
-                            (Logo, Banner, Hotlines)
+                            ({t('sections.bannerHeader.description')})
                           </Text>
                         </Space>
                       ),
@@ -491,9 +491,9 @@ export default function HomepageEditorPage() {
                       key: 'mega-menu',
                       label: (
                         <Space>
-                          <Text strong style={{ fontSize: 15 }}>2. Mega Menu</Text>
+                          <Text strong style={{ fontSize: 15 }}>2. {t('sections.megaMenu.title')}</Text>
                           <Text type="secondary" style={{ fontSize: 12 }}>
-                            (Static Menu Items)
+                            ({t('sections.megaMenu.description')})
                           </Text>
                         </Space>
                       ),
@@ -516,9 +516,9 @@ export default function HomepageEditorPage() {
                       key: 'search-slogan',
                       label: (
                         <Space>
-                          <Text strong style={{ fontSize: 15 }}>3. Search Slogan</Text>
+                          <Text strong style={{ fontSize: 15 }}>3. {t('sections.searchSlogan.title')}</Text>
                           <Text type="secondary" style={{ fontSize: 12 }}>
-                            (Marquee Text)
+                            ({t('sections.searchSlogan.description')})
                           </Text>
                         </Space>
                       ),
@@ -549,7 +549,7 @@ export default function HomepageEditorPage() {
               label: (
                 <span>
                   <span style={{ fontSize: '16px', marginRight: '8px' }}>📦</span>
-                  Homepage Content
+                  {t('tabs.content')}
                 </span>
               ),
               children: (
@@ -567,9 +567,9 @@ export default function HomepageEditorPage() {
                       key: 'slider',
                       label: (
                         <Space>
-                          <Text strong>4. Slider Section</Text>
+                          <Text strong>4. {t('sections.slider.title')}</Text>
                           <Text type="secondary" style={{ fontSize: 12 }}>
-                            (Main Slider + Mini Ads)
+                            ({t('sections.slider.description')})
                           </Text>
                         </Space>
                       ),
@@ -584,9 +584,9 @@ export default function HomepageEditorPage() {
                       key: 'trending-keywords',
                       label: (
                         <Space>
-                          <Text strong>5. Trending Keywords</Text>
+                          <Text strong>5. {t('sections.trendingKeywords.title')}</Text>
                           <Text type="secondary" style={{ fontSize: 12 }}>
-                            (Search Suggestions)
+                            ({t('sections.trendingKeywords.description')})
                           </Text>
                         </Space>
                       ),
@@ -601,9 +601,9 @@ export default function HomepageEditorPage() {
                       key: 'products',
                       label: (
                         <Space>
-                          <Text strong>6. Products Section</Text>
+                          <Text strong>6. {t('sections.products.title')}</Text>
                           <Text type="secondary" style={{ fontSize: 12 }}>
-                            (Product Grid - Max 3 Categories)
+                            ({t('sections.products.description')})
                           </Text>
                         </Space>
                       ),
@@ -625,7 +625,7 @@ export default function HomepageEditorPage() {
               label: (
                 <span>
                   <span style={{ fontSize: '16px', marginRight: '8px' }}>📊</span>
-                  Sidebars
+                  {t('tabs.sidebars')}
                 </span>
               ),
               children: (
@@ -643,9 +643,9 @@ export default function HomepageEditorPage() {
                       key: 'left-sidebar',
                       label: (
                         <Space>
-                          <Text strong>9. Left Sidebar</Text>
+                          <Text strong>9. {t('sections.leftSidebar.title')}</Text>
                           <Text type="secondary" style={{ fontSize: 12 }}>
-                            (Categories Menu)
+                            ({t('sections.leftSidebar.description')})
                           </Text>
                         </Space>
                       ),
@@ -660,9 +660,9 @@ export default function HomepageEditorPage() {
                       key: 'right-sidebar',
                       label: (
                         <Space>
-                          <Text strong>10. Right Sidebar</Text>
+                          <Text strong>10. {t('sections.rightSidebar.title')}</Text>
                           <Text type="secondary" style={{ fontSize: 12 }}>
-                            (News + Promotional Banners)
+                            ({t('sections.rightSidebar.description')})
                           </Text>
                         </Space>
                       ),
@@ -699,7 +699,7 @@ export default function HomepageEditorPage() {
               boxShadow: '0 4px 16px rgba(0,0,0,0.15)',
             }}
           >
-            Save All Changes
+            {t('page.saveAllChanges')}
           </Button>
         </div>
       )}

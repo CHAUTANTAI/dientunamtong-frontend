@@ -14,6 +14,15 @@ export interface SliderItem {
   link: string;
 }
 
+import { useTranslations } from 'next-intl';
+
+interface MainSliderProps {
+  slides: SliderItem[];
+  height?: number;
+  autoplay?: boolean;
+  autoplaySpeed?: number;
+}
+
 interface MainSliderProps {
   slides: SliderItem[];
   height?: number;
@@ -63,6 +72,7 @@ export default function MainSlider({
   autoplay = true,
   autoplaySpeed = 5000,
 }: MainSliderProps) {
+  const t = useTranslations('common');
   // Transform slides to include signed URLs
   const processedSlides = useMemo(() => {
     return slides.map(slide => ({
@@ -141,6 +151,7 @@ interface SlideImageProps {
 }
 
 function SlideImage({ slide, height }: SlideImageProps) {
+  const t = useTranslations('common');
   const signedUrl = useSignedImageUrl(slide.url);
 
   return (
@@ -178,7 +189,7 @@ function SlideImage({ slide, height }: SlideImageProps) {
               justifyContent: 'center',
             }}
           >
-            <span style={{ color: '#fff', fontSize: 18 }}>Loading...</span>
+            <span style={{ color: '#fff', fontSize: 18 }}>{t('loading')}</span>
           </div>
         )}
       </div>

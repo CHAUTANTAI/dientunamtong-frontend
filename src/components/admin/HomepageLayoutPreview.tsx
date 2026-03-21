@@ -10,6 +10,7 @@ import {
   UnorderedListOutlined,
   RightOutlined
 } from '@ant-design/icons';
+import { useTranslations } from 'next-intl';
 
 const { Text } = Typography;
 
@@ -90,13 +91,14 @@ export default function HomepageLayoutPreview({
   onSectionClick, 
   activeSection 
 }: HomepageLayoutPreviewProps) {
+  const t = useTranslations('homepageEditor.preview');
 
   return (
     <Card 
       title={
         <Space>
           <PictureOutlined />
-          <span>Homepage Layout Preview</span>
+          <span>{t('title')}</span>
         </Space>
       }
       size="small"
@@ -117,7 +119,7 @@ export default function HomepageLayoutPreview({
         }}>
           {/* Banner Header */}
           <LayoutBox
-            label="Banner Header (Logo + Banner + Hotlines)"
+            label={t('bannerHeader')}
             icon={<PictureOutlined />}
             sectionKey="layout-banner-header"
             color="#ff4d4f"
@@ -128,7 +130,7 @@ export default function HomepageLayoutPreview({
 
           {/* Mega Menu */}
           <LayoutBox
-            label="Mega Menu"
+            label={t('megaMenu')}
             icon={<MenuOutlined />}
             sectionKey="layout-mega-menu"
             color="#722ed1"
@@ -139,7 +141,7 @@ export default function HomepageLayoutPreview({
 
           {/* Search + Slogan */}
           <LayoutBox
-            label="Search + Slogan (Marquee Text)"
+            label={t('searchSlogan')}
             icon={<SearchOutlined />}
             sectionKey="layout-search-slogan"
             color="#13c2c2"
@@ -155,7 +157,7 @@ export default function HomepageLayoutPreview({
             gap: '8px',
           }}>
             <LayoutBox
-              label="Main Slider"
+              label={t('mainSlider')}
               icon={<PictureOutlined />}
               sectionKey="slider-slider"
               color="#faad14"
@@ -165,7 +167,7 @@ export default function HomepageLayoutPreview({
             />
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               <LayoutBox
-                label="Mini Ad 1"
+                label={t('miniAd1')}
                 icon={<PictureOutlined />}
                 sectionKey="slider-slider"
                 color="#faad14"
@@ -174,7 +176,7 @@ export default function HomepageLayoutPreview({
                 onSectionClick={onSectionClick}
               />
               <LayoutBox
-                label="Mini Ad 2"
+                label={t('miniAd2')}
                 icon={<PictureOutlined />}
                 sectionKey="slider-slider"
                 color="#faad14"
@@ -194,7 +196,7 @@ export default function HomepageLayoutPreview({
           }}>
             {/* Left Sidebar */}
             <LayoutBox
-              label="Left Sidebar (Categories)"
+              label={t('leftSidebar')}
               icon={<UnorderedListOutlined />}
               sectionKey="left-sidebar"
               color="#52c41a"
@@ -208,7 +210,7 @@ export default function HomepageLayoutPreview({
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               {/* Trending Keywords - moved inside center column */}
               <LayoutBox
-                label="Trending Keywords"
+                label={t('trendingKeywords')}
                 icon={<FireOutlined />}
                 sectionKey="trending-keywords"
                 color="#f5222d"
@@ -218,7 +220,7 @@ export default function HomepageLayoutPreview({
               />
               
               <LayoutBox
-                label="Products Section (Sản phẩm - Max 3 Categories)"
+                label={t('productsSection')}
                 icon={<AppstoreOutlined />}
                 sectionKey="products-section"
                 color="#1890ff"
@@ -230,7 +232,7 @@ export default function HomepageLayoutPreview({
 
             {/* Right Sidebar */}
             <LayoutBox
-              label="Right Sidebar (News + Banners)"
+              label={t('rightSidebar')}
               icon={<RightOutlined />}
               sectionKey="right-sidebar"
               color="#fa8c16"
@@ -250,7 +252,7 @@ export default function HomepageLayoutPreview({
             borderRadius: '6px',
           }}>
             <Text type="secondary" style={{ fontSize: '12px' }}>
-              💡 Click on any section above to jump to its editor below
+              💡 {t('clickHint')}
             </Text>
           </div>
         </div>

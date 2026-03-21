@@ -5,6 +5,7 @@ import { Form, Input, Typography, Space } from 'antd';
 import type { BannerHeaderContentDraft } from '@/types/pageSection';
 import MediaUpload, { type MediaValue } from '@/components/common/MediaUpload';
 import { useDebounce } from '@/hooks/useDebounce';
+import { useTranslations } from 'next-intl';
 
 const { Text } = Typography;
 
@@ -23,6 +24,7 @@ export default function BannerHeaderForm({
   onChange,
   form,
 }: BannerHeaderFormProps) {
+  const t = useTranslations('homepageEditor.forms.bannerHeader');
   
   // Initialize form values when content changes
   useEffect(() => {
@@ -81,7 +83,7 @@ export default function BannerHeaderForm({
               });
             }}
             folder="homepage/logo"
-            label="Company Logo"
+            label={t('logoLabel')}
             accept="image/png,image/jpeg,image/svg+xml"
             maxSizeMB={2}
             previewHeight={110}
@@ -101,12 +103,12 @@ export default function BannerHeaderForm({
               });
             }}
             folder="homepage/banner"
-            label="Header Banner Image"
+            label={t('bannerLabel')}
             accept="image/*"
             maxSizeMB={5}
             previewHeight={150}
             previewAspectRatio="contain"
-            helperText="Recommended: 1200×110px (aspect ratio ~10.9:1) for best display on homepage banner"
+            helperText={t('bannerHelper')}
             minWidth={800}
             minHeight={80}
             maxWidth={2400}
@@ -118,31 +120,31 @@ export default function BannerHeaderForm({
 
         {/* Hotlines Section */}
         <div>
-          <Text strong>Hotline Numbers</Text>
+          <Text strong>{t('hotlinesTitle')}</Text>
           <Form.Item
             name="primary_hotline"
-            label="Primary Hotline"
+            label={t('primaryHotline')}
             style={{ marginTop: 8, marginBottom: 8 }}
             rules={[
-              { pattern: /^[0-9\s\-()]+$/, message: 'Please enter a valid phone number' }
+              { pattern: /^[0-9\s\-()]+$/, message: t('invalidPhone') }
             ]}
           >
             <Input
-              placeholder="e.g., (0286) 271 3025"
+              placeholder={t('hotlinePlaceholder1')}
               allowClear
             />
           </Form.Item>
 
           <Form.Item
             name="secondary_hotline"
-            label="Secondary Hotline"
+            label={t('secondaryHotline')}
             style={{ marginBottom: 0 }}
             rules={[
-              { pattern: /^[0-9\s\-()]+$/, message: 'Please enter a valid phone number' }
+              { pattern: /^[0-9\s\-()]+$/, message: t('invalidPhone') }
             ]}
           >
             <Input
-              placeholder="e.g., 0909 60 30 25"
+              placeholder={t('hotlinePlaceholder2')}
               allowClear
             />
           </Form.Item>

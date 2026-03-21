@@ -8,6 +8,7 @@ import { useGetPublicProductsQuery } from '@/store/services/publicProductApi';
 import type { TrendingKeywordsContent } from '@/types/pageSection';
 import type { Category } from '@/types/category';
 import type { Product } from '@/types/product';
+import { useTranslations } from 'next-intl';
 
 export interface KeywordItem {
   text: string;
@@ -23,6 +24,7 @@ export interface KeywordItem {
  * - Manual mode: Admin-selected categories/products
  */
 export default function TrendingKeywords({ content }: { content?: TrendingKeywordsContent }) {
+  const t = useTranslations('homepage.trendingKeywords');
   // Use content from props
   const keywordsContent = content;
 
@@ -74,7 +76,7 @@ export default function TrendingKeywords({ content }: { content?: TrendingKeywor
     ];
   }
 
-  const title = 'Xu hướng tìm kiếm:';
+  const title = t('title');
 
   return (
     <div

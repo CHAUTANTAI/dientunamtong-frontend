@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useSignedImageUrl } from '@/hooks/useSignedImageUrl';
 import type { RightSidebarContent } from '@/types/pageSection';
 import Image from 'next/image';
+import { useTranslations } from 'next-intl';
 
 const { Text, Title } = Typography;
 
@@ -14,6 +15,7 @@ const { Text, Title } = Typography;
  * Fetches news_items and promotional_banners from API via props
  */
 export default function RightSidebar({ content }: { content?: RightSidebarContent }) {
+  const t = useTranslations('homepage.rightSidebar');
   const isLoading = false;
   
   // Use content from props, fallback to empty arrays
@@ -31,7 +33,7 @@ export default function RightSidebar({ content }: { content?: RightSidebarConten
           textAlign: 'center',
         }}
       >
-        <Empty description="Chưa có dữ liệu" image={Empty.PRESENTED_IMAGE_SIMPLE} />
+        <Empty description={t('empty')} image={Empty.PRESENTED_IMAGE_SIMPLE} />
       </div>
     );
   }
@@ -63,7 +65,7 @@ export default function RightSidebar({ content }: { content?: RightSidebarConten
             fontWeight: 600,
           }}
         >
-          Tin tức mới
+          {t('title')}
         </Title>
       </div>
 
@@ -170,6 +172,7 @@ interface BannerItemProps {
 }
 
 function BannerItem({ banner }: BannerItemProps) {
+  const t = useTranslations('homepage.rightSidebar');
   const signedUrl = useSignedImageUrl(banner.media_id);
 
   const content = (
@@ -199,13 +202,13 @@ function BannerItem({ banner }: BannerItemProps) {
       {signedUrl ? (
         <Image
           src={signedUrl}
-          alt={banner.alt || 'Banner'}
+          alt={banner.alt || t('bannerAlt')}
           fill
           style={{ objectFit: 'cover' }}
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 300px"
         />
       ) : (
-        <Text type="secondary">Loading...</Text>
+        <Text type="secondary">{t('loading')}</Text>
       )}
     </div>
   );
