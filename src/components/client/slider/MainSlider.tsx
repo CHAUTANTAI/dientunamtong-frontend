@@ -173,7 +173,7 @@ function SlideImage({ slide, height }: SlideImageProps) {
             src={signedUrl}
             alt={slide.alt || 'Slide'}
             fill
-            style={{ objectFit: 'contain' }}
+            style={{ objectFit: 'cover', objectPosition: 'center' }}
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 80vw, 1000px"
             priority
           />

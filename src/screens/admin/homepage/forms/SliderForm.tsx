@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { Button, Space, Input, Typography, Card } from 'antd';
+import { Button, Space, Input, Typography, Card, Alert } from 'antd';
 import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
 import type { SliderContent } from '@/types/pageSection';
 import MediaUpload, { type MediaValue } from '@/components/common/MediaUpload';
@@ -37,7 +37,90 @@ export default function SliderForm({ content, onChange }: SliderFormProps) {
   const t = useTranslations('homepageEditor.forms.slider');
   const [slides, setSlides] = useState<SlideItem[]>([]);
   const [miniAds, setMiniAds] = useState<MiniAdItem[]>([]);
+  const [validationError, setValidationError] = useState<string | null>(null);
   const isInitializingRef = useRef(true);
+
+  // Image validation helper
+  const validateImageDimensions = (file: File, type: 'slider' | 'miniAd'): Promise<boolean> => {
+    return new Promise((resolve) => {
+      const img = new Image();
+      const url = URL.createObjectURL(file);
+      
+      img.onload = () => {
+        URL.revokeObjectURL(url);
+        
+        const { width, height } = img;
+        const aspectRatio = width / height;
+        
+        if (type === 'slider') {
+          // Slider: 1200×300px, aspect ratio 4:1
+          const minWidth = 1000;
+          const minHeight = 250;
+          const targetAspectRatio = 4.0;
+          const aspectRatioTolerance = 0.3;
+          
+          // Check minimum dimensions (to ensure quality)
+          if (width < minWidth) {
+            setValidationError(`❌ Slider image width must be at least ${minWidth}px (current: ${width}px) to ensure good quality`);
+            resolve(false);
+            return;
+          }
+          
+          if (height < minHeight) {
+            setValidationError(`❌ Slider image height must be at least ${minHeight}px (current: ${height}px) to ensure good quality`);
+            resolve(false);
+            return;
+          }
+          
+          // Check aspect ratio (most important for proper fit)
+          if (Math.abs(aspectRatio - targetAspectRatio) > aspectRatioTolerance) {
+            setValidationError(`❌ Slider image aspect ratio should be ~${targetAspectRatio}:1 (recommended: 1200x300px or similar ratio). Current: ${aspectRatio.toFixed(2)}:1`);
+            resolve(false);
+            return;
+          }
+        } else {
+          // Mini Ad: height 149px to match slider (2 ads + gap = 300px)
+          // With ratio 4:1, width should be ~596px
+          // But we'll accept range for flexibility
+          const minWidth = 400;
+          const minHeight = 100;
+          const targetAspectRatio = 4.0;
+          const aspectRatioTolerance = 0.5; // More flexible for mini ads
+          
+          // Check minimum dimensions (to ensure quality)
+          if (width < minWidth) {
+            setValidationError(`❌ Mini Ad image width must be at least ${minWidth}px (current: ${width}px) to ensure good quality`);
+            resolve(false);
+            return;
+          }
+          
+          if (height < minHeight) {
+            setValidationError(`❌ Mini Ad image height must be at least ${minHeight}px (current: ${height}px) to ensure good quality`);
+            resolve(false);
+            return;
+          }
+          
+          // Check aspect ratio (most important for proper fit)
+          if (Math.abs(aspectRatio - targetAspectRatio) > aspectRatioTolerance) {
+            setValidationError(`❌ Mini Ad image aspect ratio should be ~${targetAspectRatio}:1 (recommended: 400x100px or similar ratio). Current: ${aspectRatio.toFixed(2)}:1`);
+            resolve(false);
+            return;
+          }
+        }
+        
+        setValidationError(null); // Clear any previous errors
+        resolve(true);
+      };
+      
+      img.onerror = () => {
+        URL.revokeObjectURL(url);
+        setValidationError('❌ Failed to load image for validation');
+        resolve(false);
+      };
+      
+      img.src = url;
+    });
+  };
 
   // Debounce slides and miniAds to avoid rapid onChange calls
   const debouncedSlides = useDebounce(slides, 500);
@@ -57,6 +140,7 @@ export default function SliderForm({ content, onChange }: SliderFormProps) {
       setMiniAds(newMiniAds);
       isInitializingRef.current = true;
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [content?.slides, content?.mini_ads]);
 
   // Call onChange only when debounced values change AND not initializing
@@ -83,6 +167,7 @@ export default function SliderForm({ content, onChange }: SliderFormProps) {
       },
     };
     onChange(newContent);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedSlides, debouncedMiniAds]);
 
   const addSlide = () => {
@@ -105,6 +190,18 @@ export default function SliderForm({ content, onChange }: SliderFormProps) {
 
   return (
     <Space direction="vertical" style={{ width: '100%' }} size="large">
+      {/* Validation Error Alert */}
+      {validationError && (
+        <Alert
+          message="Image Validation Error"
+          description={validationError}
+          type="error"
+          closable
+          onClose={() => setValidationError(null)}
+          showIcon
+        />
+      )}
+
       {/* Slides */}
       <div>
         <Space style={{ marginBottom: 12 }}>
@@ -124,15 +221,26 @@ export default function SliderForm({ content, onChange }: SliderFormProps) {
                   <Space.Compact style={{ display: 'flex', width: '100%', gap: 0 }}>
                     <MediaUpload
                       value={slide.media_id}
-                      onChange={(path) => {
-                        const updated = [...slides];
-                        updated[index].media_id = path;
+                      onChange={async (path) => {
+                        // Validate if it's a File (new upload)
+                        if (path && typeof path === 'object' && 'file' in path) {
+                          const isValid = await validateImageDimensions(path.file, 'slider');
+                          if (!isValid) {
+                            return; // Don't update if validation fails
+                          }
+                        }
+                        
+                        // Deep clone to avoid mutating readonly objects
+                        const updated = slides.map((s, i) => 
+                          i === index ? { ...s, media_id: path } : s
+                        );
                         setSlides(updated);
                       }}
                       folder="homepage/slider"
                       label={`Slide ${index + 1} Image`}
                       accept="image/*"
                       maxSizeMB={5}
+                      helperText="Min: 1000x250px, Aspect ratio 4:1 (e.g. 1200x300px, 1600x400px)"
                     />
                   </Space.Compact>
                   <Space.Compact style={{ display: 'flex', width: '100%', gap: 0 }}>
@@ -143,8 +251,9 @@ export default function SliderForm({ content, onChange }: SliderFormProps) {
                       placeholder={t('linkPlaceholder')}
                       value={slide.link}
                       onChange={(e) => {
-                        const updated = [...slides];
-                        updated[index].link = e.target.value;
+                        const updated = slides.map((s, i) => 
+                          i === index ? { ...s, link: e.target.value } : s
+                        );
                         setSlides(updated);
                       }}
                       style={{ borderRadius: '0 4px 4px 0' }}
@@ -154,7 +263,10 @@ export default function SliderForm({ content, onChange }: SliderFormProps) {
                     danger
                     size="small"
                     icon={<DeleteOutlined />}
-                    onClick={() => setSlides(slides.filter((_, i) => i !== index))}
+                    onClick={() => {
+                      const updated = slides.filter((_, i) => i !== index);
+                      setSlides(updated);
+                    }}
                   >
                     {t('remove')}
                   </Button>
@@ -189,15 +301,26 @@ export default function SliderForm({ content, onChange }: SliderFormProps) {
                 <Space direction="vertical" style={{ width: '100%' }} size="small">
                   <MediaUpload
                     value={ad.media_id}
-                    onChange={(path) => {
-                      const updated = [...miniAds];
-                      updated[index].media_id = path;
+                    onChange={async (path) => {
+                      // Validate if it's a File (new upload)
+                      if (path && typeof path === 'object' && 'file' in path) {
+                        const isValid = await validateImageDimensions(path.file, 'miniAd');
+                        if (!isValid) {
+                          return; // Don't update if validation fails
+                        }
+                      }
+                      
+                      // Deep clone to avoid mutating readonly objects
+                      const updated = miniAds.map((a, i) => 
+                        i === index ? { ...a, media_id: path } : a
+                      );
                       setMiniAds(updated);
                     }}
                     folder="homepage/mini-ads"
                     label={`Mini Ad ${index + 1} Image`}
                     accept="image/*"
                     maxSizeMB={5}
+                    helperText="Min: 400x100px, Aspect ratio 4:1 (e.g. 596x149px, 800x200px)"
                   />
                   <Space.Compact style={{ display: 'flex', width: '100%', gap: 0 }}>
                     <div style={{ display: 'flex', alignItems: 'center', paddingLeft: '12px', backgroundColor: '#fafafa', border: '1px solid #d9d9d9', borderRadius: '4px 0 0 4px' }}>
@@ -207,8 +330,9 @@ export default function SliderForm({ content, onChange }: SliderFormProps) {
                       placeholder={t('linkPlaceholder')}
                       value={ad.link}
                       onChange={(e) => {
-                        const updated = [...miniAds];
-                        updated[index].link = e.target.value;
+                        const updated = miniAds.map((a, i) => 
+                          i === index ? { ...a, link: e.target.value } : a
+                        );
                         setMiniAds(updated);
                       }}
                       style={{ borderRadius: '0 4px 4px 0' }}
@@ -218,7 +342,10 @@ export default function SliderForm({ content, onChange }: SliderFormProps) {
                     danger
                     size="small"
                     icon={<DeleteOutlined />}
-                    onClick={() => setMiniAds(miniAds.filter((_, i) => i !== index))}
+                    onClick={() => {
+                      const updated = miniAds.filter((_, i) => i !== index);
+                      setMiniAds(updated);
+                    }}
                   >
                     {t('remove')}
                   </Button>

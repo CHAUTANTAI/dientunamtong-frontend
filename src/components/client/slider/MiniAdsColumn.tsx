@@ -122,7 +122,7 @@ function MiniAdItem({ ad, height, index }: MiniAdItemProps) {
             src={signedUrl}
             alt={ad.alt || 'Mini Ad'}
             fill
-            style={{ objectFit: 'contain' }}
+            style={{ objectFit: 'cover', objectPosition: 'center' }}
             sizes="(max-width: 640px) 100vw, 300px"
             priority
           />
