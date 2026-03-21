@@ -1,12 +1,113 @@
 'use client';
 
-import { Space, Typography, Popover } from 'antd';
+import { Space, Typography, Popover, Skeleton } from 'antd';
 import { ShoppingCartOutlined, ClockCircleOutlined, RocketOutlined } from '@ant-design/icons';
 import Link from 'next/link';
 import { ROUTES } from '@/constants/routes';
 import { LanguageSwitcher } from '@/components/common/LanguageSwitcher';
+import { useGetSystemInfoQuery } from '@/store/services/publicSystemInfoApi';
 
 const { Text } = Typography;
+
+// Helper to format business hours
+interface BusinessHoursSchedule {
+  schedule: Array<{
+    day: string;
+    isOpen: boolean;
+    openTime: string;
+    closeTime: string;
+  }>;
+}
+
+function formatBusinessHours(businessHoursJson: string | null | undefined): string {
+  if (!businessHoursJson) return '';
+  
+  try {
+    const parsed: BusinessHoursSchedule = JSON.parse(businessHoursJson);
+    const { schedule } = parsed;
+    
+    if (!schedule || schedule.length === 0) return '';
+    
+    // Check if all days have same hours and all are open
+    const allOpen = schedule.every(day => day.isOpen);
+    if (!allOpen) {
+      // If some days are closed, show detailed schedule
+      return formatDetailedSchedule(schedule);
+    }
+    
+    const firstDay = schedule[0];
+    const allSameHours = schedule.every(
+      day => day.openTime === firstDay.openTime && day.closeTime === firstDay.closeTime
+    );
+    
+    if (allSameHours) {
+      // All days open with same hours
+      return `${firstDay.openTime} - ${firstDay.closeTime} (Thứ 2 - CN)`;
+    } else {
+      // Different hours for different days
+      return formatDetailedSchedule(schedule);
+    }
+  } catch (error) {
+    console.error('Failed to parse business hours:', error);
+    return '';
+  }
+}
+
+function formatDetailedSchedule(schedule: BusinessHoursSchedule['schedule']): string {
+  const dayNames: Record<string, string> = {
+    monday: 'T2',
+    tuesday: 'T3',
+    wednesday: 'T4',
+    thursday: 'T5',
+    friday: 'T6',
+    saturday: 'T7',
+    sunday: 'CN',
+  };
+  
+  // Group consecutive days with same hours
+  const groups: string[] = [];
+  let currentGroup: typeof schedule = [];
+  
+  schedule.forEach((day, index) => {
+    if (!day.isOpen) return;
+    
+    if (currentGroup.length === 0) {
+      currentGroup.push(day);
+    } else {
+      const prev = currentGroup[currentGroup.length - 1];
+      if (day.openTime === prev.openTime && day.closeTime === prev.closeTime) {
+        currentGroup.push(day);
+      } else {
+        // Finish current group
+        groups.push(formatGroup(currentGroup, dayNames));
+        currentGroup = [day];
+      }
+    }
+    
+    // Last item
+    if (index === schedule.length - 1 && currentGroup.length > 0) {
+      groups.push(formatGroup(currentGroup, dayNames));
+    }
+  });
+  
+  return groups.join('; ');
+}
+
+function formatGroup(
+  days: BusinessHoursSchedule['schedule'], 
+  dayNames: Record<string, string>
+): string {
+  if (days.length === 0) return '';
+  
+  const firstDay = days[0];
+  if (days.length === 1) {
+    return `${dayNames[firstDay.day]}: ${firstDay.openTime}-${firstDay.closeTime}`;
+  } else {
+    const firstDayName = dayNames[days[0].day];
+    const lastDayName = dayNames[days[days.length - 1].day];
+    return `${firstDayName}-${lastDayName}: ${firstDay.openTime}-${firstDay.closeTime}`;
+  }
+}
 
 /**
  * TopBar Component - Thanh trên cùng
@@ -17,8 +118,9 @@ const { Text } = Typography;
  * - Cart count từ user session/state
  */
 export default function TopBar() {
-  // TODO: Replace with API data
-  const businessHours = '8:00 - 18:00 (Kể cả thứ 7 và CN)';
+  const { data: systemInfo, isLoading } = useGetSystemInfoQuery();
+  
+  const businessHours = formatBusinessHours(systemInfo?.business_hours);
   const cartItemCount = 0; // TODO: Get from cart state
 
   // Coming Soon Popover content
@@ -39,9 +141,6 @@ export default function TopBar() {
   const menuItems = [
     { label: 'Trang chủ', href: ROUTES.HOME },
     { label: 'Giới thiệu', href: ROUTES.ABOUT },
-    { label: 'Hướng dẫn sử dụng', href: '#' }, // TODO: Add route
-    { label: 'Dịch vụ', href: '#' }, // TODO: Add route
-    { label: 'Tin tức', href: '#' }, // TODO: Add route
     { label: 'Liên hệ', href: ROUTES.CONTACT },
   ];
 
@@ -68,9 +167,13 @@ export default function TopBar() {
         {/* Left: Work Time */}
         <Space size="small">
           <ClockCircleOutlined style={{ color: '#ff4d4f', fontSize: 15 }} />
-          <Text style={{ fontSize: 14, color: '#595959' }}>
-            Thời gian làm việc: <strong style={{ color: '#ff4d4f' }}>{businessHours}</strong>
-          </Text>
+          {isLoading ? (
+            <Skeleton.Input active size="small" style={{ width: 300, height: 20 }} />
+          ) : businessHours ? (
+            <Text style={{ fontSize: 14, color: '#595959' }}>
+              Thời gian làm việc: <strong style={{ color: '#ff4d4f' }}>{businessHours}</strong>
+            </Text>
+          ) : null}
         </Space>
 
         {/* Center: Desktop Menu */}

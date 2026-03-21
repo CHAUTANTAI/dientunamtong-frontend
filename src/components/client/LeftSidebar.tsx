@@ -79,6 +79,8 @@ export default function LeftSidebar({ content }: { content?: LeftSidebarContent 
         <Link
           href={`/categories/${category.slug}`}
           style={{
+            display: 'block',
+            width: '100%',
             color: '#262626',
             textDecoration: 'none',
             fontSize: 14,
@@ -86,12 +88,6 @@ export default function LeftSidebar({ content }: { content?: LeftSidebarContent 
           }}
           onClick={(e) => {
             e.stopPropagation();
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.color = '#ff4d4f';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.color = '#262626';
           }}
         >
           {category.name}
@@ -187,7 +183,28 @@ export default function LeftSidebar({ content }: { content?: LeftSidebarContent 
         style={{
           backgroundColor: '#fff',
         }}
+        className="left-sidebar-collapse"
       />
+
+      {/* Custom styles for hover effect on full collapse header */}
+      <style jsx global>{`
+        .left-sidebar-collapse .ant-collapse-item {
+          border-bottom: 1px solid #f0f0f0;
+        }
+        .left-sidebar-collapse .ant-collapse-header {
+          transition: all 0.3s !important;
+          cursor: pointer !important;
+        }
+        .left-sidebar-collapse .ant-collapse-header:hover {
+          background-color: #fff5f5 !important;
+        }
+        .left-sidebar-collapse .ant-collapse-header:hover a {
+          color: #ff4d4f !important;
+        }
+        .left-sidebar-collapse .ant-collapse-header a {
+          transition: color 0.3s;
+        }
+      `}</style>
 
       {/* Promotional Banner */}
       <div

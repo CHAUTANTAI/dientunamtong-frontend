@@ -1,39 +1,72 @@
 /**
  * Public Product API - RTK Query
- * For client-side and admin product fetching without requiring full auth
+ * For client-side product fetching without authentication
  */
 
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import { getAuthToken } from '@/utils/auth';
 import type { Product } from '@/types/product';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
+
+// API Response Types
+interface ProductListResponse {
+  success: boolean;
+  data: {
+    products: Product[];
+    total: number;
+  };
+}
+
+interface ProductDetailResponse {
+  success: boolean;
+  data: Product;
+}
+
+type GetProductsParams = {
+  limit?: number;
+  sort?: string;
+} | void;
 
 export const publicProductApi = createApi({
   reducerPath: 'publicProductApi',
   baseQuery: fetchBaseQuery({ 
     baseUrl: API_URL,
-    prepareHeaders: (headers) => {
-      const token = getAuthToken();
-      if (token) headers.set('Authorization', `Bearer ${token}`);
-      return headers;
-    },
+    // No auth needed for public endpoints
   }),
   endpoints: (builder) => ({
-    // GET /admin/product - Get all products (with auth for admin usage)
-    getPublicProducts: builder.query<Product[], { limit?: number; sort?: string } | void>({
-      query: (params) => ({
-        url: '/admin/product',
-        params: params as Record<string, string | number | undefined>,
-      }),
-      transformResponse: (response: { success: boolean; data: { products: Product[] } }) => 
-        response.data.products || [],
+    // GET /public/product - Get all active products (public, no auth)
+    getPublicProducts: builder.query<Product[], GetProductsParams>({
+      query: (params) => {
+        // Handle void params case
+        if (!params) {
+          return { url: '/public/product' };
+        }
+        
+        return {
+          url: '/public/product',
+          params: params as Record<string, string | number>,
+        };
+      },
+      transformResponse: (response: ProductListResponse | Product[]) => {
+        // Handle different response formats
+        if (!response) return [];
+        
+        // If response is already an array (direct Product[])
+        if (Array.isArray(response)) return response;
+        
+        // If response is standard API format
+        if ('success' in response && response.success === true && response.data) {
+          return response.data.products || [];
+        }
+        
+        return [];
+      },
     }),
     
-    // GET /admin/product/:id - Get single product by ID
+    // GET /public/product/:id - Get single product by ID (public, no auth)
     getPublicProductById: builder.query<Product, string>({
-      query: (id) => `/admin/product/${id}`,
-      transformResponse: (response: { success: boolean; data: Product }) => response.data,
+      query: (id) => `/public/product/${id}`,
+      transformResponse: (response: ProductDetailResponse) => response.data,
     }),
   }),
 });

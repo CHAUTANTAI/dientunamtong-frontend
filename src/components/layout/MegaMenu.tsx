@@ -117,16 +117,18 @@ export default function MegaMenu({ content }: MegaMenuProps) {
                       top: '100%',
                       left: 0,
                       backgroundColor: '#fff',
-                      border: '1px solid #e0e0e0',
-                      borderRadius: '0 0 8px 8px',
-                      boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
+                      border: '2px solid #ff4d4f',
+                      borderTop: 'none',
+                      borderRadius: '0 0 12px 12px',
+                      boxShadow: '0 12px 32px rgba(255, 77, 79, 0.25), 0 4px 16px rgba(0, 0, 0, 0.1)',
                       minWidth: '800px',
                       maxWidth: '1000px',
-                      padding: '24px',
+                      padding: '32px',
                       display: 'grid',
                       gridTemplateColumns: 'repeat(4, 1fr)',
-                      gap: '16px',
-                      animation: 'fadeInDown 0.3s ease',
+                      gap: '20px',
+                      animation: 'fadeInDown 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+                      zIndex: 9999,
                     }}
                   >
                     {subcategories.map((sub: { id: string; name: string; slug: string }) => (
@@ -134,25 +136,40 @@ export default function MegaMenu({ content }: MegaMenuProps) {
                         key={sub.id}
                         href={`${ROUTES.CATEGORIES}/${sub.slug}`}
                         style={{
-                          padding: '8px 12px',
-                          color: '#595959',
+                          padding: '12px 16px',
+                          color: '#262626',
                           textDecoration: 'none',
-                          fontSize: 13,
-                          borderRadius: 4,
-                          transition: 'all 0.3s',
-                          display: 'block',
+                          fontSize: 14,
+                          fontWeight: 500,
+                          borderRadius: 8,
+                          transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px',
+                          backgroundColor: '#fafafa',
+                          border: '1px solid transparent',
+                          position: 'relative',
+                          overflow: 'hidden',
                         }}
                         onMouseEnter={(e) => {
                           e.currentTarget.style.backgroundColor = '#fff5f5';
                           e.currentTarget.style.color = '#ff4d4f';
-                          e.currentTarget.style.transform = 'translateX(4px)';
+                          e.currentTarget.style.borderColor = '#ff4d4f';
+                          e.currentTarget.style.transform = 'translateY(-2px)';
+                          e.currentTarget.style.boxShadow = '0 4px 12px rgba(255, 77, 79, 0.2)';
                         }}
                         onMouseLeave={(e) => {
-                          e.currentTarget.style.backgroundColor = 'transparent';
-                          e.currentTarget.style.color = '#595959';
-                          e.currentTarget.style.transform = 'translateX(0)';
+                          e.currentTarget.style.backgroundColor = '#fafafa';
+                          e.currentTarget.style.color = '#262626';
+                          e.currentTarget.style.borderColor = 'transparent';
+                          e.currentTarget.style.transform = 'translateY(0)';
+                          e.currentTarget.style.boxShadow = 'none';
                         }}
                       >
+                        <span style={{ 
+                          fontSize: 16, 
+                          transition: 'transform 0.25s',
+                        }}>▸</span>
                         {sub.name}
                       </Link>
                     ))}
@@ -169,7 +186,7 @@ export default function MegaMenu({ content }: MegaMenuProps) {
         @keyframes fadeInDown {
           from {
             opacity: 0;
-            transform: translateY(-10px);
+            transform: translateY(-12px);
           }
           to {
             opacity: 1;

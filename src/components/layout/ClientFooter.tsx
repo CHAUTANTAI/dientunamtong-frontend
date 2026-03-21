@@ -1,10 +1,10 @@
 'use client';
 
-import { Layout, Row, Col, Space, Typography } from 'antd';
-import { PhoneOutlined, MailOutlined, EnvironmentOutlined, FacebookOutlined, YoutubeOutlined } from '@ant-design/icons';
-// import { useTranslations } from 'next-intl'; // Unused - remove to fix lint warning
+import { Layout, Row, Col, Space, Typography, Popover } from 'antd';
+import { PhoneOutlined, MailOutlined, EnvironmentOutlined, FacebookOutlined, YoutubeOutlined, RocketOutlined } from '@ant-design/icons';
 import Link from 'next/link';
 import { useGetSystemInfoQuery } from '@/store/services/publicSystemInfoApi';
+import { useGetPublicCategoriesQuery } from '@/store/services/publicCategoryApi';
 import { ROUTES } from '@/constants/routes';
 
 const { Footer } = Layout;
@@ -19,28 +19,41 @@ const { Text, Title } = Typography;
  */
 export default function ClientFooter() {
   const { data: systemInfo } = useGetSystemInfoQuery();
+  const { data: categories = [] } = useGetPublicCategoriesQuery();
 
-  // TODO: Get from system_info or page_sections
-  const footerLinks = {
-    company: [
-      { label: 'Giới thiệu', href: ROUTES.ABOUT },
-      { label: 'Liên hệ', href: ROUTES.CONTACT },
-      { label: 'Hướng dẫn mua hàng', href: '#' },
-      { label: 'Chính sách bảo hành', href: '#' },
-    ],
-    products: [
-      { label: 'Phụ tùng xe', href: ROUTES.PRODUCTS },
-      { label: 'Đồ chơi xe', href: ROUTES.CATEGORIES },
-      { label: 'Tem xe', href: '#' },
-      { label: 'Bảng giá', href: '#' },
-    ],
-    support: [
-      { label: 'Hướng dẫn sử dụng', href: '#' },
-      { label: 'Dịch vụ', href: '#' },
-      { label: 'Video', href: '#' },
-      { label: 'Tin tức', href: '#' },
-    ],
-  };
+  // Get top 5 categories for footer
+  const topCategories = categories
+    .filter(cat => !cat.parent_id) // Only parent categories
+    .slice(0, 5);
+
+  // "Về chúng tôi" - remove "Hướng dẫn mua hàng" và "Bảo hành"
+  const companyLinks = [
+    { label: 'Giới thiệu', href: ROUTES.ABOUT },
+    { label: 'Liên hệ', href: ROUTES.CONTACT },
+  ];
+
+  // Coming Soon Popover
+  const comingSoonContent = (
+    <div style={{ padding: '8px 4px', maxWidth: 250 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: 8 }}>
+        <RocketOutlined style={{ fontSize: 18, color: '#ff4d4f' }} />
+        <Text strong style={{ fontSize: 14, color: '#262626' }}>
+          Sắp ra mắt!
+        </Text>
+      </div>
+      <Text style={{ fontSize: 13, color: '#8c8c8c' }}>
+        Tính năng này đang được phát triển 🚀
+      </Text>
+    </div>
+  );
+
+  // "Hỗ trợ" - all coming soon
+  const supportLinks = [
+    { label: 'Hướng dẫn sử dụng', href: '#' },
+    { label: 'Dịch vụ', href: '#' },
+    { label: 'Video', href: '#' },
+    { label: 'Tin tức', href: '#' },
+  ];
 
   return (
     <Footer
@@ -109,7 +122,7 @@ export default function ClientFooter() {
               <Title level={5} style={{ color: '#fff', margin: 0 }}>
                 Về chúng tôi
               </Title>
-              {footerLinks.company.map((link, index) => (
+              {companyLinks.map((link, index) => (
                 <Link
                   key={index}
                   href={link.href}
@@ -133,16 +146,16 @@ export default function ClientFooter() {
             </Space>
           </Col>
 
-          {/* Column 3: Product Links */}
+          {/* Column 3: Product Categories */}
           <Col xs={24} sm={12} md={6}>
             <Space direction="vertical" size="middle" style={{ width: '100%' }}>
               <Title level={5} style={{ color: '#fff', margin: 0 }}>
                 Sản phẩm
               </Title>
-              {footerLinks.products.map((link, index) => (
+              {topCategories.map((category) => (
                 <Link
-                  key={index}
-                  href={link.href}
+                  key={category.id}
+                  href={`${ROUTES.CATEGORIES}/${category.slug}`}
                   style={{
                     color: '#d9d9d9',
                     fontSize: 13,
@@ -157,38 +170,42 @@ export default function ClientFooter() {
                     e.currentTarget.style.color = '#d9d9d9';
                   }}
                 >
-                  {link.label}
+                  {category.name}
                 </Link>
               ))}
+              {topCategories.length === 0 && (
+                <Text style={{ color: '#8c8c8c', fontSize: 13 }}>
+                  Đang cập nhật...
+                </Text>
+              )}
             </Space>
           </Col>
 
-          {/* Column 4: Support Links */}
+          {/* Column 4: Support Links (Coming Soon) */}
           <Col xs={24} sm={12} md={6}>
             <Space direction="vertical" size="middle" style={{ width: '100%' }}>
               <Title level={5} style={{ color: '#fff', margin: 0 }}>
                 Hỗ trợ
               </Title>
-              {footerLinks.support.map((link, index) => (
-                <Link
-                  key={index}
-                  href={link.href}
-                  style={{
-                    color: '#d9d9d9',
-                    fontSize: 13,
-                    textDecoration: 'none',
-                    display: 'block',
-                    transition: 'color 0.3s',
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.color = '#ff4d4f';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.color = '#d9d9d9';
-                  }}
-                >
-                  {link.label}
-                </Link>
+              {supportLinks.map((link, index) => (
+                <Popover key={index} content={comingSoonContent} trigger="hover" placement="top">
+                  <div
+                    style={{
+                      color: '#d9d9d9',
+                      fontSize: 13,
+                      cursor: 'pointer',
+                      transition: 'color 0.3s',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.color = '#ff4d4f';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.color = '#d9d9d9';
+                    }}
+                  >
+                    {link.label}
+                  </div>
+                </Popover>
               ))}
             </Space>
           </Col>

@@ -1,3 +1,6 @@
+'use client';
+
+import { use } from 'react';
 import ClientLayout from '@/components/layout/ClientLayout';
 import CategoryDetailPage from '@/screens/client/categories/category-detail-page';
 
@@ -7,8 +10,8 @@ interface Props {
   }>;
 }
 
-export default async function CategoryPage({ params }: Props) {
-  const { id } = await params;
+export default function CategoryPage({ params }: Props) {
+  const { id } = use(params);
 
   return (
     <ClientLayout>

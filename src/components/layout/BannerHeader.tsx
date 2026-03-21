@@ -1,6 +1,6 @@
 'use client';
 
-import { Space, Typography } from 'antd';
+import { Space, Typography, Skeleton } from 'antd';
 import { PhoneOutlined } from '@ant-design/icons';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -22,21 +22,24 @@ interface BannerHeaderProps {
 }
 
 export default function BannerHeader({ content }: BannerHeaderProps) {
-  const { data: systemInfo } = useGetSystemInfoQuery();
+  const { data: systemInfo, isLoading: systemInfoLoading } = useGetSystemInfoQuery();
   
   // Get banner header config from props
   const config = content;
 
-  // Fallback chain: API config (from prop) > system_info > defaults
+  // Fallback chain: API config (from prop) > system_info
   const logoMediaId = config?.logo_media_id || systemInfo?.company_logo || '';
   const bannerMediaId = config?.banner_media_id || '';
-  const primaryHotline = config?.primary_hotline || systemInfo?.phone || '(0286) 271 3025';
-  const secondaryHotline = config?.secondary_hotline || '0909 60 30 25';
+  const primaryHotline = config?.primary_hotline || systemInfo?.phone || '';
+  const secondaryHotline = config?.secondary_hotline || '';
   
   const logoUrl = useSignedImageUrl(logoMediaId);
   const bannerUrl = useSignedImageUrl(bannerMediaId);
 
   const hotlines = [primaryHotline, secondaryHotline].filter(Boolean);
+  
+  // Show skeleton while loading
+  const isLoading = systemInfoLoading || (!logoUrl && !bannerUrl && !primaryHotline);
 
   return (
     <div
@@ -75,7 +78,9 @@ export default function BannerHeader({ content }: BannerHeaderProps) {
               e.currentTarget.style.transform = 'scale(1)';
             }}
           >
-            {logoUrl ? (
+            {isLoading ? (
+              <Skeleton.Avatar active size={110} shape="square" />
+            ) : logoUrl ? (
               <Image
                 src={logoUrl}
                 alt={systemInfo?.company_name || 'Logo'}
@@ -121,7 +126,9 @@ export default function BannerHeader({ content }: BannerHeaderProps) {
               e.currentTarget.style.transform = 'scale(1)';
             }}
           >
-            {bannerUrl ? (
+            {isLoading ? (
+              <Skeleton.Image active style={{ width: '100%', height: '110px' }} />
+            ) : bannerUrl ? (
               <Image
                 src={bannerUrl}
                 alt="Banner"
@@ -157,7 +164,13 @@ export default function BannerHeader({ content }: BannerHeaderProps) {
             alignItems: 'flex-end',
           }}
         >
-          {hotlines.map((hotline, index) => (
+          {isLoading ? (
+            <>
+              <Skeleton.Button active size="large" style={{ width: 180 }} />
+              <Skeleton.Button active size="large" style={{ width: 180 }} />
+            </>
+          ) : (
+            hotlines.map((hotline, index) => (
             <a
               key={index}
               href={`tel:${hotline.replace(/\s/g, '')}`}
@@ -216,7 +229,8 @@ export default function BannerHeader({ content }: BannerHeaderProps) {
                 </Text>
               </Space>
             </a>
-          ))}
+          ))
+          )}
         </div>
       </div>
 

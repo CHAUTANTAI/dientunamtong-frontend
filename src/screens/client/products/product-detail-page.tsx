@@ -26,6 +26,7 @@ import { useTranslations } from 'next-intl';
 import { useGetPublicProductByIdQuery, useGetPublicProductsQuery } from '@/store/services/publicProductApi';
 import { useSignedImageUrl } from '@/hooks/useSignedImageUrl';
 import { useViewTracker } from '@/hooks/useViewTracker';
+import { usePublicPageSections } from '@/hooks/usePublicPageSections';
 import { ROUTES } from '@/constants/routes';
 import LeftSidebar from '@/components/client/LeftSidebar';
 import RightSidebar from '@/components/client/RightSidebar';
@@ -113,6 +114,9 @@ export default function ProductDetailPage({ productId }: ProductDetailPageProps)
   const { data: product, isLoading, error } = useGetPublicProductByIdQuery(productId);
   const { data: allProductsData } = useGetPublicProductsQuery();
   const { trackView } = useViewTracker();
+  
+  // Fetch sidebar content
+  const { leftSidebar, rightSidebar } = usePublicPageSections('homepage');
 
   const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
 
@@ -384,7 +388,7 @@ export default function ProductDetailPage({ productId }: ProductDetailPageProps)
       <Row gutter={24}>
         {/* Left Sidebar - 20% */}
         <Col xs={0} lg={0} xl={5}>
-          <LeftSidebar />
+          <LeftSidebar content={leftSidebar} />
         </Col>
 
         {/* Main Content - 55% */}
@@ -394,7 +398,7 @@ export default function ProductDetailPage({ productId }: ProductDetailPageProps)
 
         {/* Right Sidebar - 25% */}
         <Col xs={0} lg={0} xl={5}>
-          <RightSidebar />
+          <RightSidebar content={rightSidebar} />
         </Col>
       </Row>
     </div>

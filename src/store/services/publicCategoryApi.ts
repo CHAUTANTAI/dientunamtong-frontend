@@ -18,9 +18,9 @@ export const publicCategoryApi = createApi({
       transformResponse: (response: { success: boolean; data: Category[] }) => response.data,
     }),
     
-    // GET /public/category/:id - Get single category by ID
+    // GET /public/category/:slug - Get single category by slug
     getPublicCategoryById: builder.query<Category, string>({
-      query: (id) => `/public/category/${id}`,
+      query: (slug) => `/public/category/${slug}`,
       transformResponse: (response: { success: boolean; data: Category }) => response.data,
     }),
   }),

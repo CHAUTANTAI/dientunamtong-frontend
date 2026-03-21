@@ -24,7 +24,10 @@ import { useGetPublicCategoriesQuery, useGetPublicCategoryByIdQuery } from '@/st
 import { useGetPublicProductsQuery } from '@/store/services/publicProductApi';
 import { useSignedImageUrl } from '@/hooks/useSignedImageUrl';
 import { useViewTracker } from '@/hooks/useViewTracker';
+import { usePublicPageSections } from '@/hooks/usePublicPageSections';
 import { ROUTES } from '@/constants/routes';
+import LeftSidebar from '@/components/client/LeftSidebar';
+import RightSidebar from '@/components/client/RightSidebar';
 
 const { Title, Text, Paragraph } = Typography;
 
@@ -111,10 +114,22 @@ const ProductCard = ({ id, name, price, imageUrl, inStock }: ProductCardProps) =
 
 export default function CategoryDetailPage({ categoryId }: CategoryDetailPageProps) {
   const t = useTranslations();
-  const { data: category, isLoading: categoryLoading, error } = useGetPublicCategoryByIdQuery(categoryId);
+  const { data: category, isLoading: categoryLoading, error: categoryError } = useGetPublicCategoryByIdQuery(categoryId);
   const { data: allCategories = [], isLoading: categoriesLoading } = useGetPublicCategoriesQuery();
-  const { data: allProductsData, isLoading: productsLoading } = useGetPublicProductsQuery();
+  const { 
+    data: allProductsData, 
+    isLoading: productsLoading,
+    error: productsError,
+    isSuccess: productsSuccess,
+    isFetching: productsFetching 
+  } = useGetPublicProductsQuery();
   const { trackView } = useViewTracker();
+
+  // For sidebar content
+  const { 
+    leftSidebar, 
+    rightSidebar,
+  } = usePublicPageSections('homepage');
 
   const [sortBy, setSortBy] = useState<string>('newest');
   const [currentPage, setCurrentPage] = useState(1);
@@ -130,7 +145,7 @@ export default function CategoryDetailPage({ categoryId }: CategoryDetailPagePro
 
   // Get all descendant category IDs (including current category)
   const descendantCategoryIds = useMemo(() => {
-    if (!allCategories.length) return [categoryId];
+    if (!allCategories.length || !category) return [];
 
     const getAllDescendants = (catId: string): string[] => {
       const children = allCategories.filter(cat => cat.parent_id === catId);
@@ -139,8 +154,8 @@ export default function CategoryDetailPage({ categoryId }: CategoryDetailPagePro
       return [...childIds, ...grandChildIds];
     };
 
-    return [categoryId, ...getAllDescendants(categoryId)];
-  }, [allCategories, categoryId]);
+    return [category.id, ...getAllDescendants(category.id)];
+  }, [allCategories, category]);
 
   // Build subcategory tree starting from current category
   const subCategoryTree = useMemo(() => {
@@ -183,16 +198,23 @@ export default function CategoryDetailPage({ categoryId }: CategoryDetailPagePro
     return (
       <div style={{ textAlign: 'center', padding: '48px 0' }}>
         <Spin size="large" />
+        <div style={{ marginTop: 16 }}>
+          <Text>Loading...</Text>
+        </div>
       </div>
     );
   }
 
-  if (error || !category) {
+  if (categoryError || !category) {
     return (
       <div>
         <Empty description="Category not found" />
       </div>
     );
+  }
+
+  if (productsError) {
+    console.error('Products error:', productsError);
   }
 
   // Filter products by descendant categories
@@ -241,159 +263,175 @@ export default function CategoryDetailPage({ categoryId }: CategoryDetailPagePro
 
   return (
     <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '24px 16px' }}>
-      {/* Breadcrumb */}
-      <Breadcrumb
-        items={[
-          {
-            href: ROUTES.HOME,
-            title: (
-              <>
-                <HomeOutlined />
-                <span>{t('navigation.home')}</span>
-              </>
-            ),
-          },
-          {
-            href: ROUTES.CATEGORIES,
-            title: t('navigation.categories'),
-          },
-          {
-            title: category.name,
-          },
-        ]}
-        style={{ marginBottom: 24 }}
-      />
+      {/* Main 3-Column Layout */}
+      <Row gutter={24}>
+        {/* Left Sidebar - 20% */}
+        <Col xs={0} lg={0} xl={5}>
+          <LeftSidebar content={leftSidebar} />
+        </Col>
 
-      {/* Category Header */}
-      <Card style={{ marginBottom: 24 }}>
-        <Row gutter={[24, 24]}>
-          {/* Category Image */}
-          {category.media?.file_url && (
-            <Col xs={24} md={8}>
-              <CategoryImage imageUrl={category.media.file_url} alt={category.name} />
-            </Col>
-          )}
+        {/* Main Content - 55% */}
+        <Col xs={24} lg={24} xl={14}>
+          {/* Breadcrumb */}
+          <Breadcrumb
+            items={[
+              {
+                href: ROUTES.HOME,
+                title: (
+                  <>
+                    <HomeOutlined />
+                    <span>{t('navigation.home')}</span>
+                  </>
+                ),
+              },
+              {
+                href: ROUTES.CATEGORIES,
+                title: t('navigation.categories'),
+              },
+              {
+                title: category.name,
+              },
+            ]}
+            style={{ marginBottom: 24 }}
+          />
 
-          {/* Category Info */}
-          <Col xs={24} md={category.media?.file_url ? 16 : 24}>
-            <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-              <div>
-                <Title level={2} style={{ margin: 0 }}>
-                  {category.name}
-                </Title>
-                {category.slug && <Text type="secondary">/{category.slug}</Text>}
-              </div>
-
-              {category.description && (
-                <Paragraph style={{ fontSize: 16 }}>{category.description}</Paragraph>
+          {/* Category Header */}
+          <Card style={{ marginBottom: 24 }}>
+            <Row gutter={[24, 24]}>
+              {/* Category Image */}
+              {category.media?.file_url && (
+                <Col xs={24} md={8}>
+                  <CategoryImage imageUrl={category.media.file_url} alt={category.name} />
+                </Col>
               )}
 
-              <Space>
-                <Text strong>Total Products:</Text>
-                <Text>{categoryProducts.length}</Text>
-              </Space>
-            </Space>
-          </Col>
-        </Row>
-      </Card>
+              {/* Category Info */}
+              <Col xs={24} md={category.media?.file_url ? 16 : 24}>
+                <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+                  <div>
+                    <Title level={2} style={{ margin: 0 }}>
+                      {category.name}
+                    </Title>
+                    {category.slug && <Text type="secondary">/{category.slug}</Text>}
+                  </div>
 
-      {/* Sort and Filter Controls */}
-      <Card style={{ marginBottom: 24 }}>
-        <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-          {/* Search and Category Filter Row */}
-          <Row gutter={[16, 16]}>
-            <Col xs={24} md={12}>
-              <Input
-                placeholder={t('common.search')}
-                prefix={<SearchOutlined />}
-                value={searchQuery}
-                onChange={(e) => {
-                  setSearchQuery(e.target.value);
-                  setCurrentPage(1); // Reset to first page
-                }}
-                allowClear
-                size="large"
-              />
-            </Col>
-            {subCategoryTree.length > 0 && (
-              <Col xs={24} md={12}>
-                <TreeSelect
-                  style={{ width: '100%' }}
-                  placeholder="Filter by subcategory"
-                  treeData={subCategoryTree}
-                  value={selectedSubCategory}
-                  onChange={(value) => {
-                    setSelectedSubCategory(value);
-                    setCurrentPage(1); // Reset to first page
-                  }}
-                  allowClear
-                  size="large"
-                  treeDefaultExpandAll
-                />
+                  {category.description && (
+                    <Paragraph style={{ fontSize: 16 }}>{category.description}</Paragraph>
+                  )}
+
+                  <Space>
+                    <Text strong>Total Products:</Text>
+                    <Text>{categoryProducts.length}</Text>
+                  </Space>
+                </Space>
               </Col>
-            )}
-          </Row>
+            </Row>
+          </Card>
 
-          {/* Results and Sort Row */}
-          <Row gutter={[16, 16]} align="middle" justify="space-between">
-            <Col>
-              <Text strong>
-                {categoryProducts.length} {t('common.results')}
-              </Text>
-            </Col>
-            <Col>
-              <Space>
-                <Text>Sort by:</Text>
-                <Select style={{ width: 200 }} value={sortBy} onChange={setSortBy}>
-                  <Select.Option value="newest">{t('common.sortNewest')}</Select.Option>
-                  <Select.Option value="popular">{t('common.sortPopular')}</Select.Option>
-                  <Select.Option value="price-asc">{t('common.sortPriceAsc')}</Select.Option>
-                  <Select.Option value="price-desc">{t('common.sortPriceDesc')}</Select.Option>
-                  <Select.Option value="name">{t('common.sortName')}</Select.Option>
-                </Select>
-              </Space>
-            </Col>
-          </Row>
-        </Space>
-      </Card>
-
-      {/* Products Grid */}
-      {paginatedProducts.length > 0 ? (
-        <>
-          <Row gutter={[16, 16]}>
-            {paginatedProducts.map((product) => {
-              const firstImage = product.media?.find((m) => m.media_type === 'image');
-              return (
-                <Col key={product.id} xs={24} sm={12} md={8} lg={6}>
-                  <ProductCard
-                    id={product.id}
-                    name={product.name}
-                    price={product.price}
-                    imageUrl={firstImage?.file_url}
-                    inStock={product.in_stock}
+          {/* Sort and Filter Controls */}
+          <Card style={{ marginBottom: 24 }}>
+            <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+              {/* Search and Category Filter Row */}
+              <Row gutter={[16, 16]}>
+                <Col xs={24} md={12}>
+                  <Input
+                    placeholder={t('common.search')}
+                    prefix={<SearchOutlined />}
+                    value={searchQuery}
+                    onChange={(e) => {
+                      setSearchQuery(e.target.value);
+                      setCurrentPage(1); // Reset to first page
+                    }}
+                    allowClear
+                    size="large"
                   />
                 </Col>
-              );
-            })}
-          </Row>
+                {subCategoryTree.length > 0 && (
+                  <Col xs={24} md={12}>
+                    <TreeSelect
+                      style={{ width: '100%' }}
+                      placeholder="Filter by subcategory"
+                      treeData={subCategoryTree}
+                      value={selectedSubCategory}
+                      onChange={(value) => {
+                        setSelectedSubCategory(value);
+                        setCurrentPage(1); // Reset to first page
+                      }}
+                      allowClear
+                      size="large"
+                      treeDefaultExpandAll
+                    />
+                  </Col>
+                )}
+              </Row>
 
-          {/* Pagination */}
-          {categoryProducts.length > pageSize && (
-            <div style={{ marginTop: 32, textAlign: 'center' }}>
-              <Pagination
-                current={currentPage}
-                pageSize={pageSize}
-                total={categoryProducts.length}
-                onChange={setCurrentPage}
-                showSizeChanger={false}
-                showTotal={(total, range) => `${range[0]}-${range[1]} of ${total} items`}
-              />
-            </div>
+              {/* Results and Sort Row */}
+              <Row gutter={[16, 16]} align="middle" justify="space-between">
+                <Col>
+                  <Text strong>
+                    {categoryProducts.length} {t('common.results')}
+                  </Text>
+                </Col>
+                <Col>
+                  <Space>
+                    <Text>Sort by:</Text>
+                    <Select style={{ width: 200 }} value={sortBy} onChange={setSortBy}>
+                      <Select.Option value="newest">{t('common.sortNewest')}</Select.Option>
+                      <Select.Option value="popular">{t('common.sortPopular')}</Select.Option>
+                      <Select.Option value="price-asc">{t('common.sortPriceAsc')}</Select.Option>
+                      <Select.Option value="price-desc">{t('common.sortPriceDesc')}</Select.Option>
+                      <Select.Option value="name">{t('common.sortName')}</Select.Option>
+                    </Select>
+                  </Space>
+                </Col>
+              </Row>
+            </Space>
+          </Card>
+
+          {/* Products Grid */}
+          {paginatedProducts.length > 0 ? (
+            <>
+              <Row gutter={[16, 16]}>
+                {paginatedProducts.map((product) => {
+                  const firstImage = product.media?.find((m) => m.media_type === 'image');
+                  return (
+                    <Col key={product.id} xs={24} sm={12} md={8}>
+                      <ProductCard
+                        id={product.id}
+                        name={product.name}
+                        price={product.price}
+                        imageUrl={firstImage?.file_url}
+                        inStock={product.in_stock}
+                      />
+                    </Col>
+                  );
+                })}
+              </Row>
+
+              {/* Pagination */}
+              {categoryProducts.length > pageSize && (
+                <div style={{ marginTop: 32, textAlign: 'center' }}>
+                  <Pagination
+                    current={currentPage}
+                    pageSize={pageSize}
+                    total={categoryProducts.length}
+                    onChange={setCurrentPage}
+                    showSizeChanger={false}
+                    showTotal={(total, range) => `${range[0]}-${range[1]} of ${total} items`}
+                  />
+                </div>
+              )}
+            </>
+          ) : (
+            <Empty description="No products in this category" />
           )}
-        </>
-      ) : (
-        <Empty description="No products in this category" />
-      )}
+        </Col>
+
+        {/* Right Sidebar - 25% */}
+        <Col xs={0} lg={0} xl={5}>
+          <RightSidebar content={rightSidebar} />
+        </Col>
+      </Row>
     </div>
   );
 }
