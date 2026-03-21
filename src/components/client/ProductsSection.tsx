@@ -155,9 +155,6 @@ export default function ProductsSection({ content }: ProductsSectionProps) {
   // Get products section config from props
   const config = content;
 
-  // Fixed values
-  const title = t('title');
-
   const categoryConfigs = config?.categories || [];
 
   // Helper: Get all descendant category IDs (including parent itself)
@@ -176,60 +173,11 @@ export default function ProductsSection({ content }: ProductsSectionProps) {
     return result;
   };
 
-  // Get products based on category configs
-  let products: Product[] = [];
-  
-  if (categoryConfigs.length > 0) {
-    const allProducts: Product[] = [];
-    
-    categoryConfigs.forEach(categoryConfig => {
-      let categoryProducts: Product[] = [];
-      
-      // Get all relevant category IDs (parent + descendants)
-      const relevantCategoryIds = getAllDescendantCategoryIds(categoryConfig.category_id);
-      
-      if (categoryConfig.mode === 'auto') {
-        // Auto mode: top 6 by view_count from this category and all descendants
-        categoryProducts = data
-          ?.filter((product) => 
-            product.is_active && 
-            product.categories?.some(cat => relevantCategoryIds.includes(cat.id))
-          )
-          .sort((a, b) => (b.view_count || 0) - (a.view_count || 0))
-          .slice(0, 6) || [];
-      } else {
-        // Manual mode: admin selected products
-        const selectedIds = categoryConfig.product_ids || [];
-        categoryProducts = data
-          ?.filter((product) => 
-            product.is_active && 
-            selectedIds.includes(product.id)
-          ) || [];
-        
-        // Sort by selection order
-        categoryProducts.sort((a, b) => {
-          const indexA = selectedIds.indexOf(a.id);
-          const indexB = selectedIds.indexOf(b.id);
-          return indexA - indexB;
-        });
-      }
-      
-      allProducts.push(...categoryProducts);
-    });
-    
-    // Remove duplicates (keep first occurrence)
-    const uniqueProducts = Array.from(
-      new Map(allProducts.map(p => [p.id, p])).values()
-    );
-    
-    products = uniqueProducts;
-  } else {
-    // No categories selected: show top 6 globally
-    products = data
-      ?.filter((product) => product.is_active)
-      .sort((a, b) => (b.view_count || 0) - (a.view_count || 0))
-      .slice(0, 6) || [];
-  }
+  // Get category name helper
+  const getCategoryName = (categoryId: string): string => {
+    const category = categoryData.find(cat => cat.id === categoryId);
+    return category?.name || 'Products';
+  };
 
   return (
     <div
@@ -242,35 +190,76 @@ export default function ProductsSection({ content }: ProductsSectionProps) {
         boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
       }}
     >
-      {/* Header */}
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: '20px',
-          paddingBottom: '12px',
-          borderBottom: '2px solid #f0f0f0',
-        }}
-      >
-        <Title level={3} style={{ margin: 0, fontSize: 20, color: '#262626' }}>
-          {title}
-        </Title>
-        <Link href={ROUTES.PRODUCTS}>
-          <Button type="link" icon={<RightOutlined />} iconPosition="end" style={{ padding: 0 }}>
-            {t('viewAll')}
-          </Button>
-        </Link>
-      </div>
+      {/* Render each category section separately */}
+      {categoryConfigs.map((categoryConfig, categoryIndex) => {
+        let categoryProducts: Product[] = [];
+        
+        // Get all relevant category IDs (parent + descendants)
+        const relevantCategoryIds = getAllDescendantCategoryIds(categoryConfig.category_id);
+        
+        if (categoryConfig.mode === 'auto') {
+          // Auto mode: top 6 by view_count from this category and all descendants
+          categoryProducts = data
+            ?.filter((product) => 
+              product.is_active && 
+              product.categories?.some(cat => relevantCategoryIds.includes(cat.id))
+            )
+            .sort((a, b) => (b.view_count || 0) - (a.view_count || 0))
+            .slice(0, 6) || [];
+        } else {
+          // Manual mode: admin selected products
+          const selectedIds = categoryConfig.product_ids || [];
+          categoryProducts = data
+            ?.filter((product) => 
+              product.is_active && 
+              selectedIds.includes(product.id)
+            ) || [];
+          
+          // Sort by selection order
+          categoryProducts.sort((a, b) => {
+            const indexA = selectedIds.indexOf(a.id);
+            const indexB = selectedIds.indexOf(b.id);
+            return indexA - indexB;
+          });
+        }
 
-      {/* Products Grid */}
-      <Row gutter={[16, 16]}>
-        {products.map((product) => (
-          <Col key={product.id} xs={12} sm={12} md={8} lg={8}>
-            <ProductCard product={product} />
-          </Col>
-        ))}
-      </Row>
+        // Skip if no products
+        if (categoryProducts.length === 0) return null;
+
+        return (
+          <div key={categoryConfig.category_id} style={{ marginBottom: categoryIndex < categoryConfigs.length - 1 ? '48px' : 0 }}>
+            {/* Category Header */}
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginBottom: '20px',
+                paddingBottom: '12px',
+                borderBottom: '2px solid #f0f0f0',
+              }}
+            >
+              <Title level={3} style={{ margin: 0, fontSize: 20, color: '#262626' }}>
+                {getCategoryName(categoryConfig.category_id)}
+              </Title>
+              <Link href={`${ROUTES.CATEGORIES}/${categoryData.find(c => c.id === categoryConfig.category_id)?.slug || categoryConfig.category_id}`}>
+                <Button type="link" icon={<RightOutlined />} iconPosition="end" style={{ padding: 0 }}>
+                  {t('viewAll')}
+                </Button>
+              </Link>
+            </div>
+
+            {/* Products Grid */}
+            <Row gutter={[16, 16]}>
+              {categoryProducts.map((product) => (
+                <Col key={product.id} xs={12} sm={12} md={8} lg={8}>
+                  <ProductCard product={product} />
+                </Col>
+              ))}
+            </Row>
+          </div>
+        );
+      })}
     </div>
   );
 }

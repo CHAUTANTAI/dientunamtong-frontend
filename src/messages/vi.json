@@ -52,6 +52,10 @@
       "sunday": "Chủ Nhật"
     }
   },
+  "searchSlogan": {
+    "searchPlaceholder": "Tìm sản phẩm, dòng xe, thương hiệu...",
+    "searchButton": "Tìm"
+  },
   "homepage": {
     "leftSidebar": {
       "title": "Danh mục",

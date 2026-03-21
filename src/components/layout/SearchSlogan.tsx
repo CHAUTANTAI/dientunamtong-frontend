@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Input, Button } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { ROUTES } from '@/constants/routes';
 import type { SearchSloganContent } from '@/types/pageSection';
 
@@ -21,14 +22,8 @@ interface SearchSloganProps {
 
 export default function SearchSlogan({ content }: SearchSloganProps) {
   const router = useRouter();
+  const t = useTranslations('searchSlogan');
   const [searchValue, setSearchValue] = useState('');
-
-  // Get search slogan config from props
-  const config = content;
-
-  // Fallback to default slogan if not configured
-  const sloganText = config?.slogan_text || 
-    'Dán keo xe Hoàng Trí chào mừng bạn đã ghé thăm trang Web chuyên cung cấp và lắp đặt phụ tùng inox trang trí làm đẹp xe máy, xe tay ga đời mới, tân trang xe máy, cung cấp đồ chơi xe máy';
 
   const handleSearch = (value: string) => {
     if (!value.trim()) return;
@@ -37,6 +32,71 @@ export default function SearchSlogan({ content }: SearchSloganProps) {
     // For now, navigate to products page with search query
     router.push(`${ROUTES.PRODUCTS}?search=${encodeURIComponent(value)}`);
   };
+
+  // Get search slogan config from props
+  const config = content;
+
+  // Don't render slogan if no text configured
+  const sloganText = config?.slogan_text;
+  
+  // Calculate animation duration based on text length
+  // Longer text = slower speed to ensure readability
+  // Formula: base speed (10s) + extra time for longer text
+  const textLength = sloganText?.length || 0;
+  const animationDuration = textLength > 0 
+    ? Math.max(10, Math.min(25, 10 + (textLength / 20))) // Min 10s, max 25s
+    : 20;
+  
+  if (!sloganText) {
+    return (
+      <div
+        style={{
+          backgroundColor: '#fff',
+          borderBottom: '1px solid #e0e0e0',
+          padding: '12px 0',
+        }}
+      >
+        <div
+          style={{
+            maxWidth: '1400px',
+            margin: '0 auto',
+            padding: '0 24px',
+            display: 'flex',
+            alignItems: 'center',
+          }}
+        >
+          {/* Only Search Box when no slogan */}
+          <Search
+            placeholder={t('searchPlaceholder')}
+            allowClear
+            enterButton={
+              <Button
+                type="primary"
+                icon={<SearchOutlined />}
+                style={{
+                  backgroundColor: '#ff4d4f',
+                  borderColor: '#ff4d4f',
+                  height: '40px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                {t('searchButton')}
+              </Button>
+            }
+            size="large"
+            value={searchValue}
+            onChange={(e) => setSearchValue(e.target.value)}
+            onSearch={handleSearch}
+            style={{
+              width: '400px',
+            }}
+          />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -60,7 +120,7 @@ export default function SearchSlogan({ content }: SearchSloganProps) {
       >
         {/* Search Box */}
         <Search
-          placeholder="Tìm sản phẩm, dòng xe, thương hiệu..."
+          placeholder={t('searchPlaceholder')}
           allowClear
           enterButton={
             <Button
@@ -75,7 +135,7 @@ export default function SearchSlogan({ content }: SearchSloganProps) {
                 justifyContent: 'center',
               }}
             >
-              Tìm
+              {t('searchButton')}
             </Button>
           }
           size="large"
@@ -95,21 +155,36 @@ export default function SearchSlogan({ content }: SearchSloganProps) {
             border: '1px solid #ffd8bf',
             borderRadius: 6,
             padding: '8px 16px',
+            position: 'relative',
           }}
         >
           <div
+            className="marquee-container"
             style={{
               display: 'flex',
-              alignItems: 'center',
-              whiteSpace: 'nowrap',
-              animation: 'marquee 30s linear infinite',
+              animation: `marquee-scroll ${animationDuration}s linear infinite`,
             }}
           >
             <span
+              className="marquee-content"
               style={{
                 fontSize: 13,
                 color: '#ff6b35',
                 fontStyle: 'italic',
+                whiteSpace: 'nowrap',
+                paddingRight: '4em',
+              }}
+            >
+              {sloganText}
+            </span>
+            <span
+              className="marquee-content"
+              style={{
+                fontSize: 13,
+                color: '#ff6b35',
+                fontStyle: 'italic',
+                whiteSpace: 'nowrap',
+                paddingRight: '4em',
               }}
             >
               {sloganText}
@@ -120,12 +195,20 @@ export default function SearchSlogan({ content }: SearchSloganProps) {
 
       {/* CSS Animations */}
       <style jsx global>{`
-        @keyframes marquee {
+        .marquee-container {
+          width: fit-content;
+        }
+        
+        .marquee-content {
+          flex-shrink: 0;
+        }
+
+        @keyframes marquee-scroll {
           0% {
             transform: translateX(0);
           }
           100% {
-            transform: translateX(-50%);
+            transform: translateX(calc(-50% - 2em));
           }
         }
 

@@ -25,7 +25,7 @@ export default function MegaMenu({ content }: MegaMenuProps) {
   const config = content;
 
   // Filter only parent categories (those without parent_id)
-  const parentCategories = categories?.filter((cat) => !cat.parent_id) || [];
+  // const parentCategories = categories?.filter((cat) => !cat.parent_id) || [];
 
   // Group subcategories by parent
   const getSubcategories = (parentId: string) => {
@@ -38,12 +38,9 @@ export default function MegaMenu({ content }: MegaMenuProps) {
         key: item.id,
         label: item.label,
         href: item.href,
+        categoryId: item.category_id || undefined, // To check if it's a category
       }))
-    : [
-        { key: 'prices', label: 'Bảng giá', href: '#' },
-        { key: 'stickers', label: 'Tem xe', href: '#' },
-        { key: 'videos', label: 'Video', href: '#' },
-      ];
+    : [];
 
   return (
     <div
@@ -68,20 +65,22 @@ export default function MegaMenu({ content }: MegaMenuProps) {
             gap: '0',
           }}
         >
-          {/* Category Menus */}
-          {parentCategories.slice(0, 7).map((category: { id: string; name: string; slug: string }) => {
-            const subcategories = getSubcategories(category.id);
+          {/* Static Menu Items from Admin Config */}
+          {staticMenuItems.map((item) => {
+            // If item is from category, check for subcategories
+            const isCategory = !!item.categoryId;
+            const subcategories = isCategory && item.categoryId ? getSubcategories(item.categoryId) : [];
             const hasSubcategories = subcategories.length > 0;
 
             return (
               <div
-                key={category.id}
+                key={item.key}
                 style={{ position: 'relative' }}
-                onMouseEnter={() => setHoveredKey(category.id)}
+                onMouseEnter={() => hasSubcategories && setHoveredKey(item.key)}
                 onMouseLeave={() => setHoveredKey(null)}
               >
                 <Link
-                  href={`${ROUTES.CATEGORIES}/${category.slug}`}
+                  href={item.href}
                   style={{
                     display: 'flex',
                     alignItems: 'center',
@@ -93,15 +92,25 @@ export default function MegaMenu({ content }: MegaMenuProps) {
                     fontWeight: 500,
                     textTransform: 'uppercase',
                     transition: 'all 0.3s',
-                    backgroundColor: hoveredKey === category.id ? '#ff4d4f' : 'transparent',
+                    backgroundColor: hoveredKey === item.key ? '#ff4d4f' : 'transparent',
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!hasSubcategories) {
+                      e.currentTarget.style.backgroundColor = '#ff4d4f';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!hasSubcategories) {
+                      e.currentTarget.style.backgroundColor = 'transparent';
+                    }
                   }}
                 >
-                  {category.name}
+                  {item.label}
                   {hasSubcategories && <DownOutlined style={{ fontSize: 10 }} />}
                 </Link>
 
-                {/* Mega Dropdown */}
-                {hasSubcategories && hoveredKey === category.id && (
+                {/* Mega Dropdown for categories */}
+                {hasSubcategories && hoveredKey === item.key && (
                   <div
                     style={{
                       position: 'absolute',
@@ -133,16 +142,16 @@ export default function MegaMenu({ content }: MegaMenuProps) {
                           transition: 'all 0.3s',
                           display: 'block',
                         }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor = '#fff5f5';
-                        e.currentTarget.style.color = '#ff4d4f';
-                        e.currentTarget.style.transform = 'translateX(4px)';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.backgroundColor = 'transparent';
-                        e.currentTarget.style.color = '#595959';
-                        e.currentTarget.style.transform = 'translateX(0)';
-                      }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.backgroundColor = '#fff5f5';
+                          e.currentTarget.style.color = '#ff4d4f';
+                          e.currentTarget.style.transform = 'translateX(4px)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.backgroundColor = 'transparent';
+                          e.currentTarget.style.color = '#595959';
+                          e.currentTarget.style.transform = 'translateX(0)';
+                        }}
                       >
                         {sub.name}
                       </Link>
@@ -152,33 +161,6 @@ export default function MegaMenu({ content }: MegaMenuProps) {
               </div>
             );
           })}
-
-          {/* Static Menu Items */}
-          {staticMenuItems.map((item) => (
-            <Link
-              key={item.key}
-              href={item.href}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                padding: '16px 20px',
-                color: '#fff',
-                textDecoration: 'none',
-                fontSize: 14,
-                fontWeight: 500,
-                textTransform: 'uppercase',
-                transition: 'all 0.3s',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = '#ff4d4f';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = 'transparent';
-              }}
-            >
-              {item.label}
-            </Link>
-          ))}
         </div>
       </div>
 

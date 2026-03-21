@@ -34,11 +34,13 @@ export interface BannerHeaderContentDraft extends Omit<BannerHeaderContent, 'log
 
 // MegaMenu Section (Static menu items like "Bảng giá", "Tem xe", "Video")
 export interface MegaMenuContent {
-  static_items: Array<{
+  static_items?: Array<{
     id: string;
     label: string;
     href: string;
     sort_order: number;
+    source?: 'manual' | 'category';
+    category_id?: string;
   }>;
 }
 

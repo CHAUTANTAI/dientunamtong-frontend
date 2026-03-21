@@ -19,43 +19,6 @@ export default function SliderArea({ content }: SliderAreaProps) {
   // Use content from props
   const sliderContent = content;
 
-  // Default fallback data
-  const defaultSlides: SliderItem[] = [
-    {
-      id: 1,
-      url: '/placeholder-slide-1.jpg',
-      alt: 'Slide 1',
-      link: '#',
-    },
-    {
-      id: 2,
-      url: '/placeholder-slide-2.jpg',
-      alt: 'Slide 2',
-      link: '#',
-    },
-    {
-      id: 3,
-      url: '/placeholder-slide-3.jpg',
-      alt: 'Slide 3',
-      link: '#',
-    },
-  ];
-
-  const defaultMiniAds: MiniAdItem[] = [
-    {
-      id: 1,
-      url: '/placeholder-ad-1.jpg',
-      alt: 'Mini Ad 1',
-      link: '#',
-    },
-    {
-      id: 2,
-      url: '/placeholder-ad-2.jpg',
-      alt: 'Mini Ad 2',
-      link: '#',
-    },
-  ];
-
   // Transform API data (from props) to component props format with signed URLs
   const apiSlides: SliderItem[] = useMemo(() => {
     if (!sliderContent?.slides?.length) return [];
@@ -83,14 +46,19 @@ export default function SliderArea({ content }: SliderAreaProps) {
     });
   }, [sliderContent?.mini_ads]);
 
-  // Use API data (from props) > defaults
-  const slides = apiSlides.length > 0 ? apiSlides : defaultSlides;
-  const miniAds = apiMiniAds.length > 0 ? apiMiniAds : defaultMiniAds;
+  // Use API data from props (no fallback to dummy data)
+  const slides = apiSlides;
+  const miniAds = apiMiniAds;
   
   const sliderHeight = sliderContent?.slider_settings?.height || 300;
   const miniAdHeight = sliderContent?.mini_ad_settings?.height || 149;
   const autoplay = sliderContent?.slider_settings?.autoplay ?? true;
   const autoplaySpeed = sliderContent?.slider_settings?.autoplay_speed || 5000;
+
+  // Don't render if no data
+  if (slides.length === 0 && miniAds.length === 0) {
+    return null;
+  }
 
   return (
     <div

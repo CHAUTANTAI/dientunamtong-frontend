@@ -65,15 +65,9 @@ export default function TrendingKeywords({ content }: { content?: TrendingKeywor
     })) || [];
   }
 
-  // Fallback if no keywords
+  // Don't render if no keywords
   if (keywords.length === 0) {
-    keywords = [
-      { text: 'Sơn xe cũ thành xe mới', link: '#' },
-      { text: 'Tân trang xe máy', link: '#' },
-      { text: 'PCX 160', link: '#' },
-      { text: 'ADV 160', link: '#' },
-      { text: 'Airblade 160', link: '#' },
-    ];
+    return null;
   }
 
   const title = t('title');

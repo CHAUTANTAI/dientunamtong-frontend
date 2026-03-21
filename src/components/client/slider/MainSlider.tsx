@@ -72,7 +72,6 @@ export default function MainSlider({
   autoplay = true,
   autoplaySpeed = 5000,
 }: MainSliderProps) {
-  const t = useTranslations('common');
   // Transform slides to include signed URLs
   const processedSlides = useMemo(() => {
     return slides.map(slide => ({
@@ -174,7 +173,7 @@ function SlideImage({ slide, height }: SlideImageProps) {
             src={signedUrl}
             alt={slide.alt || 'Slide'}
             fill
-            style={{ objectFit: 'cover' }}
+            style={{ objectFit: 'contain' }}
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 80vw, 1000px"
             priority
           />

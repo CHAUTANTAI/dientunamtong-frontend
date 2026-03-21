@@ -31,7 +31,6 @@ export default function MiniAdsColumn({
   height = 149,
   gap = 2,
 }: MiniAdsColumnProps) {
-  const t = useTranslations('common');
   // Memoize processed ads
   const processedAds = useMemo(() => {
     return ads.map(ad => ({
@@ -123,7 +122,7 @@ function MiniAdItem({ ad, height, index }: MiniAdItemProps) {
             src={signedUrl}
             alt={ad.alt || 'Mini Ad'}
             fill
-            style={{ objectFit: 'cover' }}
+            style={{ objectFit: 'contain' }}
             sizes="(max-width: 640px) 100vw, 300px"
             priority
           />
