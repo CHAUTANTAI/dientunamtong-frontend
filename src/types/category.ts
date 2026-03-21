@@ -15,6 +15,7 @@ export interface Category {
   sort_order: number;
   level: number;
   is_active: boolean;
+  view_count?: number; // Added for sorting by popularity
   created_at: string;
   updated_at: string;
 

@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { Menu } from 'antd';
 import { DownOutlined } from '@ant-design/icons';
 import Link from 'next/link';
 import { ROUTES } from '@/constants/routes';
@@ -19,7 +18,7 @@ interface MegaMenuProps {
 }
 
 export default function MegaMenu({ content }: MegaMenuProps) {
-  const { data: categories, isLoading } = useGetPublicCategoriesQuery();
+  const { data: categories } = useGetPublicCategoriesQuery();
   const [hoveredKey, setHoveredKey] = useState<string | null>(null);
 
   // Get mega menu config from props

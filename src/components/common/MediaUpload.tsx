@@ -42,7 +42,6 @@ interface MediaUploadProps {
 export default function MediaUpload({
   value,
   onChange,
-  folder,
   label = 'Upload Image',
   accept = 'image/*',
   maxSizeMB = 5,

@@ -18,6 +18,70 @@ interface HomepageLayoutPreviewProps {
   activeSection?: string;
 }
 
+interface LayoutBoxProps {
+  label: string;
+  icon: React.ReactNode;
+  sectionKey: string;
+  color?: string;
+  height?: string;
+  className?: string;
+  isActive?: boolean;
+  onSectionClick?: (key: string) => void;
+}
+
+/**
+ * LayoutBox - Individual clickable section box
+ * Extracted outside component to prevent re-creation on render
+ */
+const LayoutBox = ({ 
+  label, 
+  icon, 
+  sectionKey, 
+  color = '#1890ff',
+  height = '60px',
+  className = '',
+  isActive = false,
+  onSectionClick
+}: LayoutBoxProps) => {
+  return (
+    <div
+      onClick={() => onSectionClick?.(sectionKey)}
+      className={className}
+      style={{
+        border: isActive ? `3px solid ${color}` : `2px solid #d9d9d9`,
+        borderRadius: '6px',
+        padding: '12px',
+        backgroundColor: isActive ? `${color}15` : '#fafafa',
+        cursor: 'pointer',
+        transition: 'all 0.3s',
+        height,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: '8px',
+        boxShadow: isActive ? `0 0 8px ${color}40` : 'none',
+      }}
+      onMouseEnter={(e) => {
+        if (!isActive) {
+          e.currentTarget.style.borderColor = color;
+          e.currentTarget.style.backgroundColor = `${color}10`;
+        }
+      }}
+      onMouseLeave={(e) => {
+        if (!isActive) {
+          e.currentTarget.style.borderColor = '#d9d9d9';
+          e.currentTarget.style.backgroundColor = '#fafafa';
+        }
+      }}
+    >
+      <span style={{ fontSize: '18px', color }}>{icon}</span>
+      <Text strong style={{ fontSize: '13px', color: isActive ? color : '#595959' }}>
+        {label}
+      </Text>
+    </div>
+  );
+};
+
 /**
  * HomepageLayoutPreview - Visual representation of homepage layout
  * Helps admin visualize which section they're editing
@@ -26,62 +90,6 @@ export default function HomepageLayoutPreview({
   onSectionClick, 
   activeSection 
 }: HomepageLayoutPreviewProps) {
-
-  const LayoutBox = ({ 
-    label, 
-    icon, 
-    sectionKey, 
-    color = '#1890ff',
-    height = '60px',
-    className = ''
-  }: { 
-    label: string; 
-    icon: React.ReactNode; 
-    sectionKey: string; 
-    color?: string;
-    height?: string;
-    className?: string;
-  }) => {
-    const isActive = activeSection === sectionKey;
-    
-    return (
-      <div
-        onClick={() => onSectionClick?.(sectionKey)}
-        className={className}
-        style={{
-          border: isActive ? `3px solid ${color}` : `2px solid #d9d9d9`,
-          borderRadius: '6px',
-          padding: '12px',
-          backgroundColor: isActive ? `${color}15` : '#fafafa',
-          cursor: 'pointer',
-          transition: 'all 0.3s',
-          height,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: '8px',
-          boxShadow: isActive ? `0 0 8px ${color}40` : 'none',
-        }}
-        onMouseEnter={(e) => {
-          if (!isActive) {
-            e.currentTarget.style.borderColor = color;
-            e.currentTarget.style.backgroundColor = `${color}10`;
-          }
-        }}
-        onMouseLeave={(e) => {
-          if (!isActive) {
-            e.currentTarget.style.borderColor = '#d9d9d9';
-            e.currentTarget.style.backgroundColor = '#fafafa';
-          }
-        }}
-      >
-        <span style={{ fontSize: '18px', color }}>{icon}</span>
-        <Text strong style={{ fontSize: '13px', color: isActive ? color : '#595959' }}>
-          {label}
-        </Text>
-      </div>
-    );
-  };
 
   return (
     <Card 
@@ -114,6 +122,8 @@ export default function HomepageLayoutPreview({
             sectionKey="layout-banner-header"
             color="#ff4d4f"
             height="70px"
+            isActive={activeSection === 'layout-banner-header'}
+            onSectionClick={onSectionClick}
           />
 
           {/* Mega Menu */}
@@ -123,6 +133,8 @@ export default function HomepageLayoutPreview({
             sectionKey="layout-mega-menu"
             color="#722ed1"
             height="50px"
+            isActive={activeSection === 'layout-mega-menu'}
+            onSectionClick={onSectionClick}
           />
 
           {/* Search + Slogan */}
@@ -132,6 +144,8 @@ export default function HomepageLayoutPreview({
             sectionKey="layout-search-slogan"
             color="#13c2c2"
             height="50px"
+            isActive={activeSection === 'layout-search-slogan'}
+            onSectionClick={onSectionClick}
           />
 
           {/* Slider + Mini Ads Row */}
@@ -146,6 +160,8 @@ export default function HomepageLayoutPreview({
               sectionKey="slider-slider"
               color="#faad14"
               height="140px"
+              isActive={activeSection === 'slider-slider'}
+              onSectionClick={onSectionClick}
             />
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               <LayoutBox
@@ -154,6 +170,8 @@ export default function HomepageLayoutPreview({
                 sectionKey="slider-slider"
                 color="#faad14"
                 height="66px"
+                isActive={activeSection === 'slider-slider'}
+                onSectionClick={onSectionClick}
               />
               <LayoutBox
                 label="Mini Ad 2"
@@ -161,6 +179,8 @@ export default function HomepageLayoutPreview({
                 sectionKey="slider-slider"
                 color="#faad14"
                 height="66px"
+                isActive={activeSection === 'slider-slider'}
+                onSectionClick={onSectionClick}
               />
             </div>
           </div>
@@ -180,17 +200,21 @@ export default function HomepageLayoutPreview({
               color="#52c41a"
               height="100%"
               className="left-sidebar"
+              isActive={activeSection === 'left-sidebar'}
+              onSectionClick={onSectionClick}
             />
 
             {/* Center Content Sections */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               {/* Trending Keywords - moved inside center column */}
               <LayoutBox
-                label="Trending Keywords (Xu hướng tìm kiếm)"
+                label="Trending Keywords"
                 icon={<FireOutlined />}
                 sectionKey="trending-keywords"
                 color="#f5222d"
                 height="50px"
+                isActive={activeSection === 'trending-keywords'}
+                onSectionClick={onSectionClick}
               />
               
               <LayoutBox
@@ -199,6 +223,8 @@ export default function HomepageLayoutPreview({
                 sectionKey="products-section"
                 color="#1890ff"
                 height="140px"
+                isActive={activeSection === 'products-section'}
+                onSectionClick={onSectionClick}
               />
             </div>
 
@@ -210,6 +236,8 @@ export default function HomepageLayoutPreview({
               color="#fa8c16"
               height="100%"
               className="right-sidebar"
+              isActive={activeSection === 'right-sidebar'}
+              onSectionClick={onSectionClick}
             />
           </div>
 

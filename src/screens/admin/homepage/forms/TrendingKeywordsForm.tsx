@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useMemo, useRef } from 'react';
-import { Switch, Button, Space, Typography, List, Card, Select, Radio, Tag, TreeSelect } from 'antd';
+import { Button, Space, Typography, List, Card, Select, Radio, Tag, TreeSelect } from 'antd';
 import { PlusOutlined, DeleteOutlined, AppstoreOutlined, ShoppingOutlined } from '@ant-design/icons';
 import type { TrendingKeywordsContent } from '@/types/pageSection';
 import { useGetPublicCategoriesQuery } from '@/store/services/publicCategoryApi';
@@ -9,7 +9,7 @@ import { useGetPublicProductsQuery } from '@/store/services/publicProductApi';
 import { useDebounce } from '@/hooks/useDebounce';
 import type { Category } from '@/types/category';
 
-const { Text, Title } = Typography;
+const { Text } = Typography;
 
 interface TrendingKeywordsFormProps {
   content: TrendingKeywordsContent;

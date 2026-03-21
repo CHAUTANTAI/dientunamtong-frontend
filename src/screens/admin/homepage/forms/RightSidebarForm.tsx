@@ -280,7 +280,7 @@ export default function RightSidebarForm({ content, onChange }: RightSidebarForm
         </Space>
 
         {promotionalBanners.length === 0 ? (
-          <Text type="secondary">No banners yet. Click "Add Banner" to create one.</Text>
+          <Text type="secondary">No banners yet. Click &quot;Add Banner&quot; to create one.</Text>
         ) : (
           <Space direction="vertical" style={{ width: '100%' }}>
             {promotionalBanners.map((banner, index) => (
@@ -298,26 +298,38 @@ export default function RightSidebarForm({ content, onChange }: RightSidebarForm
                     accept="image/*"
                     maxSizeMB={5}
                   />
-                  <Input
-                    placeholder="Link URL"
-                    value={banner.link}
-                    onChange={(e) => {
-                      const updated = [...promotionalBanners];
-                      updated[index].link = e.target.value;
-                      setPromotionalBanners(updated);
-                    }}
-                    addonBefore="Link"
-                  />
-                  <Input
-                    placeholder="Alt text"
-                    value={banner.alt}
-                    onChange={(e) => {
-                      const updated = [...promotionalBanners];
-                      updated[index].alt = e.target.value;
-                      setPromotionalBanners(updated);
-                    }}
-                    addonBefore="Alt"
-                  />
+                  <Space.Compact style={{ width: '100%' }}>
+                    <Input
+                      style={{ width: '80px' }}
+                      value="Link"
+                      disabled
+                    />
+                    <Input
+                      placeholder="Link URL"
+                      value={banner.link}
+                      onChange={(e) => {
+                        const updated = [...promotionalBanners];
+                        updated[index].link = e.target.value;
+                        setPromotionalBanners(updated);
+                      }}
+                    />
+                  </Space.Compact>
+                  <Space.Compact style={{ width: '100%' }}>
+                    <Input
+                      style={{ width: '80px' }}
+                      value="Alt"
+                      disabled
+                    />
+                    <Input
+                      placeholder="Alt text"
+                      value={banner.alt}
+                      onChange={(e) => {
+                        const updated = [...promotionalBanners];
+                        updated[index].alt = e.target.value;
+                        setPromotionalBanners(updated);
+                      }}
+                    />
+                  </Space.Compact>
                   <Space>
                     <Button
                       size="small"

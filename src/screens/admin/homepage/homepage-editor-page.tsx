@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Tabs, Collapse, Button, Space, Typography, App, Spin, Form, Badge } from 'antd';
-import { SaveOutlined, CheckCircleOutlined } from '@ant-design/icons';
+import { SaveOutlined } from '@ant-design/icons';
 import { useTranslations } from 'next-intl';
 import { useGetPageSectionsQuery, useUpdatePageSectionsMutation } from '@/store/api/pageSectionApi';
 import type {
@@ -168,7 +168,6 @@ export default function HomepageEditorPage() {
   ]);
 
   // Initialize sections from API data
-  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => {
     if (sections) {
       const getSection = (identifier: string) => sections.find(s => s.section_identifier === identifier);

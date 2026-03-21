@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { Space, Typography, TreeSelect, Alert, Card, Radio, Select, Button, List } from 'antd';
-import { PlusOutlined, DeleteOutlined, ShoppingOutlined } from '@ant-design/icons';
+import { DeleteOutlined } from '@ant-design/icons';
 import type { ProductsSectionContent } from '@/types/pageSection';
 import { useGetPublicCategoriesQuery } from '@/store/services/publicCategoryApi';
 import { useGetPublicProductsQuery } from '@/store/services/publicProductApi';

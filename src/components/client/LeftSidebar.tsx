@@ -48,7 +48,7 @@ export default function LeftSidebar({ content }: { content?: LeftSidebarContent 
   } else {
     // Auto mode (default): Top 8 by views
     const sortedCategories = [...(allCategories || [])].sort((a, b) => 
-      ((b as any).view_count || 0) - ((a as any).view_count || 0)
+      (b.view_count || 0) - (a.view_count || 0)
     );
     displayCategories = sortedCategories.slice(0, config?.max_items || 8);
   }

@@ -6,6 +6,8 @@ import Link from 'next/link';
 import { useGetPublicCategoriesQuery } from '@/store/services/publicCategoryApi';
 import { useGetPublicProductsQuery } from '@/store/services/publicProductApi';
 import type { TrendingKeywordsContent } from '@/types/pageSection';
+import type { Category } from '@/types/category';
+import type { Product } from '@/types/product';
 
 export interface KeywordItem {
   text: string;
@@ -34,23 +36,25 @@ export default function TrendingKeywords({ content }: { content?: TrendingKeywor
 
   if (mode === 'auto') {
     // Auto mode: Top 5 categories + Top 5 products by views
-    const topCategories = [...categories]
-      .sort((a, b) => ((b as any).view_count || 0) - ((a as any).view_count || 0))
-      .slice(0, 5)
-      .map(c => ({
-        text: c.name,
-        link: `/categories/${c.id}`,
-      }));
+    const topCategories: Category[] = [...categories]
+      .sort((a, b) => (b.view_count || 0) - (a.view_count || 0))
+      .slice(0, 5);
+    
+    const categoryKeywords = topCategories.map(c => ({
+      text: c.name,
+      link: `/categories/${c.id}`,
+    }));
 
-    const topProducts = [...products]
-      .sort((a, b) => ((b as any).view_count || 0) - ((a as any).view_count || 0))
-      .slice(0, 5)
-      .map(p => ({
-        text: p.name,
-        link: `/products/${p.id}`,
-      }));
+    const topProducts: Product[] = [...products]
+      .sort((a, b) => (b.view_count || 0) - (a.view_count || 0))
+      .slice(0, 5);
+    
+    const productKeywords = topProducts.map(p => ({
+      text: p.name,
+      link: `/products/${p.id}`,
+    }));
 
-    keywords = [...topCategories, ...topProducts];
+    keywords = [...categoryKeywords, ...productKeywords];
   } else {
     // Manual mode: Use admin-selected keywords from props
     keywords = keywordsContent?.keywords?.map(kw => ({

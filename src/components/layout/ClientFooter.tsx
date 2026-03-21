@@ -18,7 +18,6 @@ const { Text, Title } = Typography;
  * - Additional footer sections từ page_sections
  */
 export default function ClientFooter() {
-  const t = useTranslations();
   const { data: systemInfo } = useGetSystemInfoQuery();
 
   // TODO: Get from system_info or page_sections

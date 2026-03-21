@@ -9,6 +9,7 @@ import { useGetPublicCategoriesQuery } from '@/store/services/publicCategoryApi'
 import { useSignedImageUrl } from '@/hooks/useSignedImageUrl';
 import { useViewTracker } from '@/hooks/useViewTracker';
 import type { ProductsSectionContent } from '@/types/pageSection';
+import type { Product } from '@/types/product';
 import Image from 'next/image';
 
 const { Title, Text } = Typography;
@@ -145,7 +146,7 @@ interface ProductsSectionProps {
 }
 
 export default function ProductsSection({ content }: ProductsSectionProps) {
-  const { data, isLoading } = useGetPublicProductsQuery();
+  const { data } = useGetPublicProductsQuery();
   const { data: categoryData = [] } = useGetPublicCategoriesQuery();
 
   // Get products section config from props
@@ -173,13 +174,13 @@ export default function ProductsSection({ content }: ProductsSectionProps) {
   };
 
   // Get products based on category configs
-  let products: any[] = [];
+  let products: Product[] = [];
   
   if (categoryConfigs.length > 0) {
-    const allProducts: any[] = [];
+    const allProducts: Product[] = [];
     
     categoryConfigs.forEach(categoryConfig => {
-      let categoryProducts: any[] = [];
+      let categoryProducts: Product[] = [];
       
       // Get all relevant category IDs (parent + descendants)
       const relevantCategoryIds = getAllDescendantCategoryIds(categoryConfig.category_id);
@@ -191,7 +192,7 @@ export default function ProductsSection({ content }: ProductsSectionProps) {
             product.is_active && 
             product.categories?.some(cat => relevantCategoryIds.includes(cat.id))
           )
-          .sort((a, b) => ((b as any).view_count || 0) - ((a as any).view_count || 0))
+          .sort((a, b) => (b.view_count || 0) - (a.view_count || 0))
           .slice(0, 6) || [];
       } else {
         // Manual mode: admin selected products
@@ -223,7 +224,7 @@ export default function ProductsSection({ content }: ProductsSectionProps) {
     // No categories selected: show top 6 globally
     products = data
       ?.filter((product) => product.is_active)
-      .sort((a, b) => ((b as any).view_count || 0) - ((a as any).view_count || 0))
+      .sort((a, b) => (b.view_count || 0) - (a.view_count || 0))
       .slice(0, 6) || [];
   }
 
