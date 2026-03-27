@@ -6,7 +6,7 @@ import { useTranslations } from 'next-intl';
 import { Profile } from '@/types/profile';
 import { useGetProfileQuery, useUpdateProfileMutation } from '@/store/api/profileApi';
 import { getErrorMessage } from '@/utils/api-interceptor';
-import { uploadToPublicBucket, deleteFromPublicBucket } from '@/utils/supabase';
+import { uploadToPublicBucket, deleteFromPublicBucket } from '@/utils/objectStorage';
 import { useSignedImageUrl } from '@/hooks/useSignedImageUrl';
 import { BusinessHoursEditor } from '@/components/business-hours/BusinessHoursEditor';
 

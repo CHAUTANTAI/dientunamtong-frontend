@@ -1,22 +1,36 @@
 /**
- * Hook to get signed image URL from Supabase Storage
- * DEPRECATED: For new code, use usePublicImageUrl from useImageUrl hook instead
- * This hook now defaults to public URLs for better performance
+ * Resolve image URL for stored object keys (R2 public URL).
+ * Uses NEXT_PUBLIC_R2_PUBLIC_URL and/or GET /public/system-info `storage_public_base_url`.
  */
 
-import { useState, useEffect } from 'react';
-import { getSupabaseImageUrl, getSupabasePublicUrl } from '@/utils/supabase';
+import { useState, useEffect, useMemo } from 'react';
+import { useGetSystemInfoQuery } from '@/store/services/publicSystemInfoApi';
+import {
+  getDefaultStoragePublicBaseFromApiUrl,
+  getStorageImageUrl,
+  resolveStoragePublicUrl,
+} from '@/utils/objectStorage';
+import { storageDebug } from '@/utils/storageDebug';
+
+const ENV_BASE = (process.env.NEXT_PUBLIC_R2_PUBLIC_URL || '').replace(/\/+$/, '');
 
 /**
- * Hook to get URL for an image
- * @param imageUrl - Relative path stored in DB
- * @param usePublic - Whether to use public bucket (default: true for performance)
- * @returns URL string (empty string while loading for signed URLs)
+ * @param imageUrl - Relative path or full URL
+ * @param usePublic - Whether to use public URL resolution (default: true)
  */
 export const useSignedImageUrl = (
   imageUrl: string | null | undefined,
   usePublic: boolean = true
 ): string => {
+  const { data: systemInfo } = useGetSystemInfoQuery();
+
+  const storageBase = useMemo(() => {
+    const fromApi = (systemInfo?.storage_public_base_url || '').replace(/\/+$/, '');
+    if (fromApi) return fromApi;
+    if (ENV_BASE) return ENV_BASE;
+    return getDefaultStoragePublicBaseFromApiUrl();
+  }, [systemInfo?.storage_public_base_url]);
+
   const [signedUrl, setSignedUrl] = useState<string>('');
 
   useEffect(() => {
@@ -28,26 +42,27 @@ export const useSignedImageUrl = (
         return;
       }
 
-      // For public bucket, get URL synchronously
       if (usePublic) {
-        const publicUrl = getSupabasePublicUrl(imageUrl);
+        const publicUrl = resolveStoragePublicUrl(imageUrl, storageBase);
+        storageDebug('useSignedImageUrl', 'resolved public URL', {
+          mediaKey: imageUrl,
+          storageBase: storageBase || '(empty)',
+          nextPublicR2: ENV_BASE ? '(set)' : '(empty)',
+          result: publicUrl || '(empty — no base URL)',
+        });
         if (!cancelled) {
           setSignedUrl(publicUrl);
         }
         return;
       }
 
-      // For private bucket (legacy), fetch signed URL
-      console.log('useSignedImageUrl: Fetching signed URL for:', imageUrl);
-
       try {
-        const url = await getSupabaseImageUrl(imageUrl, false);
-        console.log('useSignedImageUrl: Got signed URL:', url);
+        const url = await getStorageImageUrl(imageUrl, false);
         if (!cancelled) {
           setSignedUrl(url);
         }
       } catch (error) {
-        console.error('Failed to get signed URL:', error);
+        console.error('Failed to get image URL:', error);
         if (!cancelled) {
           setSignedUrl('');
         }
@@ -59,7 +74,7 @@ export const useSignedImageUrl = (
     return () => {
       cancelled = true;
     };
-  }, [imageUrl, usePublic]);
+  }, [imageUrl, usePublic, storageBase]);
 
   return signedUrl;
 };

@@ -14,6 +14,7 @@ import FloatingContactButton from '@/components/client/FloatingContactButton';
 import { useGetSystemInfoQuery } from '@/store/services/publicSystemInfoApi';
 import { useSignedImageUrl } from '@/hooks/useSignedImageUrl';
 import { usePublicPageSections } from '@/hooks/usePublicPageSections';
+import { useStorageDevLog } from '@/hooks/useStorageDevLog';
 
 const { Content } = Layout;
 
@@ -34,6 +35,7 @@ interface ClientLayoutProps {
  */
 export default function ClientLayout({ children }: ClientLayoutProps) {
   const pathname = usePathname();
+  useStorageDevLog();
   const { data: systemInfo } = useGetSystemInfoQuery();
   const faviconUrl = useSignedImageUrl(systemInfo?.company_logo || '');
 

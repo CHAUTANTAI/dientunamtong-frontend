@@ -351,7 +351,7 @@ export default function HomepageEditorPage() {
         borderRadius: '8px',
         boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
       }}>
-        <div>
+    <div>
           <Title level={2} style={{ margin: 0 }}>
             {t('page.title')}
           </Title>
@@ -360,21 +360,21 @@ export default function HomepageEditorPage() {
           </Text>
         </div>
 
-        <Space>
+          <Space>
           {hasChanges && (
             <Badge status="warning" text={t('page.unsavedChanges')} />
-          )}
-          <Button
-            type="primary"
+            )}
+            <Button
+              type="primary"
             size="large"
-            icon={<SaveOutlined />}
-            onClick={handleSaveAll}
+              icon={<SaveOutlined />}
+              onClick={handleSaveAll}
             loading={isSaving}
             disabled={!hasChanges}
           >
             {t('page.saveAllChanges')}
-          </Button>
-        </Space>
+            </Button>
+          </Space>
       </div>
 
       {/* Tabs + Collapse Layout */}

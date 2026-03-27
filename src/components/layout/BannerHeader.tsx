@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { ROUTES } from '@/constants/routes';
 import { useGetSystemInfoQuery } from '@/store/services/publicSystemInfoApi';
 import { useSignedImageUrl } from '@/hooks/useSignedImageUrl';
+import { isValidNextImageSrc } from '@/utils/objectStorage';
 import type { BannerHeaderContent } from '@/types/pageSection';
 
 const { Text } = Typography;
@@ -37,9 +38,12 @@ export default function BannerHeader({ content }: BannerHeaderProps) {
   const bannerUrl = useSignedImageUrl(bannerMediaId);
 
   const hotlines = [primaryHotline, secondaryHotline].filter(Boolean);
-  
-  // Show skeleton while loading
-  const isLoading = systemInfoLoading || (!logoUrl && !bannerUrl && !primaryHotline);
+
+  const logoSrcOk = Boolean(logoUrl && isValidNextImageSrc(logoUrl));
+  const bannerSrcOk = Boolean(bannerUrl && isValidNextImageSrc(bannerUrl));
+
+  // Skeleton only while system info is loading (avoid stuck state when R2 URL is missing)
+  const isLoading = systemInfoLoading;
 
   return (
     <div
@@ -80,7 +84,7 @@ export default function BannerHeader({ content }: BannerHeaderProps) {
           >
             {isLoading ? (
               <Skeleton.Avatar active size={110} shape="square" />
-            ) : logoUrl ? (
+            ) : logoSrcOk ? (
               <Image
                 src={logoUrl}
                 alt={systemInfo?.company_name || 'Logo'}
@@ -128,7 +132,7 @@ export default function BannerHeader({ content }: BannerHeaderProps) {
           >
             {isLoading ? (
               <Skeleton.Image active style={{ width: '100%', height: '110px' }} />
-            ) : bannerUrl ? (
+            ) : bannerSrcOk ? (
               <Image
                 src={bannerUrl}
                 alt="Banner"

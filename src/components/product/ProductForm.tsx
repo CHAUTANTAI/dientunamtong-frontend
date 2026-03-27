@@ -25,7 +25,7 @@ import { CategoryMultiSelect } from '@/components/common/CategoryMultiSelect';
 import { ProductMediaUpload, MediaFile } from '@/components/common/ProductMediaUpload';
 import { isValidSlug, generateSlug } from '@/utils/slug';
 import { getErrorMessage } from '@/utils/error';
-import { uploadToPublicBucket } from '@/utils/supabase';
+import { uploadToPublicBucket } from '@/utils/objectStorage';
 
 interface ProductFormValues {
   name: string;

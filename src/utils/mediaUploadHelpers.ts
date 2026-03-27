@@ -1,4 +1,4 @@
-import { uploadToPublicBucket } from '@/utils/supabase';
+import { uploadToPublicBucket } from '@/utils/objectStorage';
 import type { PendingUpload, MediaValue } from '@/components/common/MediaUpload';
 
 /**

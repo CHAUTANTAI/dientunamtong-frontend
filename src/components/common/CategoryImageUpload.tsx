@@ -10,7 +10,7 @@ import { Upload, Button, App, Spin } from 'antd';
 import { UploadOutlined, DeleteOutlined, LoadingOutlined } from '@ant-design/icons';
 import type { UploadRequestOption } from 'rc-upload/lib/interface';
 import { useTranslations } from 'next-intl';
-import { uploadToPublicBucket } from '@/utils/supabase';
+import { uploadToPublicBucket } from '@/utils/objectStorage';
 import { useCreateMediaMutation, useDeleteMediaMutation } from '@/store/api/mediaApi';
 import type { Media, MediaType } from '@/types/media';
 import { ProductImage } from './ProductImage';

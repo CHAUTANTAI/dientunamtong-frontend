@@ -1,18 +1,28 @@
 /**
- * Hook to get image URL from Supabase Storage
- * Supports both public and private buckets
+ * Resolve image URL from stored object keys (R2 public URL).
  */
 
-import { useState, useEffect } from 'react';
-import { getSupabaseImageUrl, getSupabasePublicUrl } from '@/utils/supabase';
+import { useState, useEffect, useMemo } from 'react';
+import { useGetSystemInfoQuery } from '@/store/services/publicSystemInfoApi';
+import {
+  getDefaultStoragePublicBaseFromApiUrl,
+  getStorageImageUrl,
+  resolveStoragePublicUrl,
+} from '@/utils/objectStorage';
 
-/**
- * Hook to get URL for an image (public or signed)
- * @param imageUrl - Relative path stored in DB
- * @param isPublic - Whether image is in public bucket (default: true for performance)
- * @returns URL string (empty string while loading for private buckets)
- */
-export const useImageUrl = (imageUrl: string | null | undefined, isPublic: boolean = true): string => {
+const ENV_BASE = (process.env.NEXT_PUBLIC_R2_PUBLIC_URL || '').replace(/\/+$/, '');
+
+export const useImageUrl = (
+  imageUrl: string | null | undefined,
+  isPublic: boolean = true
+): string => {
+  const { data: systemInfo } = useGetSystemInfoQuery();
+
+  const storageBase = useMemo(() => {
+    const fromApi = (systemInfo?.storage_public_base_url || '').replace(/\/+$/, '');
+    return fromApi || ENV_BASE;
+  }, [systemInfo?.storage_public_base_url]);
+
   const [url, setUrl] = useState<string>('');
 
   useEffect(() => {
@@ -24,18 +34,16 @@ export const useImageUrl = (imageUrl: string | null | undefined, isPublic: boole
         return;
       }
 
-      // For public bucket, get URL synchronously (no loading state)
       if (isPublic) {
-        const publicUrl = getSupabasePublicUrl(imageUrl);
+        const publicUrl = resolveStoragePublicUrl(imageUrl, storageBase);
         if (!cancelled) {
           setUrl(publicUrl);
         }
         return;
       }
 
-      // For private bucket, fetch signed URL asynchronously
       try {
-        const signedUrl = await getSupabaseImageUrl(imageUrl, false);
+        const signedUrl = await getStorageImageUrl(imageUrl, false);
         if (!cancelled) {
           setUrl(signedUrl);
         }
@@ -52,18 +60,20 @@ export const useImageUrl = (imageUrl: string | null | undefined, isPublic: boole
     return () => {
       cancelled = true;
     };
-  }, [imageUrl, isPublic]);
+  }, [imageUrl, isPublic, storageBase]);
 
   return url;
 };
 
 /**
- * Hook to get public URL for an image (synchronous, no loading)
- * Use this for images in public bucket for better performance
- * @param imageUrl - Relative path stored in DB
- * @returns Public URL string
+ * Synchronous public URL using system-info base + env (for previews).
  */
 export const usePublicImageUrl = (imageUrl: string | null | undefined): string => {
+  const { data: systemInfo } = useGetSystemInfoQuery();
+  const base =
+    (systemInfo?.storage_public_base_url || '').replace(/\/+$/, '') ||
+    ENV_BASE ||
+    getDefaultStoragePublicBaseFromApiUrl();
   if (!imageUrl) return '';
-  return getSupabasePublicUrl(imageUrl);
+  return resolveStoragePublicUrl(imageUrl, base);
 };
