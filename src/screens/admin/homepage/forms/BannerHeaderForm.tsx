@@ -108,13 +108,7 @@ export default function BannerHeaderForm({
             maxSizeMB={5}
             previewHeight={150}
             previewAspectRatio="contain"
-            helperText={t('bannerHelper')}
-            minWidth={800}
-            minHeight={80}
-            maxWidth={2400}
-            maxHeight={300}
-            aspectRatio={10.9}
-            aspectRatioTolerance={0.15}
+            helperText="Recommended for homepage header: 1032x110px (desktop), or 2064x220px for sharper quality."
           />
         </div>
 
