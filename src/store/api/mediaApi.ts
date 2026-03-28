@@ -3,22 +3,15 @@
  * Handles media upload, create, update, delete operations
  */
 
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import { getAuthToken } from '@/utils/auth';
+import { createApi } from '@reduxjs/toolkit/query/react';
+import { createBaseQueryWithInterceptor } from '@/store/api/baseQuery';
 import type { Media, CreateMediaDto, UpdateMediaDto } from '@/types/media';
 import type { ApiResponse } from '@/types/api';
-import { API_BASE_URL, API_MEDIA, API_MEDIA_DETAIL } from '@/constants/api';
+import { API_MEDIA, API_MEDIA_DETAIL } from '@/constants/api';
 
 export const mediaApi = createApi({
   reducerPath: 'mediaApi',
-  baseQuery: fetchBaseQuery({
-    baseUrl: API_BASE_URL,
-    prepareHeaders: (headers) => {
-      const token = getAuthToken();
-      if (token) headers.set('Authorization', `Bearer ${token}`);
-      return headers;
-    },
-  }),
+  baseQuery: createBaseQueryWithInterceptor(),
   tagTypes: ['Media'],
   endpoints: (builder) => ({
     // GET /admin/media -> { success, data: Media[] }

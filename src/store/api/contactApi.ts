@@ -3,9 +3,8 @@
  * RTK Query API for managing contacts in admin panel
  */
 
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import { getAuthToken } from '@/utils/auth';
-import { API_BASE_URL } from '@/constants/api';
+import { createApi } from '@reduxjs/toolkit/query/react';
+import { createBaseQueryWithInterceptor } from '@/store/api/baseQuery';
 
 export enum ContactStatus {
   NEW = 'new',
@@ -55,16 +54,7 @@ export interface UpdateContactStatusRequest {
 
 export const contactApi = createApi({
   reducerPath: 'adminContactApi',
-  baseQuery: fetchBaseQuery({
-    baseUrl: API_BASE_URL,
-    prepareHeaders: (headers) => {
-      const token = getAuthToken();
-      if (token) {
-        headers.set('Authorization', `Bearer ${token}`);
-      }
-      return headers;
-    },
-  }),
+  baseQuery: createBaseQueryWithInterceptor(),
   tagTypes: ['Contact', 'UnreadCount'],
   endpoints: (builder) => ({
     // Get all contacts

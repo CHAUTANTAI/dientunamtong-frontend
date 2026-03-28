@@ -3,8 +3,8 @@
  * Supports tree structure operations
  */
 
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import { getAuthToken } from '@/utils/auth';
+import { createApi } from '@reduxjs/toolkit/query/react';
+import { createBaseQueryWithInterceptor } from '@/store/api/baseQuery';
 import type {
   Category,
   CreateCategoryDto,
@@ -26,14 +26,7 @@ import {
 
 export const categoryApi = createApi({
   reducerPath: 'categoryApi',
-  baseQuery: fetchBaseQuery({
-    baseUrl: API_BASE_URL,
-    prepareHeaders: (headers) => {
-      const token = getAuthToken();
-      if (token) headers.set('Authorization', `Bearer ${token}`);
-      return headers;
-    },
-  }),
+  baseQuery: createBaseQueryWithInterceptor(),
   tagTypes: ['Category'],
   endpoints: (builder) => ({
     // GET /category -> { status, data: Category[] }

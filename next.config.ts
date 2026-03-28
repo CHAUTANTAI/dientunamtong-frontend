@@ -39,6 +39,15 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  // Dev-time proxy: rewrite /api to backend to avoid cross-origin cookie issues during local development
+  async rewrites() {
+    return [
+      {
+        source: '/api/:path*',
+        destination: 'http://localhost:4000/api/:path*',
+      },
+    ];
+  },
 };
 
 export default withNextIntl(nextConfig);

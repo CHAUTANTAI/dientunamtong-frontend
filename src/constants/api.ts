@@ -9,6 +9,7 @@ export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost
 export const API_AUTH_LOGIN = '/auth/login';
 export const API_AUTH_LOGOUT = '/auth/logout';
 export const API_AUTH_ME = '/auth/me';
+export const API_AUTH_REFRESH = '/auth/refresh';
 
 // Category endpoints
 export const API_CATEGORY = '/admin/category';

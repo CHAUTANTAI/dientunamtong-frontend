@@ -2,23 +2,16 @@
  * Profile API - RTK Query
  */
 
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { createApi } from '@reduxjs/toolkit/query/react';
+import { createBaseQueryWithInterceptor } from '@/store/api/baseQuery';
 
 import { Profile } from '@/types/profile';
 import { ApiResponse } from '@/types/api';
-import { API_BASE_URL, API_PROFILE } from '@/constants/api';
-import { getAuthToken } from '@/utils/auth';
+import { API_PROFILE } from '@/constants/api';
 
 export const profileApi = createApi({
   reducerPath: 'profileApi',
-  baseQuery: fetchBaseQuery({
-    baseUrl: API_BASE_URL,
-    prepareHeaders: (headers) => {
-      const token = getAuthToken();
-      if (token) headers.set('Authorization', `Bearer ${token}`);
-      return headers;
-    },
-  }),
+  baseQuery: createBaseQueryWithInterceptor(),
   tagTypes: ['Profile', 'MaxBanners'],
   endpoints: (builder) => ({
     getProfile: builder.query<Profile, void>({

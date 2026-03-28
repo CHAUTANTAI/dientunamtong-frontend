@@ -3,8 +3,8 @@
  * Full CRUD + Media management + Categories
  */
 
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import { getAuthToken } from '@/utils/auth';
+import { createApi } from '@reduxjs/toolkit/query/react';
+import { createBaseQueryWithInterceptor } from '@/store/api/baseQuery';
 import type {
   Product,
   CreateProductDto,
@@ -13,7 +13,6 @@ import type {
 } from '@/types/product';
 import type { Media } from '@/types/media';
 import type { ApiResponse } from '@/types/api';
-import { API_BASE_URL } from '@/constants/api';
 
 const API_PRODUCT = '/admin/product';
 const API_PRODUCT_DETAIL = (id: string) => `/admin/product/${id}`;
@@ -24,14 +23,7 @@ const API_PRODUCT_CATEGORIES = (id: string) => `/admin/product/${id}/category`;
 
 export const productApi = createApi({
   reducerPath: 'productApi',
-  baseQuery: fetchBaseQuery({
-    baseUrl: API_BASE_URL,
-    prepareHeaders: (headers) => {
-      const token = getAuthToken();
-      if (token) headers.set('Authorization', `Bearer ${token}`);
-      return headers;
-    },
-  }),
+  baseQuery: createBaseQueryWithInterceptor(),
   tagTypes: ['Product', 'ProductMedia'],
   endpoints: (builder) => ({
     // ============= Product CRUD =============

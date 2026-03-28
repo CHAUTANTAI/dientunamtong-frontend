@@ -3,10 +3,12 @@
  * Main layout wrapper for admin pages with responsive mobile support
  */
 
-'use client';
+"use client";
 
 import { Layout, App } from 'antd';
 import { useState, useEffect } from 'react';
+import { useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import { Sidebar } from './Sidebar';
 import { Header } from './Header';
 import { Breadcrumbs } from './Breadcrumbs';
@@ -14,6 +16,7 @@ import { Footer } from './Footer';
 import DynamicFavicon from '@/components/common/DynamicFavicon';
 import { usePageTitle } from '@/hooks/usePageTitle';
 import { useGetProfileQuery } from '@/store/api/profileApi';
+import { getAuthToken } from '@/utils/auth';
 import { useSignedImageUrl } from '@/hooks/useSignedImageUrl';
 
 interface AdminLayoutProps {
@@ -22,7 +25,47 @@ interface AdminLayoutProps {
 
 export const AdminLayout = ({ children }: AdminLayoutProps) => {
   const pageTitle = usePageTitle();
-  const { data: profile } = useGetProfileQuery();
+  const router = useRouter();
+  const {
+    data: profile,
+    error: profileError,
+    isLoading: profileLoading,
+    refetch: refetchProfile,
+  } = useGetProfileQuery();
+
+  // Redirect to login when profile endpoint returns 401 (no valid session)
+  useEffect(() => {
+    if (!profileLoading && profileError) {
+      const status = (profileError as any)?.status || (profileError as any)?.originalStatus;
+      if (status === 401 || status === '401') {
+        router.push(`/auth/login`);
+      }
+    }
+  }, [profileError, profileLoading, router]);
+  const attemptedRefetch = useRef(false);
+
+  // If profile request returns 401 but we already have a token (login just finished),
+  // retry once before redirecting to avoid a race where profile is requested
+  // before client auth state is fully persisted.
+  useEffect(() => {
+    if (!profileLoading && profileError) {
+      const status = (profileError as any)?.status || (profileError as any)?.originalStatus;
+      if (status === 401 || status === '401') {
+        const token = getAuthToken();
+        if (token && !attemptedRefetch.current) {
+          attemptedRefetch.current = true;
+          // small delay to let login handler finish writing storage/state
+          setTimeout(() => {
+            refetchProfile();
+          }, 150);
+          return;
+        }
+
+        // No token or already retried -> redirect to login
+        router.push(`/auth/login`);
+      }
+    }
+  }, [profileError, profileLoading, router, refetchProfile]);
   const faviconUrl = useSignedImageUrl(profile?.logo || '');
   
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
