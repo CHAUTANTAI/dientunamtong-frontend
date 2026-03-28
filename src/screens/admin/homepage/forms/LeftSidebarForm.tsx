@@ -35,16 +35,11 @@ export default function LeftSidebarForm({
   onChange,
 }: LeftSidebarFormProps) {
   const t = useTranslations('homepageEditor.forms.leftSidebar');
-  const [mode, setMode] = useState<'auto' | 'manual'>(content?.mode || 'auto');
-  const [categoryIds, setCategoryIds] = useState<string[]>(content?.category_ids || []);
+  const [mode, setMode] = useState<'auto' | 'manual'>(() => content?.mode || 'auto');
+  const [categoryIds, setCategoryIds] = useState<string[]>(() => content?.category_ids || []);
 
   // Fetch categories
   const { data: categoryData = [], isLoading } = useGetPublicCategoriesQuery();
-
-  useEffect(() => {
-    setMode(content?.mode || 'auto');
-    setCategoryIds(content?.category_ids || []);
-  }, [content]);
 
   useEffect(() => {
     const currentState = JSON.stringify({ mode, category_ids: categoryIds });

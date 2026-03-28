@@ -30,7 +30,7 @@ interface MenuItem {
  */
 export default function MegaMenuForm({ content, onChange }: MegaMenuFormProps) {
   const t = useTranslations('homepageEditor.forms.megaMenu');
-  const [items, setItems] = useState<MenuItem[]>([]);
+  const [items, setItems] = useState<MenuItem[]>(() => content?.static_items || []);
   const [editingItem, setEditingItem] = useState<MenuItem | null>(null);
   const [itemFormVisible, setItemFormVisible] = useState(false);
   const [addMethod, setAddMethod] = useState<'manual' | 'category'>('category'); // Default to category
@@ -92,17 +92,8 @@ export default function MegaMenuForm({ content, onChange }: MegaMenuFormProps) {
 
   const categoryTreeData = buildCategoryTree();
 
-  // Sync from props on mount/when static_items change - use deep comparison
-  useEffect(() => {
-    const newItems = content?.static_items || [];
-    // Only update if content actually changed (not just reference)
-    const itemsChanged = JSON.stringify(items) !== JSON.stringify(newItems);
-    if (itemsChanged) {
-      console.log('🔄 MegaMenuForm sync from props - items:', newItems.length);
-      setItems(newItems);
-      isInitializingRef.current = true;
-    }
-  }, [content?.static_items]);
+  // Initialize `items` from incoming `content.static_items` only on mount.
+  // Further updates come from user interactions which call `setItems`.
 
   // Notify parent of changes - skip during initialization
   useEffect(() => {

@@ -38,8 +38,8 @@ interface PromotionalBanner {
  */
 export default function RightSidebarForm({ content, onChange }: RightSidebarFormProps) {
   const t = useTranslations('homepageEditor.forms.rightSidebar');
-  const [newsItems, setNewsItems] = useState<NewsItem[]>([]);
-  const [promotionalBanners, setPromotionalBanners] = useState<PromotionalBanner[]>([]);
+  const [newsItems, setNewsItems] = useState<NewsItem[]>(() => content?.news_items || []);
+  const [promotionalBanners, setPromotionalBanners] = useState<PromotionalBanner[]>(() => content?.promotional_banners || []);
   const [editingItem, setEditingItem] = useState<NewsItem | null>(null);
   const [itemFormVisible, setItemFormVisible] = useState(false);
   const [form] = Form.useForm();
@@ -48,10 +48,8 @@ export default function RightSidebarForm({ content, onChange }: RightSidebarForm
   const debouncedNewsItems = useDebounce(newsItems, 500);
   const debouncedPromotionalBanners = useDebounce(promotionalBanners, 500);
 
-  useEffect(() => {
-    setNewsItems(content?.news_items || []);
-    setPromotionalBanners(content?.promotional_banners || []);
-  }, [content]);
+  // Initialize local state from `content` on mount. Subsequent changes
+  // come from user actions and are pushed to parent via debounced effect.
 
   useEffect(() => {
     // Avoid infinite loop with deep comparison

@@ -35,21 +35,19 @@ const DEFAULT_SCHEDULE: DaySchedule[] = [
 
 export const BusinessHoursEditor = ({ value, onChange }: BusinessHoursEditorProps) => {
   const t = useTranslations();
-  const [schedule, setSchedule] = useState<DaySchedule[]>(DEFAULT_SCHEDULE);
-
-  // Parse value on mount
-  useEffect(() => {
+  const [schedule, setSchedule] = useState<DaySchedule[]>(() => {
     if (value) {
       try {
         const parsed: BusinessHoursData = JSON.parse(value);
         if (parsed.schedule && Array.isArray(parsed.schedule)) {
-          setSchedule(parsed.schedule);
+          return parsed.schedule;
         }
       } catch (error) {
         console.error('Failed to parse business hours:', error);
       }
     }
-  }, [value]);
+    return DEFAULT_SCHEDULE;
+  });
 
   const handleScheduleChange = (index: number, updates: Partial<DaySchedule>) => {
     const newSchedule = [...schedule];

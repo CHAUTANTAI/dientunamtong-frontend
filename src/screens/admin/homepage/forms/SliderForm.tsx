@@ -35,30 +35,16 @@ interface MiniAdItem {
  */
 export default function SliderForm({ content, onChange }: SliderFormProps) {
   const t = useTranslations('homepageEditor.forms.slider');
-  const [slides, setSlides] = useState<SlideItem[]>([]);
-  const [miniAds, setMiniAds] = useState<MiniAdItem[]>([]);
+  const [slides, setSlides] = useState<SlideItem[]>(() => content?.slides || []);
+  const [miniAds, setMiniAds] = useState<MiniAdItem[]>(() => content?.mini_ads || []);
   const isInitializingRef = useRef(true);
 
   // Debounce slides and miniAds to avoid rapid onChange calls
   const debouncedSlides = useDebounce(slides, 500);
   const debouncedMiniAds = useDebounce(miniAds, 500);
 
-  // Sync from props on mount/when slides or mini_ads change - use deep comparison
-  useEffect(() => {
-    const newSlides = content?.slides || [];
-    const newMiniAds = content?.mini_ads || [];
-    
-    const slidesChanged = JSON.stringify(slides) !== JSON.stringify(newSlides);
-    const miniAdsChanged = JSON.stringify(miniAds) !== JSON.stringify(newMiniAds);
-    
-    if (slidesChanged || miniAdsChanged) {
-      console.log('🔄 SliderForm sync from props - slides:', newSlides.length, 'mini_ads:', newMiniAds.length);
-      setSlides(newSlides);
-      setMiniAds(newMiniAds);
-      isInitializingRef.current = true;
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [content?.slides, content?.mini_ads]);
+  // Initialize slides/miniAds from incoming content on first render.
+  // Further updates originate from user interactions which call setSlides/setMiniAds.
 
   // Call onChange only when debounced values change AND not initializing
   useEffect(() => {

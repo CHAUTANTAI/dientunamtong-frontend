@@ -36,8 +36,8 @@ interface Keyword {
  */
 export default function TrendingKeywordsForm({ content, onChange }: TrendingKeywordsFormProps) {
   const t = useTranslations('homepageEditor.forms.trendingKeywords');
-  const [mode, setMode] = useState<'auto' | 'manual'>(content?.mode || 'manual');
-  const [keywords, setKeywords] = useState<Keyword[]>(content?.keywords || []);
+  const [mode, setMode] = useState<'auto' | 'manual'>(() => content?.mode || 'manual');
+  const [keywords, setKeywords] = useState<Keyword[]>(() => content?.keywords || []);
   const [selectedSource, setSelectedSource] = useState<'category' | 'product'>('category');
   const [selectedId, setSelectedId] = useState<string>('');
   const [categorySearchValue, setCategorySearchValue] = useState<string>('');
@@ -52,21 +52,9 @@ export default function TrendingKeywordsForm({ content, onChange }: TrendingKeyw
   const debouncedCategorySearch = useDebounce(categorySearchValue, 300);
   const debouncedProductSearch = useDebounce(productSearchValue, 300);
 
-  // Sync from props on mount/when mode or keywords change
-  useEffect(() => {
-    const newMode = content?.mode || 'manual';
-    const newKeywords = content?.keywords || [];
-    
-    const modeChanged = mode !== newMode;
-    const keywordsChanged = JSON.stringify(keywords) !== JSON.stringify(newKeywords);
-    
-    if (modeChanged || keywordsChanged) {
-      console.log('🔄 TrendingKeywordsForm sync from props - mode:', newMode, 'keywords:', newKeywords.length);
-      setMode(newMode);
-      setKeywords(newKeywords);
-      isInitializingRef.current = true;
-    }
-  }, [content?.mode, content?.keywords]);
+  // Initialize `mode` and `keywords` from props; avoid setting state inside
+  // useEffect to satisfy hooks lint rules. `isInitializingRef` still prevents
+  // sending onChange on first render.
 
   // Call onChange only after content is synced and not initializing
   useEffect(() => {

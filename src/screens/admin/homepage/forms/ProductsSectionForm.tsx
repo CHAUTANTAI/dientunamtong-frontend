@@ -40,16 +40,14 @@ export default function ProductsSectionForm({
   onChange,
 }: ProductsSectionFormProps) {
   const t = useTranslations('homepageEditor.forms.products');
-  const [categories, setCategories] = useState<CategoryConfig[]>(content?.categories || []);
+  const [categories, setCategories] = useState<CategoryConfig[]>(() => content?.categories || []);
 
   // Fetch data
   const { data: categoryData = [], isLoading: categoriesLoading } = useGetPublicCategoriesQuery();
   const { data: products = [], isLoading: productsLoading } = useGetPublicProductsQuery();
 
-  // Sync from props on mount/when content changes
-  useEffect(() => {
-    setCategories(content?.categories || []);
-  }, [content?.categories]);
+  // Initialize categories from props on mount. Subsequent changes are
+  // caused by user interactions which update local state.
 
   // Notify parent of changes - only include categories in dependency to avoid infinite loop
   useEffect(() => {
