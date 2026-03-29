@@ -32,7 +32,7 @@ export default function SliderArea({ content }: SliderAreaProps) {
         link: slide.link || '#',
       };
     });
-  }, [sliderContent?.slides]);
+  }, [sliderContent]);
 
   const apiMiniAds: MiniAdItem[] = useMemo(() => {
     if (!sliderContent?.mini_ads?.length) return [];
@@ -44,7 +44,7 @@ export default function SliderArea({ content }: SliderAreaProps) {
         link: ad.link || '#',
       };
     });
-  }, [sliderContent?.mini_ads]);
+  }, [sliderContent]);
 
   // Use API data from props (no fallback to dummy data)
   const slides = apiSlides;

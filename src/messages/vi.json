@@ -431,6 +431,15 @@
     "header": {
       "comingSoon": "Sắp ra mắt"
     },
+    "TopBar": {
+      "comingSoon": "Sắp ra mắt",
+      "featureInProgress": "Tính năng đang được phát triển:",
+      "cart": "Giỏ hàng",
+      "home": "Trang chủ",
+      "about": "Giới thiệu",
+      "contact": "Liên hệ",
+      "workTime": "Thời gian làm việc"
+    },
     "home": {
       "title": "Trang chủ",
       "highlightCategories": "Danh mục nổi bật",

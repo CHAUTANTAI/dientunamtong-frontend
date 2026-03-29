@@ -1,13 +1,14 @@
 'use client';
 
 import { useState } from 'react';
-import { Typography, Spin, Empty, Collapse } from 'antd';
+import { Typography, Spin, Empty, Collapse, Image as AntImage } from 'antd';
 import type { CollapseProps } from 'antd';
 import { FolderOutlined, FolderOpenOutlined, RightOutlined } from '@ant-design/icons';
 import { useGetPublicCategoriesQuery } from '@/store/services/publicCategoryApi';
 import type { LeftSidebarContent } from '@/types/pageSection';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
+import { getStoragePublicUrl } from '@/utils/objectStorage';
 
 const { Text, Title } = Typography;
 
@@ -214,29 +215,55 @@ export default function LeftSidebar({ content }: { content?: LeftSidebarContent 
           borderTop: '1px solid #f0f0f0',
         }}
       >
-        <div
-          style={{
-            width: '100%',
-            height: '150px',
-            backgroundColor: '#e0e0e0',
-            borderRadius: 8,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            cursor: 'pointer',
-            transition: 'all 0.3s',
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.transform = 'scale(1.02)';
-            e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.transform = 'scale(1)';
-            e.currentTarget.style.boxShadow = 'none';
-          }}
-        >
-          <Text type="secondary">{t('promoPlaceholder')}</Text>
-        </div>
+        {config?.promotional_banner && config.promotional_banner.media_id ? (
+          <a
+            href={config.promotional_banner.link || '#'}
+            target={config.promotional_banner.link ? '_blank' : undefined}
+            rel="noopener noreferrer"
+            style={{ display: 'block', width: '100%' }}
+          >
+            <AntImage
+              src={getStoragePublicUrl(config.promotional_banner.media_id)}
+              alt={config.promotional_banner.alt || 'Promotional Banner'}
+              width="100%"
+              height={150}
+              style={{
+                objectFit: 'cover',
+                borderRadius: 8,
+                width: '100%',
+                height: 150,
+                background: '#e0e0e0',
+              }}
+              placeholder
+              preview={false}
+              fallback="/banner-placeholder.png"
+            />
+          </a>
+        ) : (
+          <div
+            style={{
+              width: '100%',
+              height: '150px',
+              backgroundColor: '#e0e0e0',
+              borderRadius: 8,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              transition: 'all 0.3s',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'scale(1.02)';
+              e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'scale(1)';
+              e.currentTarget.style.boxShadow = 'none';
+            }}
+          >
+            <Text type="secondary">{t('promoPlaceholder')}</Text>
+          </div>
+        )}
       </div>
     </div>
   );

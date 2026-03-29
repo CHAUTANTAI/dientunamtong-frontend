@@ -1,18 +1,28 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
-import { Radio, Typography, Space, Alert, TreeSelect, List, Button, Tag } from 'antd';
+import { Radio, Typography, Space, Alert, TreeSelect, List, Button, Tag, Input, InputNumber, Divider, Form } from 'antd';
 import { DeleteOutlined } from '@ant-design/icons';
 import type { LeftSidebarContent } from '@/types/pageSection';
+import MediaUpload, { MediaValue } from '@/components/common/MediaUpload';
 import { useGetPublicCategoriesQuery } from '@/store/services/publicCategoryApi';
 import type { Category } from '@/types/category';
 import { useTranslations } from 'next-intl';
 
 const { Text } = Typography;
 
+interface LeftSidebarContentDraft extends Omit<LeftSidebarContent, 'promotional_banner'> {
+  promotional_banner?: {
+    media_id: MediaValue; // string path or PendingUpload
+    link?: string;
+    alt?: string;
+    sort_order?: number;
+  };
+}
+
 interface LeftSidebarFormProps {
-  content: LeftSidebarContent;
-  onChange: (content: LeftSidebarContent) => void;
+  content: LeftSidebarContentDraft;
+  onChange: (content: LeftSidebarContentDraft) => void;
 }
 
 interface CategoryWithChildren extends Category {
@@ -37,25 +47,55 @@ export default function LeftSidebarForm({
   const t = useTranslations('homepageEditor.forms.leftSidebar');
   const [mode, setMode] = useState<'auto' | 'manual'>(() => content?.mode || 'auto');
   const [categoryIds, setCategoryIds] = useState<string[]>(() => content?.category_ids || []);
+  // Banner state
+  const [bannerMedia, setBannerMedia] = useState<MediaValue>(() => content?.promotional_banner?.media_id || null);
+  const [bannerLink, setBannerLink] = useState<string>(() => content?.promotional_banner?.link || '');
+  const [bannerAlt, setBannerAlt] = useState<string>(() => content?.promotional_banner?.alt || '');
+  const [bannerSortOrder, setBannerSortOrder] = useState<number>(() => content?.promotional_banner?.sort_order ?? 0);
 
   // Fetch categories
   const { data: categoryData = [], isLoading } = useGetPublicCategoriesQuery();
 
   useEffect(() => {
+    // Sync categories
     const currentState = JSON.stringify({ mode, category_ids: categoryIds });
     const contentState = JSON.stringify({ 
       mode: content?.mode || 'auto', 
       category_ids: content?.category_ids || [] 
     });
-    
     if (currentState !== contentState) {
       onChange({
+        ...content,
         mode,
         category_ids: mode === 'manual' ? categoryIds : undefined,
         max_items: 8,
+        promotional_banner: bannerMedia ? {
+            // Keep the MediaValue (string path or PendingUpload) so save handler can upload if needed
+            media_id: bannerMedia,
+            link: bannerLink,
+            alt: bannerAlt,
+            sort_order: bannerSortOrder,
+          } : undefined,
       });
     }
-  }, [mode, categoryIds, content, onChange]);
+  }, [mode, categoryIds]);
+
+  // Sync banner changes
+  useEffect(() => {
+    onChange({
+      ...content,
+      mode,
+      category_ids: mode === 'manual' ? categoryIds : undefined,
+      max_items: 8,
+      promotional_banner: bannerMedia ? {
+        media_id: bannerMedia,
+        link: bannerLink,
+        alt: bannerAlt,
+        sort_order: bannerSortOrder,
+      } : undefined,
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [bannerMedia, bannerLink, bannerAlt, bannerSortOrder]);
 
   // Build category tree
   const categoryTreeData = useMemo(() => {
@@ -231,6 +271,46 @@ export default function LeftSidebarForm({
           showIcon
         />
       )}
+    {/* Promotional Banner Editor */}
+    <Divider orientation="left">Promotional Banner (optional)</Divider>
+    <Form layout="vertical">
+      <Form.Item label="Banner Image">
+        <MediaUpload
+          value={bannerMedia}
+          onChange={setBannerMedia}
+          folder="banners"
+          label="Upload Banner"
+          helperText="Recommended: 300x180px, JPG/PNG, max 1MB"
+        />
+      </Form.Item>
+      <Form.Item label="Banner Link">
+        <Input
+          value={bannerLink}
+          onChange={e => setBannerLink(e.target.value)}
+          placeholder="https://... (optional)"
+        />
+      </Form.Item>
+      <Form.Item label="Alt Text">
+        <Input
+          value={bannerAlt}
+          onChange={e => setBannerAlt(e.target.value)}
+          placeholder="Description for accessibility (optional)"
+        />
+      </Form.Item>
+      <Form.Item label="Sort Order">
+        <InputNumber
+          min={0}
+          max={99}
+          value={bannerSortOrder}
+          onChange={v => setBannerSortOrder(Number(v) || 0)}
+        />
+      </Form.Item>
+      {bannerMedia && (
+        <Button danger icon={<DeleteOutlined />} onClick={() => setBannerMedia(null)}>
+          Remove Banner
+        </Button>
+      )}
+    </Form>
     </Space>
   );
 }

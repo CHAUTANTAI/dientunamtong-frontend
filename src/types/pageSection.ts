@@ -58,6 +58,12 @@ export interface LeftSidebarContent {
   mode: 'auto' | 'manual';             // auto: top 8 by views, manual: select specific categories
   category_ids?: string[];             // For manual mode (max 8 categories)
   max_items?: number;                  // Max categories to display (default 8)
+  promotional_banner?: {
+    media_id: string;
+    link?: string;
+    alt?: string;
+    sort_order?: number;
+  };
 }
 
 // RightSidebar Section (News items + promotional banners)

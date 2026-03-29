@@ -5,6 +5,7 @@ import { ShoppingCartOutlined, ClockCircleOutlined, RocketOutlined } from '@ant-
 import Link from 'next/link';
 import { ROUTES } from '@/constants/routes';
 import { LanguageSwitcher } from '@/components/common/LanguageSwitcher';
+import { useTranslations } from 'next-intl';
 import { useGetSystemInfoQuery } from '@/store/services/publicSystemInfoApi';
 
 const { Text } = Typography;
@@ -123,25 +124,27 @@ export default function TopBar() {
   const businessHours = formatBusinessHours(systemInfo?.business_hours);
   const cartItemCount = 0; // TODO: Get from cart state
 
+  const t = useTranslations?.('client.TopBar') ?? ((k: string) => k);
+
   // Coming Soon Popover content
   const comingSoonContent = (
     <div style={{ padding: '8px 4px', maxWidth: 250 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: 8 }}>
         <RocketOutlined style={{ fontSize: 18, color: '#ff4d4f' }} />
         <Text strong style={{ fontSize: 14, color: '#262626' }}>
-          Sắp ra mắt!
+          {t('comingSoon')}
         </Text>
       </div>
       <Text style={{ fontSize: 13, color: '#8c8c8c' }}>
-        Tính năng <strong style={{ color: '#ff4d4f' }}>Giỏ hàng</strong> đang được phát triển 🚀
+        {t('featureInProgress')} <strong style={{ color: '#ff4d4f' }}>{t('cart')}</strong> 🚀
       </Text>
     </div>
   );
 
   const menuItems = [
-    { label: 'Trang chủ', href: ROUTES.HOME },
-    { label: 'Giới thiệu', href: ROUTES.ABOUT },
-    { label: 'Liên hệ', href: ROUTES.CONTACT },
+    { label: t('home'), href: ROUTES.HOME },
+    { label: t('about'), href: ROUTES.ABOUT },
+    { label: t('contact'), href: ROUTES.CONTACT },
   ];
 
   return (
@@ -171,7 +174,7 @@ export default function TopBar() {
             <Skeleton.Input active size="small" style={{ width: 300, height: 20 }} />
           ) : businessHours ? (
             <Text style={{ fontSize: 14, color: '#595959' }}>
-              Thời gian làm việc: <strong style={{ color: '#ff4d4f' }}>{businessHours}</strong>
+              {t('workTime')}: <strong style={{ color: '#ff4d4f' }}>{businessHours}</strong>
             </Text>
           ) : null}
         </Space>
@@ -233,7 +236,7 @@ export default function TopBar() {
               >
                 <ShoppingCartOutlined style={{ fontSize: 17, color: '#ff4d4f' }} />
                 <Text style={{ fontSize: 14, color: '#595959' }}>
-                  Giỏ hàng <strong style={{ color: '#ff4d4f' }}>({cartItemCount})</strong>
+                  {t('cart')} <strong style={{ color: '#ff4d4f' }}>({cartItemCount})</strong>
                 </Text>
               </Space>
             </div>

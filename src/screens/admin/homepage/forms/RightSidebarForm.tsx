@@ -289,8 +289,9 @@ export default function RightSidebarForm({ content, onChange }: RightSidebarForm
                   <MediaUpload
                     value={banner.media_id}
                     onChange={(path) => {
-                      const updated = [...promotionalBanners];
-                      updated[index].media_id = path;
+                      const updated = promotionalBanners.map((item, i) =>
+                        i === index ? { ...item, media_id: path } : item
+                      );
                       setPromotionalBanners(updated);
                     }}
                     folder="homepage/promotional-banners"
@@ -308,8 +309,9 @@ export default function RightSidebarForm({ content, onChange }: RightSidebarForm
                       placeholder={t('bannerLinkPlaceholder')}
                       value={banner.link}
                       onChange={(e) => {
-                        const updated = [...promotionalBanners];
-                        updated[index].link = e.target.value;
+                        const updated = promotionalBanners.map((item, i) =>
+                          i === index ? { ...item, link: e.target.value } : item
+                        );
                         setPromotionalBanners(updated);
                       }}
                     />

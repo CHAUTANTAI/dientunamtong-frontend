@@ -19,6 +19,15 @@ import { useGetProfileQuery } from '@/store/api/profileApi';
 import { getAuthToken } from '@/utils/auth';
 import { useSignedImageUrl } from '@/hooks/useSignedImageUrl';
 
+// Safely extract status from unknown RTK Query error shapes without using `any`
+function getStatusFromError(err: unknown): number | string | undefined {
+  if (!err || typeof err !== 'object') return undefined;
+  const e = err as Record<string, unknown>;
+  const status = e.status ?? e.originalStatus;
+  if (typeof status === 'number' || typeof status === 'string') return status;
+  return undefined;
+}
+
 interface AdminLayoutProps {
   children: React.ReactNode;
 }
@@ -36,7 +45,7 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
   // Redirect to login when profile endpoint returns 401 (no valid session)
   useEffect(() => {
     if (!profileLoading && profileError) {
-      const status = (profileError as any)?.status || (profileError as any)?.originalStatus;
+      const status = getStatusFromError(profileError);
       if (status === 401 || status === '401') {
         router.push(`/auth/login`);
       }
@@ -49,7 +58,7 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
   // before client auth state is fully persisted.
   useEffect(() => {
     if (!profileLoading && profileError) {
-      const status = (profileError as any)?.status || (profileError as any)?.originalStatus;
+      const status = getStatusFromError(profileError);
       if (status === 401 || status === '401') {
         const token = getAuthToken();
         if (token && !attemptedRefetch.current) {

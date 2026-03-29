@@ -431,6 +431,15 @@
     "header": {
       "comingSoon": "Coming soon"
     },
+    "TopBar": {
+      "comingSoon": "Coming soon",
+      "featureInProgress": "Feature in progress:",
+      "cart": "Cart",
+      "home": "Home",
+      "about": "About",
+      "contact": "Contact",
+      "workTime": "Working hours"
+    },
     "home": {
       "title": "Home",
       "highlightCategories": "Highlight Categories",

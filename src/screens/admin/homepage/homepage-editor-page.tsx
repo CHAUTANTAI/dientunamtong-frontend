@@ -215,27 +215,29 @@ export default function HomepageEditorPage() {
         content: { news_items: [] }, sort_order: 9, is_active: true, created_at: '', updated_at: '',
       };
 
-      // Set current state
-      setBannerHeaderSection(bannerHeader);
-      setMegaMenuSection(megaMenu);
-      setSearchSloganSection(searchSlogan);
-      setSliderSection(slider);
-      setTrendingKeywordsSection(trendingKeywords);
-      setProductsSectionState(products);
-      setLeftSidebarSection(leftSidebar);
-      setRightSidebarSection(rightSidebar);
+      // Defer setting state to avoid synchronous setState inside effect
+      setTimeout(() => {
+        setBannerHeaderSection(bannerHeader);
+        setMegaMenuSection(megaMenu);
+        setSearchSloganSection(searchSlogan);
+        setSliderSection(slider);
+        setTrendingKeywordsSection(trendingKeywords);
+        setProductsSectionState(products);
+        setLeftSidebarSection(leftSidebar);
+        setRightSidebarSection(rightSidebar);
 
-      // Store ORIGINAL snapshot for comparison (deep clone to avoid reference issues)
-      setOriginalSections({
-        bannerHeader: JSON.parse(JSON.stringify(bannerHeader)),
-        megaMenu: JSON.parse(JSON.stringify(megaMenu)),
-        searchSlogan: JSON.parse(JSON.stringify(searchSlogan)),
-        slider: JSON.parse(JSON.stringify(slider)),
-        trendingKeywords: JSON.parse(JSON.stringify(trendingKeywords)),
-        products: JSON.parse(JSON.stringify(products)),
-        leftSidebar: JSON.parse(JSON.stringify(leftSidebar)),
-        rightSidebar: JSON.parse(JSON.stringify(rightSidebar)),
-      });
+        // Store ORIGINAL snapshot for comparison (deep clone to avoid reference issues)
+        setOriginalSections({
+          bannerHeader: JSON.parse(JSON.stringify(bannerHeader)),
+          megaMenu: JSON.parse(JSON.stringify(megaMenu)),
+          searchSlogan: JSON.parse(JSON.stringify(searchSlogan)),
+          slider: JSON.parse(JSON.stringify(slider)),
+          trendingKeywords: JSON.parse(JSON.stringify(trendingKeywords)),
+          products: JSON.parse(JSON.stringify(products)),
+          leftSidebar: JSON.parse(JSON.stringify(leftSidebar)),
+          rightSidebar: JSON.parse(JSON.stringify(rightSidebar)),
+        });
+      }, 0);
     }
   }, [sections]);
 
@@ -285,6 +287,34 @@ export default function HomepageEditorPage() {
         ),
       };
 
+
+      // Process LeftSidebar promotional_banner upload
+          // Admin draft type: promotional_banner.media_id may be a MediaValue (string or PendingUpload)
+          type LeftSidebarContentDraft = Omit<LeftSidebarContent, 'promotional_banner'> & {
+            promotional_banner?: {
+              media_id: MediaValue;
+              link?: string;
+              alt?: string;
+              sort_order?: number;
+            };
+          };
+
+          const leftSidebarContent = leftSidebarSection.content as unknown as LeftSidebarContentDraft;
+          let processedLeftSidebar: LeftSidebarContent = { ...leftSidebarContent } as LeftSidebarContent;
+          if (leftSidebarContent.promotional_banner) {
+            const uploadedMediaId = await processMediaValue(
+              leftSidebarContent.promotional_banner.media_id,
+              'homepage/left-sidebar-banner'
+            );
+            processedLeftSidebar = {
+              ...leftSidebarContent,
+              promotional_banner: {
+                ...leftSidebarContent.promotional_banner,
+                media_id: uploadedMediaId || '',
+              },
+            };
+          }
+
       message.loading({ content: t('page.savingChanges'), key: 'upload' });
 
       await updateSections({
@@ -297,7 +327,7 @@ export default function HomepageEditorPage() {
             { sectionIdentifier: 'slider_section', content: processedSlider as unknown as Record<string, unknown>, sortOrder: 3, isActive: true },
             { sectionIdentifier: 'trending_keywords_section', content: trendingKeywordsSection.content, sortOrder: 4, isActive: true },
             { sectionIdentifier: 'products_section', content: productsSectionState.content, sortOrder: 5, isActive: true },
-            { sectionIdentifier: 'left_sidebar', content: leftSidebarSection.content, sortOrder: 6, isActive: true },
+            { sectionIdentifier: 'left_sidebar', content: processedLeftSidebar as unknown as Record<string, unknown>, sortOrder: 6, isActive: true },
             { sectionIdentifier: 'right_sidebar', content: processedRightSidebar as unknown as Record<string, unknown>, sortOrder: 7, isActive: true },
           ],
         },

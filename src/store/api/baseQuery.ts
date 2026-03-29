@@ -4,9 +4,11 @@
  */
 
 import { fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import type { RootState } from '@/store';
 import { API_BASE_URL, API_AUTH_REFRESH } from '@/constants/api';
 import { getAuthToken } from '@/utils/auth';
 import { restoreAuth, clearAuth } from '@/store/slices/authSlice';
+import type { AuthUser } from '@/types/auth';
 
 /**
  * Create a custom base query that wraps fetchBaseQuery
@@ -16,7 +18,8 @@ export const createCustomBaseQuery = () =>
   fetchBaseQuery({
     baseUrl: API_BASE_URL,
     prepareHeaders: (headers, { getState }) => {
-      const stateToken = (getState() as any)?.auth?.token;
+      const state = getState() as RootState | undefined;
+      const stateToken = state?.auth?.token;
       const token = stateToken ?? getAuthToken();
       if (token) {
         headers.set('Authorization', `Bearer ${token}`);
@@ -62,7 +65,7 @@ export const createBaseQueryWithInterceptor = () => {
     // Convert custom-formatted responses into RTK Query error shape when needed
     if (result.data && typeof result.data === 'object') {
       try {
-        const responseData = result.data as Record<string, any>;
+        const responseData = result.data as Record<string, unknown>;
         if (
           'status' in responseData &&
           'message' in responseData &&
@@ -74,7 +77,7 @@ export const createBaseQueryWithInterceptor = () => {
               ...result,
               error: {
                 status: customStatus,
-                data: responseData.message,
+                data: responseData.message as unknown,
               },
               data: undefined,
             };
@@ -86,7 +89,7 @@ export const createBaseQueryWithInterceptor = () => {
     }
 
     // If unauthorized, attempt refresh using HttpOnly cookie
-    const _status: any = result.error ? (result.error as any).status : undefined;
+    const _status: number | string | undefined = result.error ? (result.error as { status?: number | string }).status : undefined;
     if (result.error && (_status === 401 || _status === '401')) {
       // debug
       if (process.env.NODE_ENV !== 'production') {
@@ -108,13 +111,20 @@ export const createBaseQueryWithInterceptor = () => {
       if (refreshResult.data) {
         try {
           // Support both shapes: plain { token, user } or ApiResponse { data: { token, user } }
-          const maybeApiResponse = refreshResult.data as any;
-          const data = maybeApiResponse && maybeApiResponse.data ? maybeApiResponse.data : maybeApiResponse;
+          const maybeApiResponse = refreshResult.data as unknown;
+          const data = (maybeApiResponse && typeof maybeApiResponse === 'object' && 'data' in (maybeApiResponse as Record<string, unknown>))
+            ? (maybeApiResponse as Record<string, unknown>)['data']
+            : maybeApiResponse;
 
-          if (data && data.token) {
-            api.dispatch(restoreAuth({ user: data.user, token: data.token }));
+          if (data && typeof data === 'object' && 'token' in (data as Record<string, unknown>)) {
+            const typedData = data as { token: string; user?: unknown };
+            if (isAuthUser(typedData.user)) {
+              api.dispatch(restoreAuth({ user: typedData.user, token: typedData.token }));
+            } else {
+              console.warn('Invalid user object:', typedData.user);
+            }
             try {
-              localStorage.setItem('auth_token', data.token);
+              localStorage.setItem('auth_token', typedData.token);
             } catch {
               // ignore
             }
@@ -134,4 +144,15 @@ export const createBaseQueryWithInterceptor = () => {
     return result;
   };
 };
+
+// Type guard to validate AuthUser
+function isAuthUser(user: unknown): user is AuthUser {
+  return (
+    typeof user === 'object' &&
+    user !== null &&
+    'id' in user &&
+    'username' in user &&
+    'role' in user
+  );
+}
 
